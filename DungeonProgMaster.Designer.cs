@@ -8,8 +8,8 @@ namespace DungeonProgMaster
     partial class DungeonProgMaster
     {
         public TableLayoutPanel table;
-        public TableLayoutPanel game;
-        public TableLayoutPanel console;
+        public TableLayoutPanel gamePlace;
+        public TableLayoutPanel notepad;
         /// <summary>
         ///  Required designer variable.
         /// </summary>
@@ -42,7 +42,8 @@ namespace DungeonProgMaster
             // 
             this.AutoScaleDimensions = new SizeF(7F, 15F);
             this.AutoScaleMode = AutoScaleMode.Font;
-            this.ClientSize = new Size(1200, 650);
+            this.MinimumSize = new Size(800, 439);
+            this.ClientSize = new Size(800, 440);
             this.Name = "DungeonProgMaster";
             this.Text = "DungeonProgMaster";
             this.ResumeLayout(false);
@@ -55,30 +56,46 @@ namespace DungeonProgMaster
 
         private void InitializeMyDesign()
         {
-            game = new TableLayoutPanel();
-            game.Dock = DockStyle.Fill;
-            game.BackColor = Color.Blue;
+            var ground = new PictureBox() { Image = Image.FromFile(Application.StartupPath + @"..\..\..\Resources\Ground.png") };
+            ground.Dock = DockStyle.Fill;
+            ground.SizeMode = PictureBoxSizeMode.Zoom;
+            ground.Margin = Padding.Empty;
 
-            console = new TableLayoutPanel();
-            console.Dock = DockStyle.Fill;
-            console.BackColor = Color.Green;
+            gamePlace = new TableLayoutPanel();
+            for (int i = 0; i < rowCount; i++)
+                gamePlace.RowStyles.Add(new RowStyle(SizeType.Percent, 100/rowCount));
+            for (int i = 0; i < columnCount; i++)
+                gamePlace.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100 / columnCount));
+            gamePlace.Controls.Add(ground, rowCount-1, columnCount-1);
+            //gamePlace.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
+            gamePlace.Dock = DockStyle.Fill;
+            gamePlace.BackColor = Color.Blue;
+            gamePlace.Padding = Padding.Empty;
+            gamePlace.Margin = Padding.Empty;
+            
 
-            var output = new TableLayoutPanel();
-            output.Dock = DockStyle.Fill;
-            output.BackColor = Color.White;
+            notepad = new TableLayoutPanel();
+            notepad.Dock = DockStyle.Fill;
+            notepad.BackColor = Color.Green;
+            notepad.Margin = Padding.Empty;
+
+            var menu = new TableLayoutPanel();
+            menu.Dock = DockStyle.Fill;
+            menu.BackColor = Color.White;
+            menu.Margin = Padding.Empty;
 
             table = new TableLayoutPanel();
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-            table.RowStyles.Add(new RowStyle(SizeType.Percent, 80));
-            table.RowStyles.Add(new RowStyle(SizeType.Percent, 20));
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
+            table.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 100));
 
-            table.SetRowSpan(game, 2);
-            table.Controls.Add(game, 0, 0);
-            table.Controls.Add(console, 1, 0);
-            table.Controls.Add(output, 1, 1);
+            table.SetRowSpan(gamePlace, 2);
+            table.Controls.Add(gamePlace, 0, 0);
+            table.Controls.Add(notepad, 1, 0);
+            table.Controls.Add(menu, 1, 1);
             table.Dock = DockStyle.Fill;
-            
+
             Controls.Add(table);
            
             
@@ -99,7 +116,7 @@ namespace DungeonProgMaster
         }
 
 
-        protected override void OnPaint(PaintEventArgs e)
+        /*protected override void OnPaint(PaintEventArgs e)
         {
             var g = e.Graphics;
             g.DrawLine(new Pen(Color.Black, 5), 0, 0, 50, 100);
@@ -110,7 +127,7 @@ namespace DungeonProgMaster
                 new Rectangle(100,100,100,100),
                 new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, FormatFlags = StringFormatFlags.FitBlackBox});
             
-        }
+        }*/
 
         #endregion
     }

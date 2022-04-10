@@ -12,11 +12,13 @@ namespace DungeonProgMaster
 {
     public partial class DungeonProgMaster : Form
     {
+        public readonly int rowCount = 10;
+        public readonly int columnCount = 10;
+
         public DungeonProgMaster()
         {
             InitializeComponent();
             InitializeMyDesign();
-
         }
     }
 }
