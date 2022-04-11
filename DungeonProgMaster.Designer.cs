@@ -7,7 +7,7 @@ namespace DungeonProgMaster
 {
     partial class DungeonProgMaster
     {
-        public TableLayoutPanel table;
+        public TableLayoutPanel workTable;
         public TableLayoutPanel gamePlace;
         public TableLayoutPanel notepad;
         /// <summary>
@@ -42,8 +42,8 @@ namespace DungeonProgMaster
             // 
             this.AutoScaleDimensions = new SizeF(7F, 15F);
             this.AutoScaleMode = AutoScaleMode.Font;
-            this.MinimumSize = new Size(800, 439);
             this.ClientSize = new Size(800, 440);
+            this.MinimumSize = new Size(800, 440);
             this.Name = "DungeonProgMaster";
             this.Text = "DungeonProgMaster";
             this.ResumeLayout(false);
@@ -67,12 +67,10 @@ namespace DungeonProgMaster
             for (int i = 0; i < columnCount; i++)
                 gamePlace.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100 / columnCount));
             gamePlace.Controls.Add(ground, rowCount-1, columnCount-1);
-            //gamePlace.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
             gamePlace.Dock = DockStyle.Fill;
             gamePlace.BackColor = Color.Blue;
             gamePlace.Padding = Padding.Empty;
             gamePlace.Margin = Padding.Empty;
-            
 
             notepad = new TableLayoutPanel();
             notepad.Dock = DockStyle.Fill;
@@ -84,37 +82,37 @@ namespace DungeonProgMaster
             menu.BackColor = Color.White;
             menu.Margin = Padding.Empty;
 
-            table = new TableLayoutPanel();
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
-            table.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-            table.RowStyles.Add(new RowStyle(SizeType.Absolute, 100));
+            workTable = new TableLayoutPanel();
+            workTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
+            workTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
+            workTable.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            workTable.RowStyles.Add(new RowStyle(SizeType.Absolute, 100));
 
-            table.SetRowSpan(gamePlace, 2);
-            table.Controls.Add(gamePlace, 0, 0);
-            table.Controls.Add(notepad, 1, 0);
-            table.Controls.Add(menu, 1, 1);
-            table.Dock = DockStyle.Fill;
+            workTable.SetRowSpan(gamePlace, 2);
+            workTable.Controls.Add(gamePlace, 0, 0);
+            workTable.Controls.Add(notepad, 1, 0);
+            workTable.Controls.Add(menu, 1, 1);
 
-            Controls.Add(table);
-           
-            
+            Controls.Add(workTable);
 
-            FormClosing += (sender, eventArgs) =>
-            {
-                var result = MessageBox.Show("Действительно закрыть?", "",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (result != DialogResult.Yes)
-                    eventArgs.Cancel = true;
-            };
 
+            bool IsFirstResize = true;
             Load += (sender, args) => OnSizeChanged(EventArgs.Empty);
            
             SizeChanged += (sender, args) =>
             {
+                WorkTableResize();
+                if (IsFirstResize) { this.MinimumSize = this.Size; ; IsFirstResize = false; };
             };
         }
 
+        private void WorkTableResize()
+        {
+            double hcoeff = ClientSize.Height / 440.0;
+            double wcoeff = ClientSize.Width / 800.0;
+            double coeff = hcoeff < wcoeff ? hcoeff : wcoeff;
+            workTable.Size = new Size((int)(coeff * 800), (int)(coeff * 440));
+        }
 
         /*protected override void OnPaint(PaintEventArgs e)
         {
