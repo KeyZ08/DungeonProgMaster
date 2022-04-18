@@ -10,7 +10,6 @@ namespace DungeonProgMaster
         public TableLayoutPanel workTable;
         public TableLayoutPanel gamePlace;
         public TableLayoutPanel notepad;
-        public Bitmap groundImage;
         /// <summary>
         ///  Required designer variable.
         /// </summary>
@@ -47,6 +46,7 @@ namespace DungeonProgMaster
             this.ClientSize = new Size(1000, 550);
             this.MinimumSize = new Size(1000 + 16, 550 + 39);
             this.DoubleBuffered = true;
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             this.Name = "DungeonProgMaster";
             this.Text = "DungeonProgMaster";
             this.ResumeLayout(false);
@@ -57,10 +57,24 @@ namespace DungeonProgMaster
 
         #region Windows Form Designer by my code
 
+        private void CreateMap(Graphics gr)
+        {
+            var rowCount = map.GetLength(0);
+            var columnCount = map.GetLength(1);
+            var imageSize = new SizeF((float)gamePlace.Width / columnCount, (float)gamePlace.Height / rowCount);
+            for (int i = 0; i < rowCount; i++)
+            {
+                for (int j = 0; j < columnCount; j++)
+                {
+                    gr.DrawImage(MapData.GetTale(map[i,j]),
+                        new RectangleF(imageSize.Width * j, imageSize.Height * i, imageSize.Width + 3f, imageSize.Height + 3f),
+                        new RectangleF(PointF.Empty, MapData.GetTale(map[i, j]).Size), GraphicsUnit.Pixel);
+                }
+            }
+        }
+
         private void InitializeMyDesign()
         {
-            groundImage = new Bitmap(Application.StartupPath + @"..\..\..\Resources\Ground.png");
-
             gamePlace = new TableLayoutPanel();
             gamePlace.Dock = DockStyle.Fill;
             gamePlace.BackColor = Color.White;
@@ -69,18 +83,8 @@ namespace DungeonProgMaster
 
             gamePlace.Paint += (sender, args) =>
             {
-                var gr = args.Graphics;
-                var imageSize = new SizeF((float)gamePlace.Height / rowCount, (float)gamePlace.Width / columnCount);
-                for (int i = 0; i < rowCount; i++)
-                {
-                    for (int j = 0; j < columnCount; j++)
-                    {
-                        gr.DrawImage(groundImage, 
-                            new RectangleF(imageSize.Width * j, imageSize.Height * i, 
-                                imageSize.Width+1, imageSize.Height+1), 
-                            new RectangleF(0, 0, 32, 32), GraphicsUnit.Pixel);
-                    }
-                }
+                //base.OnPaint(args);
+                CreateMap(args.Graphics);
             };
 
 
@@ -108,13 +112,11 @@ namespace DungeonProgMaster
             Controls.Add(workTable);
 
 
-            bool IsFirstResize = true;
             Load += (sender, args) => OnSizeChanged(EventArgs.Empty);
            
             SizeChanged += (sender, args) =>
             {
                 WorkTableResize();
-                //if (IsFirstResize) { this.MinimumSize = this.Size; IsFirstResize = false; };
                 Invalidate();
             };
         }
@@ -128,6 +130,7 @@ namespace DungeonProgMaster
             var height = widht * 55 / 100;
             workTable.Size = new Size(widht, height);
         }
+
         #endregion
     }
 }

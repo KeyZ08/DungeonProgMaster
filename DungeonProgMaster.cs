@@ -12,8 +12,17 @@ namespace DungeonProgMaster
 {
     public partial class DungeonProgMaster : Form
     {
-        public readonly int rowCount = 15;
-        public readonly int columnCount = 15;
+        private readonly int[,] map = new int[,]
+        {
+            { 0,1,1,1,1,1,1,1 },
+            { 1,1,1,1,1,1,1,1 },
+            { 1,1,1,1,1,1,1,1 },
+            { 1,0,1,1,1,1,1,1 },
+            { 1,1,1,1,1,0,1,1 },
+            { 1,1,1,1,1,1,1,1 },
+            { 1,1,1,1,1,1,1,1 },
+            { 0,0,0,0,0,0,0,0 }
+        };
 
         public DungeonProgMaster()
         {
