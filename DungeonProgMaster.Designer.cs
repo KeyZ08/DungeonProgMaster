@@ -10,6 +10,7 @@ namespace DungeonProgMaster
         public TableLayoutPanel workTable;
         public TableLayoutPanel gamePlace;
         public TableLayoutPanel notepad;
+        public Bitmap groundImage;
         /// <summary>
         ///  Required designer variable.
         /// </summary>
@@ -40,10 +41,12 @@ namespace DungeonProgMaster
             // 
             // DungeonProgMaster
             // 
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
             this.AutoScaleDimensions = new SizeF(7F, 15F);
             this.AutoScaleMode = AutoScaleMode.Font;
-            this.ClientSize = new Size(800, 440);
-            this.MinimumSize = new Size(800, 440);
+            this.ClientSize = new Size(1000, 550);
+            this.MinimumSize = new Size(1000 + 16, 550 + 39);
+            this.DoubleBuffered = true;
             this.Name = "DungeonProgMaster";
             this.Text = "DungeonProgMaster";
             this.ResumeLayout(false);
@@ -56,21 +59,30 @@ namespace DungeonProgMaster
 
         private void InitializeMyDesign()
         {
-            var ground = new PictureBox() { Image = Image.FromFile(Application.StartupPath + @"..\..\..\Resources\Ground.png") };
-            ground.Dock = DockStyle.Fill;
-            ground.SizeMode = PictureBoxSizeMode.Zoom;
-            ground.Margin = Padding.Empty;
+            groundImage = new Bitmap(Application.StartupPath + @"..\..\..\Resources\Ground.png");
 
             gamePlace = new TableLayoutPanel();
-            for (int i = 0; i < rowCount; i++)
-                gamePlace.RowStyles.Add(new RowStyle(SizeType.Percent, 100/rowCount));
-            for (int i = 0; i < columnCount; i++)
-                gamePlace.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100 / columnCount));
-            gamePlace.Controls.Add(ground, rowCount-1, columnCount-1);
             gamePlace.Dock = DockStyle.Fill;
-            gamePlace.BackColor = Color.Blue;
+            gamePlace.BackColor = Color.White;
             gamePlace.Padding = Padding.Empty;
             gamePlace.Margin = Padding.Empty;
+
+            gamePlace.Paint += (sender, args) =>
+            {
+                var gr = args.Graphics;
+                var imageSize = new SizeF((float)gamePlace.Height / rowCount, (float)gamePlace.Width / columnCount);
+                for (int i = 0; i < rowCount; i++)
+                {
+                    for (int j = 0; j < columnCount; j++)
+                    {
+                        gr.DrawImage(groundImage, 
+                            new RectangleF(imageSize.Width * j, imageSize.Height * i, 
+                                imageSize.Width+1, imageSize.Height+1), 
+                            new RectangleF(0, 0, 32, 32), GraphicsUnit.Pixel);
+                    }
+                }
+            };
+
 
             notepad = new TableLayoutPanel();
             notepad.Dock = DockStyle.Fill;
@@ -102,31 +114,20 @@ namespace DungeonProgMaster
             SizeChanged += (sender, args) =>
             {
                 WorkTableResize();
-                if (IsFirstResize) { this.MinimumSize = this.Size; ; IsFirstResize = false; };
+                //if (IsFirstResize) { this.MinimumSize = this.Size; IsFirstResize = false; };
+                Invalidate();
             };
         }
 
         private void WorkTableResize()
         {
-            double hcoeff = ClientSize.Height / 440.0;
-            double wcoeff = ClientSize.Width / 800.0;
-            double coeff = hcoeff < wcoeff ? hcoeff : wcoeff;
-            workTable.Size = new Size((int)(coeff * 800), (int)(coeff * 440));
+            var hcoeff = ClientSize.Height / 440d;
+            var wcoeff = ClientSize.Width / 800d;
+            var coeff = hcoeff < wcoeff ? hcoeff : wcoeff;
+            var widht = (int)(coeff * 800);
+            var height = widht * 55 / 100;
+            workTable.Size = new Size(widht, height);
         }
-
-        /*protected override void OnPaint(PaintEventArgs e)
-        {
-            var g = e.Graphics;
-            g.DrawLine(new Pen(Color.Black, 5), 0, 0, 50, 100);
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-            g.DrawLine(new Pen(Color.Red, 5), 0, 0, 50, 150);
-            g.FillRectangle(Brushes.Green, 100, 100, 100, 100);
-            g.DrawString("Hello", new Font("Arial", 16), Brushes.Black, 
-                new Rectangle(100,100,100,100),
-                new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, FormatFlags = StringFormatFlags.FitBlackBox});
-            
-        }*/
-
         #endregion
     }
 }
