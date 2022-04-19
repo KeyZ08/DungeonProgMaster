@@ -57,6 +57,17 @@ namespace DungeonProgMaster
 
         #region Windows Form Designer by my code
 
+        private void PlayerPaint(Graphics gr)
+        {
+            var anim = player.PlayerMovement(PlayerMove.Top);
+            for(var i = 0; i < anim.Count; i++)
+            {
+                gr.DrawImage(anim[i],
+                        new RectangleF(64 * i, 64 * i, 128, 128),
+                        new RectangleF(PointF.Empty, anim[i].Size), GraphicsUnit.Pixel);
+            }
+        }
+
         private void CreateMap(Graphics gr)
         {
             var rowCount = map.GetLength(0);
@@ -83,8 +94,8 @@ namespace DungeonProgMaster
 
             gamePlace.Paint += (sender, args) =>
             {
-                //base.OnPaint(args);
                 CreateMap(args.Graphics);
+                PlayerPaint(args.Graphics);
             };
 
 
