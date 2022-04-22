@@ -57,29 +57,27 @@ namespace DungeonProgMaster
 
         #region Windows Form Designer by my code
 
-        private void PlayerPaint(Graphics gr)
+        private void PlayerPaint(Graphics gr, float coeff, SizeF imageSize)
         {
             var anim = player.PlayerMovement(PlayerMove.Top);
-            for(var i = 0; i < anim.Count; i++)
+            var center = 64 * coeff * 1.2f / 2;
+            for (var i = 0; i < anim.Count; i++)
             {
                 gr.DrawImage(anim[i],
-                        new RectangleF(64 * i, 64 * i, 128, 128),
+                        new RectangleF( imageSize.Height * i - center + imageSize.Width / 2, imageSize.Width * i - center, 64 * coeff * 1.2f, 64 * coeff * 1.2f),
                         new RectangleF(PointF.Empty, anim[i].Size), GraphicsUnit.Pixel);
             }
         }
 
-        private void CreateMap(Graphics gr)
+        private void CreateMap(Graphics gr, int rows, int columns, SizeF imageSize)
         {
-            var rowCount = map.GetLength(0);
-            var columnCount = map.GetLength(1);
-            var imageSize = new SizeF((float)gamePlace.Width / columnCount, (float)gamePlace.Height / rowCount);
-            for (int i = 0; i < rowCount; i++)
+            for (int i = 0; i < columns; i++)
             {
-                for (int j = 0; j < columnCount; j++)
+                for (int j = 0; j < rows; j++)
                 {
-                    gr.DrawImage(MapData.GetTale(map[i,j]),
-                        new RectangleF(imageSize.Width * j, imageSize.Height * i, imageSize.Width + 3f, imageSize.Height + 3f),
-                        new RectangleF(PointF.Empty, MapData.GetTale(map[i, j]).Size), GraphicsUnit.Pixel);
+                    gr.DrawImage(MapData.GetTale(map[j,i]),
+                        new RectangleF(imageSize.Width * i, imageSize.Height * j, imageSize.Width + 3f, imageSize.Height + 3f),
+                        new RectangleF(PointF.Empty, MapData.GetTale(map[j, i]).Size), GraphicsUnit.Pixel);
                 }
             }
         }
@@ -88,14 +86,18 @@ namespace DungeonProgMaster
         {
             gamePlace = new TableLayoutPanel();
             gamePlace.Dock = DockStyle.Fill;
-            gamePlace.BackColor = Color.White;
             gamePlace.Padding = Padding.Empty;
             gamePlace.Margin = Padding.Empty;
 
             gamePlace.Paint += (sender, args) =>
             {
-                CreateMap(args.Graphics);
-                PlayerPaint(args.Graphics);
+                var rows = map.GetLength(0);
+                var columns = map.GetLength(1);
+                float coeff = (float)gamePlace.Height / columns / 32;
+                var imageSize = new SizeF(coeff, coeff) * 32;
+                
+                CreateMap(args.Graphics, rows, columns, imageSize);
+                PlayerPaint(args.Graphics, coeff, imageSize);
             };
 
 
