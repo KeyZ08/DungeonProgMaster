@@ -12,9 +12,11 @@ namespace DungeonProgMaster
     {
         Dictionary<PlayerMove, List<Bitmap>> animation;
         Bitmap images;
+        public Point position;
 
-        public Player()
+        public Player(Point position)
         {
+            this.position = position;
             images =new Bitmap(Application.StartupPath + @"..\..\..\Resources\Character_SpriteSheet.png");
             animation = new Dictionary<PlayerMove, List<Bitmap>>();
             CreateAnimations(PlayerMove.Top);
@@ -25,9 +27,13 @@ namespace DungeonProgMaster
          
         public List<Bitmap> PlayerMovement(PlayerMove move)
         {
-            return animation.TryGetValue(move, out var result)? result: throw new ArgumentException();
+            return animation.TryGetValue(move, out var result) ? result: throw new ArgumentException();
         }
 
+        /// <summary>
+        /// Разбивает общий спрайт на его части, группируя соответственно перемещению
+        /// </summary>
+        /// <param name="move">Направление движения</param>
         private void CreateAnimations(PlayerMove move)
         {
             var list = new List<Bitmap>();

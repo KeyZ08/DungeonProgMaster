@@ -56,17 +56,20 @@ namespace DungeonProgMaster
 
 
         #region Windows Form Designer by my code
-
-        private void PlayerPaint(Graphics gr, float coeff, SizeF imageSize)
+        
+        private void PlayerAnimation(Graphics gr, float coeff, SizeF imageSize)
         {
-            var anim = player.PlayerMovement(PlayerMove.Top);
-            var center = 64 * coeff * 1.2f / 2;
-            for (var i = 0; i < anim.Count; i++)
-            {
-                gr.DrawImage(anim[i],
-                        new RectangleF( imageSize.Height * i - center + imageSize.Width / 2, imageSize.Width * i - center, 64 * coeff * 1.2f, 64 * coeff * 1.2f),
-                        new RectangleF(PointF.Empty, anim[i].Size), GraphicsUnit.Pixel);
-            }
+            var anim = player.PlayerMovement(movement);
+            var center = 64 * coeff / 2;
+            var inWorldPosition = new PointF(imageSize.Width * player.position.X + (-center + imageSize.Width / 3),
+                imageSize.Height * player.position.Y - center);
+            var inWorldSize = new SizeF(64 * coeff * 1.2f, 64 * coeff * 1.2f);
+            
+            var i = currentFrame == 0? 0: currentFrame++;
+            if (currentFrame >= anim.Count) currentFrame = 1;
+            gr.DrawImage(anim[i],
+                    new RectangleF(inWorldPosition, inWorldSize),
+                    new RectangleF(PointF.Empty, anim[i].Size), GraphicsUnit.Pixel);
         }
 
         private void CreateMap(Graphics gr, int rows, int columns, SizeF imageSize)
@@ -91,13 +94,9 @@ namespace DungeonProgMaster
 
             gamePlace.Paint += (sender, args) =>
             {
-                var rows = map.GetLength(0);
-                var columns = map.GetLength(1);
-                float coeff = (float)gamePlace.Height / columns / 32;
-                var imageSize = new SizeF(coeff, coeff) * 32;
                 
-                CreateMap(args.Graphics, rows, columns, imageSize);
-                PlayerPaint(args.Graphics, coeff, imageSize);
+                
+                
             };
 
 
