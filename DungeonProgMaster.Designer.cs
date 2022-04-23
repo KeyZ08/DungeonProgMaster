@@ -8,8 +8,9 @@ namespace DungeonProgMaster
     partial class DungeonProgMaster
     {
         public TableLayoutPanel workTable;
-        public TableLayoutPanel gamePlace;
+        public PictureBox gamePlace;
         public TableLayoutPanel notepad;
+        private Sizer sizer;
         /// <summary>
         ///  Required designer variable.
         /// </summary>
@@ -56,49 +57,33 @@ namespace DungeonProgMaster
 
 
         #region Windows Form Designer by my code
-        
-        private void PlayerAnimation(Graphics gr, float coeff, SizeF imageSize)
-        {
-            var anim = player.PlayerMovement(movement);
-            var center = 64 * coeff / 2;
-            var inWorldPosition = new PointF(imageSize.Width * player.position.X + (-center + imageSize.Width / 3),
-                imageSize.Height * player.position.Y - center);
-            var inWorldSize = new SizeF(64 * coeff * 1.2f, 64 * coeff * 1.2f);
-            
-            var i = currentFrame == 0? 0: currentFrame++;
-            if (currentFrame >= anim.Count) currentFrame = 1;
-            gr.DrawImage(anim[i],
-                    new RectangleF(inWorldPosition, inWorldSize),
-                    new RectangleF(PointF.Empty, anim[i].Size), GraphicsUnit.Pixel);
-        }
 
-        private void CreateMap(Graphics gr, int rows, int columns, SizeF imageSize)
+        private void Animator(object sender, PaintEventArgs args)
         {
-            for (int i = 0; i < columns; i++)
+            var gr = args.Graphics;
+            //карта
+            for (int i = 0; i < sizer.columns; i++)
             {
-                for (int j = 0; j < rows; j++)
+                for (int j = 0; j < sizer.rows; j++)
                 {
-                    gr.DrawImage(MapData.GetTale(map[j,i]),
-                        new RectangleF(imageSize.Width * i, imageSize.Height * j, imageSize.Width + 3f, imageSize.Height + 3f),
+                    gr.DrawImage(MapData.GetTale(map[j, i]),
+                        new RectangleF(sizer.floorSize.Width * i, sizer.floorSize.Height * j, sizer.floorSize.Width + 3f, sizer.floorSize.Height + 3f),
                         new RectangleF(PointF.Empty, MapData.GetTale(map[j, i]).Size), GraphicsUnit.Pixel);
                 }
             }
+
+            //игрок
+            gr.DrawImage(player.anim[player.currentFrame], new RectangleF(player.worldPosition, player.worldSize),
+                 new RectangleF(PointF.Empty, player.anim[player.currentFrame].Size), GraphicsUnit.Pixel);
         }
 
         private void InitializeMyDesign()
         {
-            gamePlace = new TableLayoutPanel();
+            gamePlace = new PictureBox();
             gamePlace.Dock = DockStyle.Fill;
             gamePlace.Padding = Padding.Empty;
             gamePlace.Margin = Padding.Empty;
-
-            gamePlace.Paint += (sender, args) =>
-            {
-                
-                
-                
-            };
-
+            gamePlace.Paint += new PaintEventHandler(Animator);
 
             notepad = new TableLayoutPanel();
             notepad.Dock = DockStyle.Fill;
@@ -123,13 +108,18 @@ namespace DungeonProgMaster
 
             Controls.Add(workTable);
 
-
             Load += (sender, args) => OnSizeChanged(EventArgs.Empty);
            
             SizeChanged += (sender, args) =>
             {
                 WorkTableResize();
                 Invalidate();
+
+                var rows = map.GetLength(0);
+                var columns = map.GetLength(1);
+                float coeff = (float)gamePlace.Height / columns / 32;
+                var imageSize = new SizeF(coeff, coeff) * 32;
+                sizer = new Sizer(rows, columns, coeff, imageSize);
             };
         }
 
@@ -142,7 +132,6 @@ namespace DungeonProgMaster
             var height = widht * 55 / 100;
             workTable.Size = new Size(widht, height);
         }
-
         #endregion
     }
 }

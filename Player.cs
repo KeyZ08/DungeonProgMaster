@@ -10,24 +10,41 @@ namespace DungeonProgMaster
 {
     class Player
     {
-        Dictionary<PlayerMove, List<Bitmap>> animation;
-        Bitmap images;
+        private Dictionary<PlayerMove, List<Bitmap>> animations;
+        private Bitmap images;
         public Point position;
+        public PointF worldPosition { get; private set; }
+        public SizeF worldSize { get; private set; }
+        public int currentFrame;
+        public List<Bitmap> anim;
 
         public Player(Point position)
         {
             this.position = position;
             images =new Bitmap(Application.StartupPath + @"..\..\..\Resources\Character_SpriteSheet.png");
-            animation = new Dictionary<PlayerMove, List<Bitmap>>();
+            animations = new Dictionary<PlayerMove, List<Bitmap>>();
             CreateAnimations(PlayerMove.Top);
             CreateAnimations(PlayerMove.Bottom);
             CreateAnimations(PlayerMove.Left);
             CreateAnimations(PlayerMove.Right);
+
+            anim = animations[0];
+            currentFrame = 0;
         }
          
         public List<Bitmap> PlayerMovement(PlayerMove move)
         {
-            return animation.TryGetValue(move, out var result) ? result: throw new ArgumentException();
+            return animations.TryGetValue(move, out var result) ? result: throw new ArgumentException();
+        }
+
+        public void SetWorldPosition(PointF pos)
+        {
+            this.worldPosition = pos;
+        }
+        
+        public void SetWorldSize(SizeF size)
+        {
+            this.worldSize = size;
         }
 
         /// <summary>
@@ -41,7 +58,7 @@ namespace DungeonProgMaster
             {
                 list.Add(images.Clone(new Rectangle(new Point(i*64, (int)move * 64), new Size(64,64)), images.PixelFormat));
             }
-            animation.Add(move, list);
+            animations.Add(move, list);
         }
     }
 
