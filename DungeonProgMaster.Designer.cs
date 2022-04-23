@@ -113,13 +113,18 @@ namespace DungeonProgMaster
             SizeChanged += (sender, args) =>
             {
                 WorkTableResize();
-                Invalidate();
 
                 var rows = map.GetLength(0);
                 var columns = map.GetLength(1);
                 float coeff = (float)gamePlace.Height / columns / 32;
                 var imageSize = new SizeF(coeff, coeff) * 32;
                 sizer = new Sizer(rows, columns, coeff, imageSize);
+
+                player.SetWorldPosition(sizer);
+
+                
+                player.SetWorldSize(sizer);
+                gamePlace.Invalidate();
             };
         }
 

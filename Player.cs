@@ -1,8 +1,5 @@
 ﻿using System.Drawing;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System;
 
@@ -11,47 +8,61 @@ namespace DungeonProgMaster
     class Player
     {
         private Dictionary<PlayerMove, List<Bitmap>> animations;
-        private Bitmap images;
-        public Point position;
+        public PointF position;
         public PointF worldPosition { get; private set; }
+        public PointF targetPosition;
         public SizeF worldSize { get; private set; }
-        public int currentFrame;
+        public PlayerMove movement;
+        public int currentFrame = 0;
         public List<Bitmap> anim;
+        public bool isAnimated = false;
 
-        public Player(Point position)
+        public Player(PointF position, PlayerMove defaultAnim)
         {
             this.position = position;
-            images =new Bitmap(Application.StartupPath + @"..\..\..\Resources\Character_SpriteSheet.png");
+            targetPosition = position;
+            var images =new Bitmap(Application.StartupPath + @"..\..\..\Resources\Character_SpriteSheet.png");
             animations = new Dictionary<PlayerMove, List<Bitmap>>();
-            CreateAnimations(PlayerMove.Top);
-            CreateAnimations(PlayerMove.Bottom);
-            CreateAnimations(PlayerMove.Left);
-            CreateAnimations(PlayerMove.Right);
-
-            anim = animations[0];
-            currentFrame = 0;
+            CreateAnimations(images, PlayerMove.Top);
+            CreateAnimations(images, PlayerMove.Bottom);
+            CreateAnimations(images, PlayerMove.Left);
+            CreateAnimations(images, PlayerMove.Right);
+            movement = defaultAnim;
+            anim = animations[movement];
         }
-         
-        public List<Bitmap> PlayerMovement(PlayerMove move)
+
+        public List<Bitmap> PlayerMoveAnim(PlayerMove move)
         {
             return animations.TryGetValue(move, out var result) ? result: throw new ArgumentException();
         }
 
-        public void SetWorldPosition(PointF pos)
+        /// <summary>
+        /// Устанавливает мировые координаты игрока соответственно размеру мира
+        /// </summary>
+        /// <param name="sizer"></param>
+        public void SetWorldPosition(Sizer sizer)
         {
-            this.worldPosition = pos;
+            var center = 64 * sizer.coeff / 2;
+            var inWorldPosition = new PointF(sizer.floorSize.Width * position.X + (-center + sizer.floorSize.Width / 3),
+                sizer.floorSize.Height * position.Y - center);
+            worldPosition = inWorldPosition;
         }
         
-        public void SetWorldSize(SizeF size)
+        /// <summary>
+        /// Устанавливает размер персонажа соответственно размеру окна 
+        /// </summary>
+        /// <param name="sizer"></param>
+        public void SetWorldSize(Sizer sizer)
         {
-            this.worldSize = size;
+            var inWorldSize = new SizeF(64 * sizer.coeff * 1.2f, 64 * sizer.coeff * 1.2f);
+            worldSize = inWorldSize;
         }
 
         /// <summary>
-        /// Разбивает общий спрайт на его части, группируя соответственно перемещению
+        /// Разбивает общий спрайт на его части, группируя в списки для анимации соответственно перемещению
         /// </summary>
         /// <param name="move">Направление движения</param>
-        private void CreateAnimations(PlayerMove move)
+        private void CreateAnimations(Bitmap images, PlayerMove move)
         {
             var list = new List<Bitmap>();
             for(var i = 0; i < 5; i++)

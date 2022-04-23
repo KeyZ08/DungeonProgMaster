@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -15,98 +16,125 @@ namespace DungeonProgMaster
         
         private readonly int[,] map = new int[,]
         {
-            //{ 0,0,0,0,0,0,0,0,0,0,0,0 },
-            //{ 1,1,1,1,1,1,1,1,1,1,1,1 },
-            //{ 1,1,1,1,1,1,1,1,1,1,1,1 },
-            //{ 1,0,1,1,1,1,1,1,1,1,1,1 },
-            //{ 1,1,1,1,1,0,1,4,1,1,1,1 },
-            //{ 1,1,1,1,1,1,1,1,1,1,1,1 },
-            //{ 1,1,1,1,1,1,1,1,1,1,1,1 },
-            //{ 0,0,0,0,0,0,0,0,1,1,1,1 },
-            //{ 0,0,0,0,0,0,0,0,1,1,1,1 },
-            //{ 0,0,0,0,0,0,0,0,1,1,1,1 },
-            //{ 0,0,0,0,0,0,0,0,1,1,1,1 },
-            //{ 0,0,0,0,0,0,0,0,1,1,1,1 }
+            { 0,0,0,0,0,0,0,0,0,0,0,0 },
+            { 1,1,1,1,1,1,1,1,1,1,1,1 },
+            { 1,1,1,1,1,1,1,1,1,1,1,1 },
+            { 1,0,1,1,1,1,1,1,1,1,1,1 },
+            { 1,1,1,1,1,0,1,4,1,1,1,1 },
+            { 1,1,1,1,1,1,1,1,1,1,1,1 },
+            { 1,1,1,1,1,1,1,1,1,1,1,1 },
+            { 0,0,0,0,0,0,0,0,1,1,1,1 },
+            { 0,0,0,0,0,0,0,0,1,1,1,1 },
+            { 0,0,0,0,0,0,0,0,1,1,1,1 },
+            { 0,0,0,0,0,0,0,0,1,1,1,1 },
+            { 0,0,0,0,0,0,0,0,1,1,1,1 }
 
 
-            { 0,0,0,0,0,0,0,0 },
-            { 1,1,1,1,1,1,1,1 },
-            { 1,1,1,1,1,1,1,1 },
-            { 1,0,1,1,1,1,1,1 },
-            { 1,1,1,1,1,0,1,4 },
-            { 1,1,1,1,1,1,1,1 },
-            { 1,1,1,1,1,1,1,1 },
-            { 0,0,0,0,0,0,0,0 },
-            { 0,0,0,0,0,0,0,0},
-            { 0,0,0,0,0,0,0,0},
-            { 0,0,0,0,0,0,0,0 },
-            { 0,0,0,0,0,0,0,0 }
+            //{ 0,0,0,0,0,0,0,0 },
+            //{ 1,1,1,1,1,1,1,1 },
+            //{ 1,1,1,1,1,1,1,1 },
+            //{ 1,0,1,1,1,1,1,1 },
+            //{ 1,1,1,1,1,0,1,4 },
+            //{ 1,1,1,1,1,1,1,1 },
+            //{ 1,1,1,1,1,1,1,1 },
+            //{ 0,0,0,0,0,0,0,0 },
+            //{ 0,0,0,0,0,0,0,0 },
+            //{ 0,0,0,0,0,0,0,0 },
+            //{ 0,0,0,0,0,0,0,0 },
+            //{ 0,0,0,0,0,0,0,0 }
         };
 
-        Player player = new Player(new Point(1,1));
-        private Timer timer = new Timer();
-        private PlayerMove movement;
+        Player player;
+        //скорость анимации
+        private Timer moveAnimator;
+        //скорость передвижения
+        private Timer animAnimator; 
 
         public DungeonProgMaster()
         {
             KeyDown +=  new KeyEventHandler(Keyboard);
 
-            /*Потом Убрать*/
-            KeyUp += new KeyEventHandler((sender, args) => player.currentFrame = 0);
-
             InitializeComponent();
             InitializeMyDesign();
-            timer.Interval = 100;
-            timer.Tick += new EventHandler(Update);
-            timer.Start();
+
+            player = new Player(new Point(1, 1), PlayerMove.Bottom);
+            
+            moveAnimator = new Timer();
+            moveAnimator.Interval = 50;
+            moveAnimator.Tick += new EventHandler(PlayerMovement);
+
+            animAnimator = new Timer();
+            animAnimator.Interval = moveAnimator.Interval / player.anim.Count;
+            animAnimator.Tick += new EventHandler(Update);
+            animAnimator.Start();
         }
 
         private void Keyboard(object sender, KeyEventArgs args)
         {
+            if (player.isAnimated) return;
             var pos = player.position;
             if (args.KeyCode == Keys.D)
             {
-                movement = PlayerMove.Right;
-                player.position = new Point(pos.X+1, pos.Y);
+                player.movement = PlayerMove.Right;
+                player.targetPosition = new PointF(pos.X+  1, pos.Y);
                 player.currentFrame = 1;
             }
             else if (args.KeyCode == Keys.A)
             {
-                movement = PlayerMove.Left;
-                player.position = new Point(pos.X - 1, pos.Y);
+                player.movement = PlayerMove.Left;
+                player.targetPosition = new PointF(pos.X - 1, pos.Y);
                 player.currentFrame = 1;
             }
             else if (args.KeyCode == Keys.W)
             {
-                movement = PlayerMove.Top;
-                player.position = new Point(pos.X, pos.Y-1);
+                player.movement = PlayerMove.Top;
+                player.targetPosition = new PointF(pos.X, pos.Y - 1);
                 player.currentFrame = 1;
             }
             else if (args.KeyCode == Keys.S)
             {
-                movement = PlayerMove.Bottom;
-                player.position = new Point(pos.X, pos.Y+1);
+                player.movement = PlayerMove.Bottom;
+                player.targetPosition = new PointF(pos.X, pos.Y + 1);
                 player.currentFrame = 1;
             }
             else player.currentFrame = 0;
+            moveAnimator.Start();
         }
 
         private void Update(object obj, EventArgs args)
         {
             //вычисление анимации
-            var anim = player.PlayerMovement(movement);
+            var anim = player.PlayerMoveAnim(player.movement);
             if (player.currentFrame != 0) player.currentFrame++;
-            if (player.currentFrame >= anim.Count) player.currentFrame = 1;
+            if (player.currentFrame >= anim.Count)
+            {
+                player.currentFrame = 1;
+            }
             player.anim = anim;
+        }
 
-            //вычисление мировых координат
-            var center = 64 * sizer.coeff / 2;
-            var inWorldPosition = new PointF(sizer.floorSize.Width * player.position.X + (-center + sizer.floorSize.Width / 3),
-                sizer.floorSize.Height * player.position.Y - center);
-            var inWorldSize = new SizeF(64 * sizer.coeff * 1.2f, 64 * sizer.coeff * 1.2f);
+        private void PlayerMovement(object obj, EventArgs args)
+        {
+            if (player.position == player.targetPosition)
+            {
+                player.isAnimated = false; 
+                return;
+            }
 
-            player.SetWorldPosition(inWorldPosition);
-            player.SetWorldSize(inWorldSize);
+            if (!player.isAnimated)
+                player.isAnimated = true;
+            var pos = player.position;
+            var coeff = moveAnimator.Interval * 0.01f / player.anim.Count;
+            if (player.movement == PlayerMove.Right)
+                player.position = new PointF((float)Math.Round(pos.X + coeff, 1), pos.Y);
+            if (player.movement == PlayerMove.Left)
+                player.position = new PointF((float)Math.Round(pos.X - coeff, 1), pos.Y);
+            if (player.movement == PlayerMove.Top)
+                player.position = new PointF(pos.X, (float)Math.Round(pos.Y - coeff, 1));
+            if (player.movement == PlayerMove.Bottom)
+                player.position = new PointF(pos.X, (float)Math.Round(pos.Y + coeff, 1));
+
+            player.SetWorldPosition(sizer);
 
             gamePlace.Invalidate();
         }
