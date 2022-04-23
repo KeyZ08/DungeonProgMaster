@@ -47,8 +47,6 @@ namespace DungeonProgMaster
         Player player;
         //скорость анимации
         private Timer moveAnimator;
-        //скорость передвижения
-        private Timer animAnimator; 
 
         public DungeonProgMaster()
         {
@@ -62,11 +60,6 @@ namespace DungeonProgMaster
             moveAnimator = new Timer();
             moveAnimator.Interval = 50;
             moveAnimator.Tick += new EventHandler(PlayerMovement);
-
-            animAnimator = new Timer();
-            animAnimator.Interval = moveAnimator.Interval / player.anim.Count;
-            animAnimator.Tick += new EventHandler(Update);
-            animAnimator.Start();
         }
 
         private void Keyboard(object sender, KeyEventArgs args)
@@ -101,7 +94,42 @@ namespace DungeonProgMaster
             moveAnimator.Start();
         }
 
-        private void Update(object obj, EventArgs args)
+        /// <summary>
+        /// Перемещает персонажа по карте соответственно скорости анимации
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="args"></param>
+        private void PlayerMovement(object obj, EventArgs args)
+        {
+            if (player.position == player.targetPosition)
+            {
+                player.isAnimated = false;
+                return;
+            }
+
+            if (!player.isAnimated)
+                player.isAnimated = true;
+            var pos = player.position;
+            var frame = 1.0f / player.anim.Count;
+            if (player.movement == PlayerMove.Right)
+                player.position = new PointF((float)Math.Round(pos.X + frame, 1), pos.Y);
+            if (player.movement == PlayerMove.Left)
+                player.position = new PointF((float)Math.Round(pos.X - frame, 1), pos.Y);
+            if (player.movement == PlayerMove.Top)
+                player.position = new PointF(pos.X, (float)Math.Round(pos.Y - frame, 1));
+            if (player.movement == PlayerMove.Bottom)
+                player.position = new PointF(pos.X, (float)Math.Round(pos.Y + frame, 1));
+
+            player.SetWorldPosition(sizer);
+            UpdatePlayerFrame();
+
+            gamePlace.Invalidate();
+        }
+
+        /// <summary>
+        /// Обновляет картинку персонажа
+        /// </summary>
+        private void UpdatePlayerFrame()
         {
             //вычисление анимации
             var anim = player.PlayerMoveAnim(player.movement);
@@ -111,32 +139,6 @@ namespace DungeonProgMaster
                 player.currentFrame = 1;
             }
             player.anim = anim;
-        }
-
-        private void PlayerMovement(object obj, EventArgs args)
-        {
-            if (player.position == player.targetPosition)
-            {
-                player.isAnimated = false; 
-                return;
-            }
-
-            if (!player.isAnimated)
-                player.isAnimated = true;
-            var pos = player.position;
-            var coeff = moveAnimator.Interval * 0.01f / player.anim.Count;
-            if (player.movement == PlayerMove.Right)
-                player.position = new PointF((float)Math.Round(pos.X + coeff, 1), pos.Y);
-            if (player.movement == PlayerMove.Left)
-                player.position = new PointF((float)Math.Round(pos.X - coeff, 1), pos.Y);
-            if (player.movement == PlayerMove.Top)
-                player.position = new PointF(pos.X, (float)Math.Round(pos.Y - coeff, 1));
-            if (player.movement == PlayerMove.Bottom)
-                player.position = new PointF(pos.X, (float)Math.Round(pos.Y + coeff, 1));
-
-            player.SetWorldPosition(sizer);
-
-            gamePlace.Invalidate();
         }
     }
 }
