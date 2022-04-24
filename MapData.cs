@@ -21,7 +21,7 @@ namespace DungeonProgMaster
             return images.TryGetValue((Tales)tale, out var bitmap) ? bitmap : images[Tales.Blank];
         }
 
-        private enum Tales
+        public enum Tales
         {
             Blank = 0,
             Ground = 1,

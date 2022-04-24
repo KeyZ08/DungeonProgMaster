@@ -58,7 +58,10 @@ namespace DungeonProgMaster
 
         #region Windows Form Designer by my code
 
-        private void Animator(object sender, PaintEventArgs args)
+        /// <summary>
+        /// Отрисовывает всё
+        /// </summary>
+        private void Painter(object sender, PaintEventArgs args)
         {
             var gr = args.Graphics;
             //карта
@@ -66,9 +69,9 @@ namespace DungeonProgMaster
             {
                 for (int j = 0; j < sizer.rows; j++)
                 {
-                    gr.DrawImage(MapData.GetTale(map[j, i]),
+                    gr.DrawImage(MapData.GetTale(map.map[j, i]),
                         new RectangleF(sizer.floorSize.Width * i, sizer.floorSize.Height * j, sizer.floorSize.Width + 3f, sizer.floorSize.Height + 3f),
-                        new RectangleF(PointF.Empty, MapData.GetTale(map[j, i]).Size), GraphicsUnit.Pixel);
+                        new RectangleF(PointF.Empty, MapData.GetTale(map.map[j, i]).Size), GraphicsUnit.Pixel);
                 }
             }
 
@@ -83,7 +86,7 @@ namespace DungeonProgMaster
             gamePlace.Dock = DockStyle.Fill;
             gamePlace.Padding = Padding.Empty;
             gamePlace.Margin = Padding.Empty;
-            gamePlace.Paint += new PaintEventHandler(Animator);
+            gamePlace.Paint += new PaintEventHandler(Painter);
 
             notepad = new TableLayoutPanel();
             notepad.Dock = DockStyle.Fill;
@@ -114,8 +117,8 @@ namespace DungeonProgMaster
             {
                 WorkTableResize();
 
-                var rows = map.GetLength(0);
-                var columns = map.GetLength(1);
+                var rows = map.map.GetLength(0);
+                var columns = map.map.GetLength(1);
                 float coeff = (float)gamePlace.Height / columns / 32;
                 var imageSize = new SizeF(coeff, coeff) * 32;
                 sizer = new Sizer(rows, columns, coeff, imageSize);

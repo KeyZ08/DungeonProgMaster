@@ -21,6 +21,5 @@ namespace DungeonProgMaster
             this.coeff = coeff;
             this.floorSize = floorSize;
         }
-
     }
 }

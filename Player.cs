@@ -31,6 +31,15 @@ namespace DungeonProgMaster
             anim = animations[movement];
         }
 
+        public Player(PointF position, PlayerMove defaultAnim, Player p)
+        {
+            this.position = position;
+            movement = defaultAnim;
+            targetPosition = position;
+            animations = p.animations;
+            anim = animations[movement];
+        }
+
         public List<Bitmap> PlayerMoveAnim(PlayerMove move)
         {
             return animations.TryGetValue(move, out var result) ? result: throw new ArgumentException();
