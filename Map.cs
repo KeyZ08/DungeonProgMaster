@@ -22,8 +22,7 @@ namespace DungeonProgMaster
         public void Reset(Sizer sizer)
         {
             player = new Player(reservePlayer.position, reservePlayer.movement, player);
-            player.SetWorldSize(sizer);
-            player.SetWorldPosition(sizer);
+            player.SetWorldPositionAndSize(sizer);
         }
     }
 }

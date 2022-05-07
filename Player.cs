@@ -46,10 +46,18 @@ namespace DungeonProgMaster
         }
 
         /// <summary>
+        /// Устанавливает мировые координаты и размер персонажа соответственно размеру мира
+        /// </summary>
+        public void SetWorldPositionAndSize(Sizer sizer)
+        {
+            SetWorldPosition(sizer);
+            SetWorldSize(sizer);
+        }
+
+        /// <summary>
         /// Устанавливает мировые координаты игрока соответственно размеру мира
         /// </summary>
-        /// <param name="sizer"></param>
-        public void SetWorldPosition(Sizer sizer)
+        private void SetWorldPosition(Sizer sizer)
         {
             var center = 64 * sizer.coeff / 2;
             var inWorldPosition = new PointF(sizer.floorSize.Width * position.X + (-center + sizer.floorSize.Width / 3),
@@ -58,10 +66,9 @@ namespace DungeonProgMaster
         }
         
         /// <summary>
-        /// Устанавливает размер персонажа соответственно размеру окна 
+        /// Устанавливает размер персонажа соответственно размеру мира 
         /// </summary>
-        /// <param name="sizer"></param>
-        public void SetWorldSize(Sizer sizer)
+        private void SetWorldSize(Sizer sizer)
         {
             var inWorldSize = new SizeF(64 * sizer.coeff * 1.2f, 64 * sizer.coeff * 1.2f);
             worldSize = inWorldSize;
@@ -75,9 +82,7 @@ namespace DungeonProgMaster
         {
             var list = new List<Bitmap>();
             for(var i = 0; i < 5; i++)
-            {
                 list.Add(images.Clone(new Rectangle(new Point(i*64, (int)move * 64), new Size(64,64)), images.PixelFormat));
-            }
             animations.Add(move, list);
         }
     }

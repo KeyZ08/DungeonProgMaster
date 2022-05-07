@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -9,7 +10,8 @@ namespace DungeonProgMaster
     {
         public TableLayoutPanel workTable;
         public PictureBox gamePlace;
-        public TableLayoutPanel notepad;
+        public ListBox notepad;
+        public TableLayoutPanel menu;
         private Sizer sizer;
         /// <summary>
         ///  Required designer variable.
@@ -82,22 +84,40 @@ namespace DungeonProgMaster
 
         private void InitializeMyDesign()
         {
-            gamePlace = new PictureBox();
-            gamePlace.Dock = DockStyle.Fill;
-            gamePlace.Padding = Padding.Empty;
-            gamePlace.Margin = Padding.Empty;
-            gamePlace.Paint += new PaintEventHandler(Painter);
+            GamePlaceCreate();
+            NotepadAndMenuCreate();
+            WorkTableCreate();
 
-            notepad = new TableLayoutPanel();
+            Load += (sender, args) => OnSizeChanged(EventArgs.Empty);
+            SizeChanged += (sender, args) => WindowResize();
+        }
+
+        private void NotepadAndMenuCreate()
+        {
+            notepad = new ListBox();
+
+            var scripts = new List<Script>() 
+            { 
+                new Script(PlayerMove.Right), 
+                new Script(PlayerMove.Top), 
+            };
+            notepad.DataSource = scripts;
+            notepad.DisplayMember = "Sketch";
+            notepad.ValueMember = "Move";
+
             notepad.Dock = DockStyle.Fill;
-            notepad.BackColor = Color.Green;
+            notepad.BorderStyle = BorderStyle.None;
             notepad.Margin = Padding.Empty;
+            notepad.BackColor = Color.Green;
 
-            var menu = new TableLayoutPanel();
+            menu = new TableLayoutPanel();
             menu.Dock = DockStyle.Fill;
             menu.BackColor = Color.White;
             menu.Margin = Padding.Empty;
+        }
 
+        private void WorkTableCreate()
+        {
             workTable = new TableLayoutPanel();
             workTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
             workTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
@@ -110,25 +130,15 @@ namespace DungeonProgMaster
             workTable.Controls.Add(menu, 1, 1);
 
             Controls.Add(workTable);
+        }
 
-            Load += (sender, args) => OnSizeChanged(EventArgs.Empty);
-           
-            SizeChanged += (sender, args) =>
-            {
-                WorkTableResize();
-
-                var rows = map.map.GetLength(0);
-                var columns = map.map.GetLength(1);
-                float coeff = (float)gamePlace.Height / columns / 32;
-                var imageSize = new SizeF(coeff, coeff) * 32;
-                sizer = new Sizer(rows, columns, coeff, imageSize);
-
-                player.SetWorldPosition(sizer);
-
-                
-                player.SetWorldSize(sizer);
-                gamePlace.Invalidate();
-            };
+        private void GamePlaceCreate()
+        {
+            gamePlace = new PictureBox();
+            gamePlace.Dock = DockStyle.Fill;
+            gamePlace.Padding = Padding.Empty;
+            gamePlace.Margin = Padding.Empty;
+            gamePlace.Paint += new PaintEventHandler(Painter);
         }
 
         private void WorkTableResize()
@@ -139,6 +149,20 @@ namespace DungeonProgMaster
             var widht = (int)(coeff * 800);
             var height = widht * 55 / 100;
             workTable.Size = new Size(widht, height);
+        }
+
+        private void WindowResize()
+        {
+            WorkTableResize();
+
+            var rows = map.map.GetLength(0);
+            var columns = map.map.GetLength(1);
+            float coeff = (float)gamePlace.Height / columns / 32;
+            var imageSize = new SizeF(coeff, coeff) * 32;
+            sizer = new Sizer(rows, columns, coeff, imageSize);
+
+            player.SetWorldPositionAndSize(sizer);
+            gamePlace.Invalidate();
         }
         #endregion
     }
