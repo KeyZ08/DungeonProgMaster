@@ -21,7 +21,7 @@ namespace DungeonProgMaster
         {
             this.position = position;
             targetPosition = position;
-            var images =new Bitmap(Application.StartupPath + @"..\..\..\Resources\Character_SpriteSheet.png");
+            var images = new Bitmap(Application.StartupPath + @"..\..\..\Resources\Character_SpriteSheet.png");
             animations = new Dictionary<PlayerMove, List<Bitmap>>();
             CreateAnimations(images, PlayerMove.Top);
             CreateAnimations(images, PlayerMove.Bottom);

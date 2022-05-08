@@ -16,14 +16,14 @@ namespace DungeonProgMaster
         Map map;
         Player player;
         //скорость анимации
-        private Timer animator;
-
+        private System.Timers.Timer animator;
+        private List<Script> scripts;
         public DungeonProgMaster()
         {
             KeyUp += new KeyEventHandler(Keyboard);
 
             InitializeComponent();
-            InitializeMyDesign();
+            InitializeDesign();
             map = new Map(new Player(new Point(1,1), PlayerMove.Bottom), new int[,]
             {
                 { 0,0,0,0,0,0,0,0,0,0,0,0 },
@@ -41,9 +41,18 @@ namespace DungeonProgMaster
             });
             player = map.player;
             
-            animator = new Timer();
-            animator.Interval = 50;
-            animator.Tick += new EventHandler(PlayerMovement);
+            scripts = new List<Script>()
+            {
+                new Script(PlayerMove.Right),
+                new Script(PlayerMove.Bottom),
+                new Script(PlayerMove.Left),
+                new Script(PlayerMove.Top),
+            };
+
+            for (int i = 0; i < scripts.Count; i++)
+            {
+                notepad.Items.Add(scripts[i].Sketch);
+            }
         }
 
 
@@ -106,7 +115,7 @@ namespace DungeonProgMaster
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="args"></param>
-        private void PlayerMovement(object obj, EventArgs args)
+        private void PlayerMovement(object sender, EventArgs args)
         {
             if (player.position == player.targetPosition)
             {
@@ -128,6 +137,7 @@ namespace DungeonProgMaster
             UpdatePlayerFrame();
 
             gamePlace.Invalidate();
+            return;
         }
 
         /// <summary>
@@ -191,5 +201,29 @@ namespace DungeonProgMaster
             { PlayerMove.Top, "Player.TopMove()"},
             { PlayerMove.Bottom, "Player.BottomMove()"},
         };
+
+        private void PlayButtonClick(object sender, EventArgs args)
+        {
+            if (player.isAnimated) return;
+            Task.Run(() =>
+            {
+                lock (player)
+                {
+                    for (var i = 0; i < scripts.Count; i++)
+                    {
+                        if (player.isAnimated) { i--; continue; }
+                        player.isAnimated = true;
+                        Command[scripts[i].Move].Invoke(player);
+                        WatсhOnTarget();
+
+                        animator = new System.Timers.Timer();
+                        animator.Interval = 50;
+                        animator.Elapsed += PlayerMovement;
+
+                        animator.Start();
+                    }
+                }
+            });
+        }
     }
 }
