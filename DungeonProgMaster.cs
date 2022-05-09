@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Text;
+using Timers = System.Timers;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -16,12 +12,9 @@ namespace DungeonProgMaster
         Map map;
         Player player;
         //скорость анимации
-        private System.Timers.Timer animator;
-        private List<Script> scripts;
+        private Timers.Timer animator;
         public DungeonProgMaster()
         {
-            KeyUp += new KeyEventHandler(Keyboard);
-
             InitializeComponent();
             InitializeDesign();
             map = new Map(new Player(new Point(1,1), PlayerMove.Bottom), new int[,]
@@ -40,22 +33,7 @@ namespace DungeonProgMaster
                 { 0,0,0,0,0,0,0,0,1,1,1,1 }
             });
             player = map.player;
-            
-            scripts = new List<Script>()
-            {
-                new Script(PlayerMove.Right),
-                new Script(PlayerMove.Bottom),
-                new Script(PlayerMove.Left),
-                new Script(PlayerMove.Top),
-            };
-
-            for (int i = 0; i < scripts.Count; i++)
-            {
-                notepad.Items.Add(scripts[i].Sketch);
-            }
         }
-
-
 
         /// <summary>
         /// Сбрасывает состояние карты к исходному (включая персонажа)
@@ -69,45 +47,27 @@ namespace DungeonProgMaster
 
         #region Player
 
-        private void Keyboard(object sender, KeyEventArgs args)
-        {
-            if (player.isAnimated) return;
-            player.isAnimated = true;
-            if (args.KeyCode == Keys.D)
-                Command[PlayerMove.Right].Invoke(player);
-            else if (args.KeyCode == Keys.A)
-                Command[PlayerMove.Left].Invoke(player);
-            else if (args.KeyCode == Keys.W)
-                Command[PlayerMove.Top].Invoke(player);
-            else if (args.KeyCode == Keys.S)
-                Command[PlayerMove.Bottom].Invoke(player);
-            else player.currentFrame = 0;
-
-            WatсhOnTarget();
-
-            animator.Start();
-        }
-
-        private void WatсhOnTarget()
+        private bool WatсhOnTarget()
         {
             var pos = player.targetPosition;
             if (pos.X == (int)pos.X && pos.Y == (int)pos.Y)
             {
                 if (pos.X < 0 || pos.Y < 0 || pos.X >= sizer.columns || pos.Y >= sizer.rows)
                 {
-                    MessageBox.Show
-                        ("Вы вышли за пределы карты", "Ой",
+                    MessageBox.Show("Вы вышли за пределы карты, чего делать нельзя.", "Ой",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     MapReset();
+                    return false;
                 }
                 else if (map.map[(int)pos.Y, (int)pos.X] != (int)MapData.Tales.Ground)
                 {
-                    MessageBox.Show
-                        ("Вы упали в дыру в полу", "Ой",
+                    MessageBox.Show("Вы упали в дыру в полу.", "Ой",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     MapReset();
+                    return false;
                 }
             }
+            return true;
         }
 
         /// <summary>
@@ -153,7 +113,7 @@ namespace DungeonProgMaster
             player.anim = anim;
         }
 
-        static Dictionary<PlayerMove, Action<Player>> Command = new Dictionary<PlayerMove, Action<Player>>()
+        static Dictionary<PlayerMove, Action<Player>> Command = new()
         {
             {PlayerMove.Right, new Action<Player>((player)=>
             {
@@ -180,50 +140,84 @@ namespace DungeonProgMaster
                 player.currentFrame = 1;
             })}
         };
+
         #endregion
-
-        class Script
-        {
-            public PlayerMove Move { get; private set; }
-            public string Sketch { get; private set; }
-
-            public Script(PlayerMove move)
-            {
-                Move = move;
-                Sketch = sketches[move];
-            }
-        }
-
-        static Dictionary<PlayerMove, string> sketches = new Dictionary<PlayerMove, string>()
-        {
-            { PlayerMove.Right, "Player.RightMove()"},
-            { PlayerMove.Left, "Player.LeftMove()"},
-            { PlayerMove.Top, "Player.TopMove()"},
-            { PlayerMove.Bottom, "Player.BottomMove()"},
-        };
 
         private void PlayButtonClick(object sender, EventArgs args)
         {
             if (player.isAnimated) return;
-            Task.Run(() =>
+            MapReset();
+            var task = Task.Run(() =>
             {
-                lock (player)
+                SetEnabledControls(false, menu.Controls);
+                notepad.BeginInvoke(new Action(() => notepad.Enabled = false));
+
+                for (var i = 0; i < map.scripts.Count; i++)
                 {
-                    for (var i = 0; i < scripts.Count; i++)
+                    if (player.isAnimated) { i--; continue; }
+                    player.isAnimated = true;
+                    Command[map.scripts[i].Move].Invoke(player);
+                    //выделяет исполняемую строку
+                    notepad.BeginInvoke(new Action(() => notepad.SelectedIndex = i - 1));
+                    var free = WatсhOnTarget();
+                    if (!free)
                     {
-                        if (player.isAnimated) { i--; continue; }
-                        player.isAnimated = true;
-                        Command[scripts[i].Move].Invoke(player);
-                        WatсhOnTarget();
-
-                        animator = new System.Timers.Timer();
-                        animator.Interval = 50;
-                        animator.Elapsed += PlayerMovement;
-
-                        animator.Start();
+                        SetEnabledControls(true, menu.Controls);
+                        notepad.BeginInvoke(new Action(() => notepad.Enabled = true));
+                        return;
                     }
+                    animator = new Timers.Timer(80);
+                    animator.Elapsed += PlayerMovement;
+                    animator.Start();
                 }
+                while (player.isAnimated) { /*ждем*/ }
+                //notepad.BeginInvoke(new Action(() => map.ScriptsClear(notepad)));
+                SetEnabledControls(true, menu.Controls);
+                notepad.BeginInvoke(new Action(() => notepad.Enabled = true));
             });
+        }
+
+        private void AddButtonMenu_ItemClick(object sender, ToolStripItemClickedEventArgs args)
+        {
+            var item = args.ClickedItem;
+            var move = (PlayerMove)((ToolStrip)sender).Items.IndexOf(item);
+            notepad.Items.Add(Sketches.sketches[move]);
+            map.scripts.Add(new Script(move));
+        }
+
+        private void NotepadResetClick(object sender, EventArgs args)
+        {
+            notepad.Items.Clear();
+            map.scripts.Clear();
+        }
+
+        private void NotepadRemoveItem(object sender, EventArgs args)
+        {
+            var index = notepad.SelectedIndex;
+            if (index == -1) return;
+            notepad.Items.RemoveAt(index);
+            map.scripts.RemoveAt(index);
+        }
+
+        /// <summary>
+        /// Устанавливает каждому из коллекции Control-ов значение Enabled равным enabled
+        /// </summary>
+        /// <param name="collection">Коллекция Control-ов</param>
+        /// <param name="enabled">Значение, которое нужно установить в Enabled</param>
+        private void SetEnabledControls(bool enabled, Control.ControlCollection collection)
+        {
+            foreach (var i in collection)
+            {
+                var k = i as Button;
+                k.BeginInvoke(new Action(() => k.Enabled = enabled));
+            }
+        }
+
+        private void ResultNotAchieved()
+        {
+            MessageBox.Show("Задача не выполнена, попробуйте ещё раз!", "Опля",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MapReset();
         }
     }
 }
