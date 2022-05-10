@@ -9,39 +9,22 @@ namespace DungeonProgMaster
 {
     public partial class DungeonProgMaster : Form
     {
-        Map Map;
-        Player player;
+        Level level;
         //скорость анимации
         private Timers.Timer animator;
         public DungeonProgMaster()
         {
             InitializeComponent();
             InitializeDesign();
-            Map = new Map(new Player(new Point(1,1), PlayerMove.Bottom), new int[,]
-            {
-                { 0,0,0,0,0,0,0,0,0,0,0,0 },
-                { 1,1,1,1,1,1,1,1,1,2,1,1 },
-                { 1,1,1,1,1,1,1,1,1,1,1,1 },
-                { 1,0,1,1,1,1,1,1,1,1,1,1 },
-                { 1,1,1,1,1,0,1,4,1,1,1,1 },
-                { 1,1,1,1,1,1,1,1,1,1,1,1 },
-                { 1,1,1,1,1,1,1,1,1,1,1,1 },
-                { 0,0,0,0,0,0,0,0,1,1,1,1 },
-                { 0,0,0,0,0,0,0,0,1,1,1,1 },
-                { 0,0,0,0,0,0,0,0,1,1,1,1 },
-                { 0,0,0,0,0,0,0,0,1,1,1,1 },
-                { 0,0,0,0,0,0,0,0,1,1,1,1 }
-            });
-            player = Map.player;
+            level = Levels.GetLevel(0);
         }
 
         /// <summary>
         /// Сбрасывает состояние карты к исходному (включая персонажа)
         /// </summary>
-        private void MapReset()
+        private void LevelReset()
         {
-            Map.Reset(sizer);
-            player = Map.player;
+            level.Reset(sizer);
             gamePlace.Invalidate();
         }
 
@@ -49,7 +32,7 @@ namespace DungeonProgMaster
 
         private bool WatсhOnTarget()
         {
-            var pointFpos = player.targetPosition;
+            var pointFpos = level.player.targetPosition;
             if (pointFpos.X == (int)pointFpos.X && pointFpos.Y == (int)pointFpos.Y)
             {
                 var pos = new Point((int)pointFpos.X, (int)pointFpos.Y);
@@ -57,14 +40,14 @@ namespace DungeonProgMaster
                 {
                     MessageBox.Show("Вы пытались выйти за пределы карты, чего делать нельзя. Будьте осторожней.", "Ой",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    MapReset();
+                    LevelReset();
                     return false;
                 }
-                else if (Map.map[pos.Y, pos.X] == (int)MapData.Tales.Blank)
+                else if (level.map[pos.Y, pos.X] == (int)MapData.Tales.Blank)
                 {
                     MessageBox.Show("Вы чуть не упали в дыру в полу. Будьте осторожней!", "Ой",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    MapReset();
+                    LevelReset();
                     return false;
                 }
             }
@@ -78,6 +61,7 @@ namespace DungeonProgMaster
         /// <param name="args"></param>
         private void PlayerMovement(object sender, EventArgs args)
         {
+            var player = level.player;
             if (player.position == player.targetPosition)
             {
                 player.isAnimated = false;
@@ -106,6 +90,7 @@ namespace DungeonProgMaster
         /// </summary>
         private void UpdatePlayerFrame()
         {
+            var player = level.player;
             //вычисление анимации
             var anim = player.PlayerMoveAnim(player.movement);
             if (player.currentFrame != 0) player.currentFrame++;
@@ -114,7 +99,7 @@ namespace DungeonProgMaster
             player.anim = anim;
         }
 
-        static Dictionary<PlayerMove, Action<Player>> Command = new()
+        static Dictionary<PlayerMove, Action<Player>> Commands = new()
         {
             {PlayerMove.Right, new Action<Player>((player)=>
             {
@@ -146,18 +131,18 @@ namespace DungeonProgMaster
 
         private void PlayButtonClick(object sender, EventArgs args)
         {
-            if (player.isAnimated) return;
-            MapReset();
+            if (level.player.isAnimated) return;
+            LevelReset();
             var task = Task.Run(() =>
             {
                 SetEnabledControls(false, menu.Controls);
                 notepad.BeginInvoke(new Action(() => notepad.Enabled = false));
 
-                for (var i = 0; i < Map.scripts.Count; i++)
+                for (var i = 0; i < level.ScriptCount; i++)
                 {
-                    if (player.isAnimated) { i--; continue; }
-                    player.isAnimated = true;
-                    Command[Map.scripts[i].Move].Invoke(player);
+                    if (level.player.isAnimated) { i--; continue; }
+                    level.player.isAnimated = true;
+                    Commands[level.GetScript(i).Move].Invoke(level.player);
                     //выделяет исполняемую строку
                     notepad.BeginInvoke(new Action(() => notepad.SelectedIndex = i - 1));
                     if (!WatсhOnTarget())
@@ -170,7 +155,7 @@ namespace DungeonProgMaster
                     animator.Elapsed += PlayerMovement;
                     animator.Start();
                 }
-                while (player.isAnimated) { /*ждем*/ }
+                while (level.player.isAnimated) { /*ждем*/ }
                 Finished();
 
                 SetEnabledControls(true, menu.Controls);
@@ -182,14 +167,12 @@ namespace DungeonProgMaster
         {
             var item = args.ClickedItem;
             var move = (PlayerMove)((ToolStrip)sender).Items.IndexOf(item);
-            notepad.Items.Add(Sketches.sketches[move]);
-            Map.scripts.Add(new Script(move));
+            level.ScriptAdd(new Script(move), notepad);
         }
 
         private void NotepadResetClick(object sender, EventArgs args)
         {
-            notepad.Items.Clear();
-            Map.scripts.Clear();
+            level.ScriptsClear(notepad);
         }
 
         private void NotepadRemoveItem(object sender, EventArgs args)
@@ -198,8 +181,7 @@ namespace DungeonProgMaster
             if (index == -1) return;
             //выделяем соседнюю строку
             notepad.SelectedIndex = (notepad.Items.Count - 1 == index || index - 1 != -1) ? index - 1 : index + 1; 
-            notepad.Items.RemoveAt(index);
-            Map.scripts.RemoveAt(index);
+            level.ScriptRemoveAt(index, notepad);
         }
 
         /// <summary>
@@ -218,7 +200,7 @@ namespace DungeonProgMaster
 
         private void Finished()
         {
-            if (Map.map[(int)player.position.Y, (int)player.position.X] == (int)MapData.Tales.Finish)
+            if (level.map[(int)level.player.position.Y, (int)level.player.position.X] == (int)MapData.Tales.Finish)
             {
                 MessageBox.Show("Уровень пройдень!", "Ура!",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -227,6 +209,7 @@ namespace DungeonProgMaster
             {
                 MessageBox.Show("Задача не выполнена, попробуйте ещё раз!", "Опля",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LevelReset();
             }
         }
     }

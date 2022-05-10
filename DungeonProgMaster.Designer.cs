@@ -89,14 +89,14 @@ namespace DungeonProgMaster
             for (int i = 0; i < sizer.columns; i++)
                 for (int j = 0; j < sizer.rows; j++)
                 {
-                    if (Map.map[j, i] != (int)MapData.Tales.Blank)
+                    if (level.map[j, i] != (int)MapData.Tales.Blank)
                         PaintImage(gr, 1, i, j);
                     else PaintImage(gr, 0, i, j);
 
-                    if (Map.map[j, i] == (int)MapData.Tales.Finish)
+                    if (level.map[j, i] == (int)MapData.Tales.Finish)
                         PaintImage(gr, 2, i, j);
                 }
-
+            var player = level.player;
             //игрок
             gr.DrawImage(player.anim[player.currentFrame], new RectangleF(player.worldPosition, player.worldSize),
                  new RectangleF(PointF.Empty, player.anim[player.currentFrame].Size), GraphicsUnit.Pixel);
@@ -106,13 +106,13 @@ namespace DungeonProgMaster
         {
             WorkTableResize();
 
-            var rows = Map.map.GetLength(0);
-            var columns = Map.map.GetLength(1);
+            var rows = level.map.GetLength(0);
+            var columns = level.map.GetLength(1);
             float coeff = (float)gamePlace.Height / columns / 32;
             var imageSize = new SizeF(coeff, coeff) * 32;
             sizer = new Sizer(rows, columns, coeff, imageSize);
 
-            player.SetWorldPositionAndSize(sizer);
+            level.player.SetWorldPositionAndSize(sizer);
             gamePlace.Invalidate();
         }
 
@@ -157,7 +157,6 @@ namespace DungeonProgMaster
         private void GamePlaceCreate()
         {
             gamePlace.Dock = DockStyle.Fill;
-            gamePlace.Padding = Padding.Empty;
             gamePlace.Margin = Padding.Empty;
             gamePlace.Paint += new PaintEventHandler(Painter);
         }
@@ -197,35 +196,26 @@ namespace DungeonProgMaster
 
         private void Notepad_DragDrop(object sender, DragEventArgs e)
         {
-            //индекс, куда перемещаем
-            //listBox1.PointToClient(new Point(e.X, e.Y)) - необходимо
-            //использовать поскольку в e храниться
-            //положение мыши в экранных коородинатах, а эта
-            //функция позволяет преобразовать в клиентские
             int newIndex = notepad.IndexFromPoint(notepad.PointToClient(new Point(e.X, e.Y)));
             //если вставка происходит в начало списка
             if (indexToMove == -1 || indexToMove == 65535) return;
             //получаем перетаскиваемый элемент
-            var item = Map.scripts[indexToMove];
+            var item = level.GetScript(indexToMove);
             object itemToMove = notepad.Items[indexToMove];
             if (newIndex == -1)
             {
                 //удаляем элемент
-                Map.scripts.RemoveAt(indexToMove);
-                notepad.Items.RemoveAt(indexToMove);
+                level.ScriptRemoveAt(indexToMove, notepad);
                 //добавляем в конец списка
-                Map.scripts.Add(item);
-                notepad.Items.Add(itemToMove);
+                level.ScriptAdd(item, notepad);
             }
             //вставляем где-то в середину списка
             else if (indexToMove != newIndex)
             {
                 //удаляем элемент
-                Map.scripts.RemoveAt(indexToMove);
-                notepad.Items.RemoveAt(indexToMove);
+                level.ScriptRemoveAt(indexToMove, notepad);
                 //вставляем в конкретную позицию
-                Map.scripts.Insert(newIndex, item);
-                notepad.Items.Insert(newIndex, itemToMove);
+                level.ScriptInsert(newIndex, item, notepad);
             }
         }
 
@@ -259,67 +249,26 @@ namespace DungeonProgMaster
             menu.Dock = DockStyle.Fill;
             menu.BackColor = Color.White;
             menu.Margin = Padding.Empty;
-            AddButtonCreate();
-            PlayButtonCreate();
-            NotepadResetButtonCreate();
-            NotepadItemRemoveButtonCreate();
+            addButton = CreateStandartMenuButton("AddButton", "Добавить элемент", new EventHandler(AddButtonClick));
+            playButton = CreateStandartMenuButton("PlayButton", "Запустить алгоритм", new EventHandler(PlayButtonClick));
+            notepadReset = CreateStandartMenuButton("NotepadResetButton", "Очистить алгоритм", new EventHandler(NotepadResetClick));
+            notepadItemRemove = CreateStandartMenuButton("RemoveItem", "Удалить выделенную строку", new EventHandler(NotepadRemoveItem));
         }
 
-        private void NotepadItemRemoveButtonCreate()
+        private Button CreateStandartMenuButton(string name, string toolTip, EventHandler handler)
         {
-            notepadItemRemove = new Button();
-            notepadItemRemove.Margin = Padding.Empty;
-            var toolTip3 = new ToolTip();
-            toolTip3.SetToolTip(notepadItemRemove, "Удалить выделенную строку");
-            notepadItemRemove.Size = new Size(menu.Height, menu.Height);
-            notepadItemRemove.BackgroundImage = new Bitmap(Image.FromFile(Application.StartupPath + @"..\..\..\Resources\RemoveItem.png"),
-                    new Size(menu.Height, menu.Height));
-            notepadItemRemove.BackgroundImageLayout = ImageLayout.Zoom;
-            notepadItemRemove.Click += new EventHandler(NotepadRemoveItem);
-            menu.Controls.Add(notepadItemRemove);
-        }
-
-        private void NotepadResetButtonCreate()
-        {
-            notepadReset = new Button();
-            notepadReset.Margin = Padding.Empty;
-            var toolTip3 = new ToolTip();
-            toolTip3.SetToolTip(notepadReset, "Очистить алгоритм");
-            notepadReset.Size = new Size(menu.Height, menu.Height);
-            notepadReset.BackgroundImage = new Bitmap(Image.FromFile(Application.StartupPath + @"..\..\..\Resources\NotepadResetButton.png"),
-                    new Size(menu.Height, menu.Height));
-            notepadReset.BackgroundImageLayout = ImageLayout.Zoom;
-            notepadReset.Click += new EventHandler(NotepadResetClick);
-            menu.Controls.Add(notepadReset);
-        }
-
-        private void PlayButtonCreate()
-        {
-            playButton = new Button();
-            playButton.Margin = Padding.Empty;
-            var toolTip2 = new ToolTip();
-            toolTip2.SetToolTip(playButton, "Запустить алгоритм");
-            playButton.Size = new Size(menu.Height, menu.Height);
-            playButton.BackgroundImage = new Bitmap(Image.FromFile(Application.StartupPath + @"..\..\..\Resources\PlayButton.png"),
-                    new Size(menu.Height, menu.Height));
-            playButton.BackgroundImageLayout = ImageLayout.Zoom;
-            playButton.Click += new EventHandler(PlayButtonClick);
-            menu.Controls.Add(playButton);
-        }
-
-        private void AddButtonCreate()
-        {
-            addButton = new Button();
-            addButton.Margin = Padding.Empty;
+            var button = new Button();
+            button.Margin = Padding.Empty;
             var toolTip1 = new ToolTip();
-            toolTip1.SetToolTip(addButton, "Добавить элемент");
-            addButton.Location = new Point(menu.Height, 0);
-            addButton.Size = new Size(menu.Height, menu.Height);
-            addButton.BackgroundImage = new Bitmap(Image.FromFile(Application.StartupPath + @"..\..\..\Resources\AddButton.png"),
+            toolTip1.SetToolTip(button, "Добавить элемент");
+            button.Location = new Point(menu.Height, 0);
+            button.Size = new Size(menu.Height, menu.Height);
+            button.BackgroundImage = new Bitmap(Image.FromFile(Application.StartupPath + @"..\..\..\Resources\" + name + ".png"),
                     new Size(menu.Height, menu.Height));
-            addButton.BackgroundImageLayout = ImageLayout.Zoom;
-            addButton.Click += new EventHandler(AddButtonClick);
-            menu.Controls.Add(addButton);
+            button.BackgroundImageLayout = ImageLayout.Zoom;
+            button.Click += handler;
+            menu.Controls.Add(button);
+            return button;
         }
 
         private void AddButtonClick(object sender, EventArgs args)
