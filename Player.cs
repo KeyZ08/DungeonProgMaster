@@ -10,14 +10,14 @@ namespace DungeonProgMaster
         private Dictionary<PlayerMove, List<Bitmap>> animations;
         public PointF position;
         public PointF worldPosition { get; private set; }
-        public PointF targetPosition;
+        public Point targetPosition;
         public SizeF worldSize { get; private set; }
         public PlayerMove movement;
         public int currentFrame = 0;
         public List<Bitmap> anim;
         public bool isAnimated = false;
 
-        public Player(PointF position, PlayerMove defaultAnim)
+        public Player(Point position, PlayerMove defaultAnim)
         {
             this.position = position;
             targetPosition = position;
@@ -31,7 +31,7 @@ namespace DungeonProgMaster
             anim = animations[movement];
         }
 
-        public Player(PointF position, PlayerMove defaultAnim, Player p)
+        public Player(Point position, PlayerMove defaultAnim, Player p)
         {
             this.position = position;
             movement = defaultAnim;
@@ -42,7 +42,7 @@ namespace DungeonProgMaster
 
         public List<Bitmap> PlayerMoveAnim(PlayerMove move)
         {
-            return animations.TryGetValue(move, out var result) ? result: throw new ArgumentException();
+            return animations.TryGetValue(move, out var result) ? result: throw new ArgumentException($"{move} нет в словаре");
         }
 
         /// <summary>

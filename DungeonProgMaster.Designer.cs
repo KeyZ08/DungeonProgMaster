@@ -71,6 +71,14 @@ namespace DungeonProgMaster
             SizeChanged += (sender, args) => WindowResize();
         }
 
+        private void PaintImage(Graphics gr, int tale, int x, int y)
+        {
+            gr.DrawImage(MapData.GetTale(tale),
+                            new RectangleF(sizer.floorSize.Width * x, sizer.floorSize.Height * y,
+                            sizer.floorSize.Width + 3f, sizer.floorSize.Height + 3f),
+                            new RectangleF(PointF.Empty, MapData.GetTale(tale).Size), GraphicsUnit.Pixel);
+        }
+
         /// <summary>
         /// Отрисовывает всё игровое поле
         /// </summary>
@@ -79,15 +87,15 @@ namespace DungeonProgMaster
             var gr = args.Graphics;
             //карта
             for (int i = 0; i < sizer.columns; i++)
-            {
                 for (int j = 0; j < sizer.rows; j++)
                 {
-                    gr.DrawImage(MapData.GetTale(map.map[j, i]),
-                        new RectangleF(sizer.floorSize.Width * i, sizer.floorSize.Height * j,
-                        sizer.floorSize.Width + 3f, sizer.floorSize.Height + 3f),
-                        new RectangleF(PointF.Empty, MapData.GetTale(map.map[j, i]).Size), GraphicsUnit.Pixel);
+                    if (Map.map[j, i] != (int)MapData.Tales.Blank)
+                        PaintImage(gr, 1, i, j);
+                    else PaintImage(gr, 0, i, j);
+
+                    if (Map.map[j, i] == (int)MapData.Tales.Finish)
+                        PaintImage(gr, 2, i, j);
                 }
-            }
 
             //игрок
             gr.DrawImage(player.anim[player.currentFrame], new RectangleF(player.worldPosition, player.worldSize),
@@ -98,14 +106,24 @@ namespace DungeonProgMaster
         {
             WorkTableResize();
 
-            var rows = map.map.GetLength(0);
-            var columns = map.map.GetLength(1);
+            var rows = Map.map.GetLength(0);
+            var columns = Map.map.GetLength(1);
             float coeff = (float)gamePlace.Height / columns / 32;
             var imageSize = new SizeF(coeff, coeff) * 32;
             sizer = new Sizer(rows, columns, coeff, imageSize);
 
             player.SetWorldPositionAndSize(sizer);
             gamePlace.Invalidate();
+        }
+
+        private void WorkTableResize()
+        {
+            var hcoeff = ClientSize.Height / 440d;
+            var wcoeff = ClientSize.Width / 800d;
+            var coeff = hcoeff < wcoeff ? hcoeff : wcoeff;
+            var widht = (int)(coeff * 800);
+            var height = widht * 55 / 100;
+            workTable.Size = new Size(widht, height);
         }
 
         #endregion
@@ -134,16 +152,6 @@ namespace DungeonProgMaster
             MenuCreate();
 
             Controls.Add(workTable);
-        }
-
-        private void WorkTableResize()
-        {
-            var hcoeff = ClientSize.Height / 440d;
-            var wcoeff = ClientSize.Width / 800d;
-            var coeff = hcoeff < wcoeff ? hcoeff : wcoeff;
-            var widht = (int)(coeff * 800);
-            var height = widht * 55 / 100;
-            workTable.Size = new Size(widht, height);
         }
 
         private void GamePlaceCreate()
@@ -198,25 +206,25 @@ namespace DungeonProgMaster
             //если вставка происходит в начало списка
             if (indexToMove == -1 || indexToMove == 65535) return;
             //получаем перетаскиваемый элемент
-            var item = map.scripts[indexToMove];
+            var item = Map.scripts[indexToMove];
             object itemToMove = notepad.Items[indexToMove];
             if (newIndex == -1)
             {
                 //удаляем элемент
-                map.scripts.RemoveAt(indexToMove);
+                Map.scripts.RemoveAt(indexToMove);
                 notepad.Items.RemoveAt(indexToMove);
                 //добавляем в конец списка
-                map.scripts.Add(item);
+                Map.scripts.Add(item);
                 notepad.Items.Add(itemToMove);
             }
             //вставляем где-то в середину списка
             else if (indexToMove != newIndex)
             {
                 //удаляем элемент
-                map.scripts.RemoveAt(indexToMove);
+                Map.scripts.RemoveAt(indexToMove);
                 notepad.Items.RemoveAt(indexToMove);
                 //вставляем в конкретную позицию
-                map.scripts.Insert(newIndex, item);
+                Map.scripts.Insert(newIndex, item);
                 notepad.Items.Insert(newIndex, itemToMove);
             }
         }
@@ -233,12 +241,13 @@ namespace DungeonProgMaster
             var allString = notepad.Items[e.Index].ToString().Split('.');
             for (var i = 0; i < allString.Length; i++)
             {
-                var st = e.Index + 1;
-                e.Graphics.DrawString(st.ToString(), new Font(FontFamily.GenericMonospace, 12, FontStyle.Regular),
+                var st = (e.Index + 1).ToString();
+                e.Graphics.DrawString(st, new Font(FontFamily.GenericMonospace, 12, FontStyle.Regular),
                      new SolidBrush(e.ForeColor), e.Bounds, StringFormat.GenericDefault);
-                e.Graphics.DrawString(". " + allString[i], new Font(FontFamily.GenericMonospace, 12, FontStyle.Regular),
+
+                e.Graphics.DrawString("." + allString[i], new Font(FontFamily.GenericMonospace, 12, FontStyle.Regular),
                      new SolidBrush(i == 0 ? Color.SkyBlue : e.ForeColor),
-                     new RectangleF(e.Bounds.X * i + (i == 0 ? 0 : allString[i - 1].Length) * 13, e.Bounds.Y, allString[i].Length * 16, e.Bounds.Height),
+                     new RectangleF(st.Length * 12 + e.Bounds.X * i + (i == 0 ? 0 : allString[i - 1].Length) * 12, e.Bounds.Y, allString[i].Length * 16, e.Bounds.Height),
                      StringFormat.GenericDefault);
             }
 
@@ -252,11 +261,11 @@ namespace DungeonProgMaster
             menu.Margin = Padding.Empty;
             AddButtonCreate();
             PlayButtonCreate();
-            NotepadResetButton();
-            NotepadItemRemove();
+            NotepadResetButtonCreate();
+            NotepadItemRemoveButtonCreate();
         }
 
-        private void NotepadItemRemove()
+        private void NotepadItemRemoveButtonCreate()
         {
             notepadItemRemove = new Button();
             notepadItemRemove.Margin = Padding.Empty;
@@ -270,7 +279,7 @@ namespace DungeonProgMaster
             menu.Controls.Add(notepadItemRemove);
         }
 
-        private void NotepadResetButton()
+        private void NotepadResetButtonCreate()
         {
             notepadReset = new Button();
             notepadReset.Margin = Padding.Empty;

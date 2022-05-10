@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace DungeonProgMaster
@@ -13,14 +14,14 @@ namespace DungeonProgMaster
         public Map(Player player, int[,] map)
         {
             this.player = player;
-            reservePlayer = new Player(player.position, player.movement);
+            reservePlayer = new Player(Point.Ceiling(player.position), player.movement);
             this.map = map;
             scripts = new List<Script>();
         }
 
         public void Reset(Sizer sizer)
         {
-            player = new Player(reservePlayer.position, reservePlayer.movement, player);
+            player = new Player(Point.Ceiling(reservePlayer.position), reservePlayer.movement, player);
             player.SetWorldPositionAndSize(sizer);
         }
 
@@ -50,10 +51,10 @@ namespace DungeonProgMaster
     {
         public static Dictionary<PlayerMove, string> sketches = new Dictionary<PlayerMove, string>()
         {
-            { PlayerMove.Right, "Player.RightMove();"},
-            { PlayerMove.Left, "Player.LeftMove();"},
-            { PlayerMove.Top, "Player.TopMove();"},
-            { PlayerMove.Bottom, "Player.BottomMove();"},
+            { PlayerMove.Right, "Player.MoveRight();"},
+            { PlayerMove.Left, "Player.MoveLeft();"},
+            { PlayerMove.Top, "Player.MoveTop();"},
+            { PlayerMove.Bottom, "Player.MoveBottom();"},
         };
     }
 }

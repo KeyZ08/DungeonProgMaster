@@ -9,7 +9,8 @@ namespace DungeonProgMaster
         private static Dictionary<Tales, Bitmap> images = new Dictionary<Tales, Bitmap>()
         {
             { Tales.Blank, new Bitmap(Application.StartupPath + @"..\..\..\Resources\Blank.png")},
-            { Tales.Ground, new Bitmap(Application.StartupPath + @"..\..\..\Resources\Ground.png")}
+            { Tales.Ground, new Bitmap(Application.StartupPath + @"..\..\..\Resources\Ground.png")},
+            { Tales.Finish, new Bitmap(Application.StartupPath + @"..\..\..\Resources\Finish.png")},
         };
 
         public static Bitmap GetTale(int tale)
@@ -21,6 +22,7 @@ namespace DungeonProgMaster
         {
             Blank = 0,
             Ground = 1,
+            Finish = 2,
         }
     }
 }

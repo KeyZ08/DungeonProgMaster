@@ -9,7 +9,7 @@ namespace DungeonProgMaster
 {
     public partial class DungeonProgMaster : Form
     {
-        Map map;
+        Map Map;
         Player player;
         //скорость анимации
         private Timers.Timer animator;
@@ -17,10 +17,10 @@ namespace DungeonProgMaster
         {
             InitializeComponent();
             InitializeDesign();
-            map = new Map(new Player(new Point(1,1), PlayerMove.Bottom), new int[,]
+            Map = new Map(new Player(new Point(1,1), PlayerMove.Bottom), new int[,]
             {
                 { 0,0,0,0,0,0,0,0,0,0,0,0 },
-                { 1,1,1,1,1,1,1,1,1,1,1,1 },
+                { 1,1,1,1,1,1,1,1,1,2,1,1 },
                 { 1,1,1,1,1,1,1,1,1,1,1,1 },
                 { 1,0,1,1,1,1,1,1,1,1,1,1 },
                 { 1,1,1,1,1,0,1,4,1,1,1,1 },
@@ -32,7 +32,7 @@ namespace DungeonProgMaster
                 { 0,0,0,0,0,0,0,0,1,1,1,1 },
                 { 0,0,0,0,0,0,0,0,1,1,1,1 }
             });
-            player = map.player;
+            player = Map.player;
         }
 
         /// <summary>
@@ -40,8 +40,8 @@ namespace DungeonProgMaster
         /// </summary>
         private void MapReset()
         {
-            map.Reset(sizer);
-            player = map.player;
+            Map.Reset(sizer);
+            player = Map.player;
             gamePlace.Invalidate();
         }
 
@@ -49,19 +49,20 @@ namespace DungeonProgMaster
 
         private bool WatсhOnTarget()
         {
-            var pos = player.targetPosition;
-            if (pos.X == (int)pos.X && pos.Y == (int)pos.Y)
+            var pointFpos = player.targetPosition;
+            if (pointFpos.X == (int)pointFpos.X && pointFpos.Y == (int)pointFpos.Y)
             {
+                var pos = new Point((int)pointFpos.X, (int)pointFpos.Y);
                 if (pos.X < 0 || pos.Y < 0 || pos.X >= sizer.columns || pos.Y >= sizer.rows)
                 {
-                    MessageBox.Show("Вы вышли за пределы карты, чего делать нельзя.", "Ой",
+                    MessageBox.Show("Вы пытались выйти за пределы карты, чего делать нельзя. Будьте осторожней.", "Ой",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     MapReset();
                     return false;
                 }
-                else if (map.map[(int)pos.Y, (int)pos.X] != (int)MapData.Tales.Ground)
+                else if (Map.map[pos.Y, pos.X] == (int)MapData.Tales.Blank)
                 {
-                    MessageBox.Show("Вы упали в дыру в полу.", "Ой",
+                    MessageBox.Show("Вы чуть не упали в дыру в полу. Будьте осторожней!", "Ой",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     MapReset();
                     return false;
@@ -152,15 +153,14 @@ namespace DungeonProgMaster
                 SetEnabledControls(false, menu.Controls);
                 notepad.BeginInvoke(new Action(() => notepad.Enabled = false));
 
-                for (var i = 0; i < map.scripts.Count; i++)
+                for (var i = 0; i < Map.scripts.Count; i++)
                 {
                     if (player.isAnimated) { i--; continue; }
                     player.isAnimated = true;
-                    Command[map.scripts[i].Move].Invoke(player);
+                    Command[Map.scripts[i].Move].Invoke(player);
                     //выделяет исполняемую строку
                     notepad.BeginInvoke(new Action(() => notepad.SelectedIndex = i - 1));
-                    var free = WatсhOnTarget();
-                    if (!free)
+                    if (!WatсhOnTarget())
                     {
                         SetEnabledControls(true, menu.Controls);
                         notepad.BeginInvoke(new Action(() => notepad.Enabled = true));
@@ -171,7 +171,8 @@ namespace DungeonProgMaster
                     animator.Start();
                 }
                 while (player.isAnimated) { /*ждем*/ }
-                //notepad.BeginInvoke(new Action(() => map.ScriptsClear(notepad)));
+                Finished();
+
                 SetEnabledControls(true, menu.Controls);
                 notepad.BeginInvoke(new Action(() => notepad.Enabled = true));
             });
@@ -182,21 +183,23 @@ namespace DungeonProgMaster
             var item = args.ClickedItem;
             var move = (PlayerMove)((ToolStrip)sender).Items.IndexOf(item);
             notepad.Items.Add(Sketches.sketches[move]);
-            map.scripts.Add(new Script(move));
+            Map.scripts.Add(new Script(move));
         }
 
         private void NotepadResetClick(object sender, EventArgs args)
         {
             notepad.Items.Clear();
-            map.scripts.Clear();
+            Map.scripts.Clear();
         }
 
         private void NotepadRemoveItem(object sender, EventArgs args)
         {
             var index = notepad.SelectedIndex;
             if (index == -1) return;
+            //выделяем соседнюю строку
+            notepad.SelectedIndex = (notepad.Items.Count - 1 == index || index - 1 != -1) ? index - 1 : index + 1; 
             notepad.Items.RemoveAt(index);
-            map.scripts.RemoveAt(index);
+            Map.scripts.RemoveAt(index);
         }
 
         /// <summary>
@@ -204,7 +207,7 @@ namespace DungeonProgMaster
         /// </summary>
         /// <param name="collection">Коллекция Control-ов</param>
         /// <param name="enabled">Значение, которое нужно установить в Enabled</param>
-        private void SetEnabledControls(bool enabled, Control.ControlCollection collection)
+        private static void SetEnabledControls(bool enabled, Control.ControlCollection collection)
         {
             foreach (var i in collection)
             {
@@ -213,11 +216,18 @@ namespace DungeonProgMaster
             }
         }
 
-        private void ResultNotAchieved()
+        private void Finished()
         {
-            MessageBox.Show("Задача не выполнена, попробуйте ещё раз!", "Опля",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
-            MapReset();
+            if (Map.map[(int)player.position.Y, (int)player.position.X] == (int)MapData.Tales.Finish)
+            {
+                MessageBox.Show("Уровень пройдень!", "Ура!",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("Задача не выполнена, попробуйте ещё раз!", "Опля",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
