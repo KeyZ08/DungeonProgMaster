@@ -38,7 +38,7 @@ namespace DungeonProgMaster
                 var pos = new Point((int)pointFpos.X, (int)pointFpos.Y);
                 if (pos.X < 0 || pos.Y < 0 || pos.X >= sizer.columns || pos.Y >= sizer.rows)
                 {
-                    MessageBox.Show("Вы пытались выйти за пределы карты, чего делать нельзя. Будьте осторожней.", "Ой",
+                    MessageBox.Show("Похоже вы пытались выйти за пределы карты, чего делать нельзя. Будьте осторожней.", "Ой",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     LevelReset();
                     return false;
@@ -59,26 +59,28 @@ namespace DungeonProgMaster
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="args"></param>
-        private void PlayerMovement(object sender, EventArgs args)
+        private void PlayerMovementAnim(object sender, EventArgs args)
         {
             var player = level.player;
             if (player.position == player.targetPosition)
             {
                 player.isAnimated = false;
-                animator.Stop();
-                return;
+                animator.Dispose();
             }
+            else
+            {
+                var frame = 1.0f / player.anim.Count;
+                var pos = player.position;
+                if (player.movement == PlayerMoveAnim.Right) pos.X += frame;
+                else if (player.movement == PlayerMoveAnim.Left) pos.X -= frame;
+                else if (player.movement == PlayerMoveAnim.Top) pos.Y -= frame;
+                else if (player.movement == PlayerMoveAnim.Bottom) pos.Y += frame;
+                player.position.X = (float)Math.Round(pos.X, 2);
+                player.position.Y = (float)Math.Round(pos.Y, 2);
 
-            var frame = 1.0f / player.anim.Count;
-            var pos = player.position;
-            if (player.movement == PlayerMove.Right) pos.X += frame;
-            else if (player.movement == PlayerMove.Left) pos.X -= frame;
-            else if (player.movement == PlayerMove.Top) pos.Y -= frame;
-            else if (player.movement == PlayerMove.Bottom) pos.Y += frame;
-            player.position.X = (float)Math.Round(pos.X, 1);
-            player.position.Y = (float)Math.Round(pos.Y, 1);
 
-            player.SetWorldPositionAndSize(sizer);
+                player.SetWorldPositionAndSize(sizer);
+            }
             UpdatePlayerFrame();
 
             gamePlace.Invalidate();
@@ -101,30 +103,36 @@ namespace DungeonProgMaster
 
         static Dictionary<PlayerMove, Action<Player>> Commands = new()
         {
-            {PlayerMove.Right, new Action<Player>((player)=>
             {
-                player.movement = PlayerMove.Right;
-                player.targetPosition.X += 1;
-                player.currentFrame = 1;
-            })},
-            {PlayerMove.Left, new Action<Player>((player)=>
+                PlayerMove.Forward,
+                new Action<Player>((player) =>
+                {
+                    if(player.movement == PlayerMoveAnim.Right)
+                        player.targetPosition.X += 1;
+                    else if (player.movement == PlayerMoveAnim.Left)
+                        player.targetPosition.X -= 1;
+                    else if (player.movement == PlayerMoveAnim.Top)
+                        player.targetPosition.Y -= 1;
+                    else if (player.movement == PlayerMoveAnim.Bottom)
+                        player.targetPosition.Y += 1;
+                    player.currentFrame = 1;
+                })
+            },
             {
-                player.movement = PlayerMove.Left;
-                player.targetPosition.X -= 1;
-                player.currentFrame = 1;
-            })},
-            {PlayerMove.Top, new Action<Player>((player)=>
-            {
-                player.movement = PlayerMove.Top;
-                player.targetPosition.Y -= 1;
-                player.currentFrame = 1;
-            })},
-            {PlayerMove.Bottom, new Action<Player>((player)=>
-            {
-                player.movement = PlayerMove.Bottom;
-                player.targetPosition.Y += 1;
-                player.currentFrame = 1;
-            })}
+                PlayerMove.Rotate,
+                new Action<Player>((player) =>
+                {
+                    if (player.movement == PlayerMoveAnim.Right)
+                        player.movement = PlayerMoveAnim.Bottom;
+                    else if (player.movement == PlayerMoveAnim.Left)
+                        player.movement = PlayerMoveAnim.Top;
+                    else if (player.movement == PlayerMoveAnim.Top)
+                        player.movement = PlayerMoveAnim.Right;
+                    else if (player.movement == PlayerMoveAnim.Bottom)
+                        player.movement = PlayerMoveAnim.Left;
+                    player.currentFrame = 0;
+                })
+            },
         };
 
         #endregion
@@ -151,8 +159,8 @@ namespace DungeonProgMaster
                         notepad.BeginInvoke(new Action(() => notepad.Enabled = true));
                         return;
                     }
-                    animator = new Timers.Timer(80);
-                    animator.Elapsed += PlayerMovement;
+                    animator = level.GetScript(i).Move == PlayerMove.Rotate? new Timers.Timer(150) : new Timers.Timer(100);
+                    animator.Elapsed += PlayerMovementAnim;
                     animator.Start();
                 }
                 while (level.player.isAnimated) { /*ждем*/ }
@@ -202,8 +210,15 @@ namespace DungeonProgMaster
         {
             if (level.map[(int)level.player.position.Y, (int)level.player.position.X] == (int)MapData.Tales.Finish)
             {
-                MessageBox.Show("Уровень пройдень!", "Ура!",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                var message = MessageBox.Show("Уровень пройден! Перейти на следующий уровень? ", "Ура!", 
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                if (message == DialogResult.Yes)
+                {
+                    level = Levels.GetLevel(level.id + 1);
+                    LevelReset();
+                    notepad.BeginInvoke(new Action(() => level.ScriptsClear(notepad)));
+                }
+                else LevelReset();
             }
             else
             {

@@ -9,10 +9,10 @@ namespace DungeonProgMaster
 {
     class Sizer
     {
-        public int rows;
-        public int columns;
-        public float coeff;
-        public SizeF floorSize;
+        public readonly int rows;
+        public readonly int columns;
+        public readonly float coeff;
+        public readonly SizeF floorSize;
 
         public Sizer(int rows, int columns, float coeff, SizeF floorSize)
         {

@@ -7,31 +7,31 @@ namespace DungeonProgMaster
 {
     class Player
     {
-        private Dictionary<PlayerMove, List<Bitmap>> animations;
+        private Dictionary<PlayerMoveAnim, List<Bitmap>> animations;
         public PointF position;
         public PointF worldPosition { get; private set; }
         public Point targetPosition;
         public SizeF worldSize { get; private set; }
-        public PlayerMove movement;
+        public PlayerMoveAnim movement;
         public int currentFrame = 0;
         public List<Bitmap> anim;
         public bool isAnimated = false;
 
-        public Player(Point position, PlayerMove defaultAnim)
+        public Player(Point position, PlayerMoveAnim defaultAnim)
         {
             this.position = position;
             targetPosition = position;
             var images = new Bitmap(Application.StartupPath + @"..\..\..\Resources\Character_SpriteSheet.png");
-            animations = new Dictionary<PlayerMove, List<Bitmap>>();
-            CreateAnimations(images, PlayerMove.Top);
-            CreateAnimations(images, PlayerMove.Bottom);
-            CreateAnimations(images, PlayerMove.Left);
-            CreateAnimations(images, PlayerMove.Right);
+            animations = new Dictionary<PlayerMoveAnim, List<Bitmap>>();
+            CreateAnimations(images, global::DungeonProgMaster.PlayerMoveAnim.Top);
+            CreateAnimations(images, global::DungeonProgMaster.PlayerMoveAnim.Bottom);
+            CreateAnimations(images, global::DungeonProgMaster.PlayerMoveAnim.Left);
+            CreateAnimations(images, global::DungeonProgMaster.PlayerMoveAnim.Right);
             movement = defaultAnim;
             anim = animations[movement];
         }
 
-        public Player(Point position, PlayerMove defaultAnim, Player p)
+        public Player(Point position, PlayerMoveAnim defaultAnim, Player p)
         {
             this.position = position;
             movement = defaultAnim;
@@ -40,7 +40,7 @@ namespace DungeonProgMaster
             anim = animations[movement];
         }
 
-        public List<Bitmap> PlayerMoveAnim(PlayerMove move)
+        public List<Bitmap> PlayerMoveAnim(PlayerMoveAnim move)
         {
             return animations.TryGetValue(move, out var result) ? result: throw new ArgumentException($"{move} нет в словаре");
         }
@@ -78,7 +78,7 @@ namespace DungeonProgMaster
         /// Разбивает общий спрайт на его части, группируя в списки для анимации соответственно перемещению
         /// </summary>
         /// <param name="move">Направление движения</param>
-        private void CreateAnimations(Bitmap images, PlayerMove move)
+        private void CreateAnimations(Bitmap images, PlayerMoveAnim move)
         {
             var list = new List<Bitmap>();
             for(var i = 0; i < 5; i++)
@@ -87,11 +87,19 @@ namespace DungeonProgMaster
         }
     }
 
-    enum PlayerMove
+    enum PlayerMoveAnim
     {
         Top = 1,
         Bottom = 0,
         Left = 3,
-        Right = 2
+        Right = 2,
+        Rotate = 4,
+        Forward = 5
+    }
+
+    enum PlayerMove
+    {
+        Rotate = 0,
+        Forward = 1,
     }
 }

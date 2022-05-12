@@ -280,7 +280,7 @@ namespace DungeonProgMaster
             }
 
             addButton_contextMenu = new ContextMenuStrip();
-            for (var i = 0; i < 4; i++)
+            for (var i = 0; i < 2; i++)
                 addButton_contextMenu.Items.Add(Sketches.sketches[(PlayerMove)i]);
 
             addButton_contextMenu.ItemClicked += new ToolStripItemClickedEventHandler(AddButtonMenu_ItemClick);

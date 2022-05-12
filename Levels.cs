@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace DungeonProgMaster
@@ -13,14 +10,14 @@ namespace DungeonProgMaster
         static readonly List<Level> levels = new List<Level>()
         {
             {
-                new Level(
+                new Level(0,
                     new int[,]
                 {
                     { 0,0,0,0,0,0,0,0,0,0,0,0 },
                     { 1,1,1,1,1,1,1,1,1,2,1,1 },
                     { 1,1,1,1,1,1,1,1,1,1,1,1 },
                     { 1,0,1,1,1,1,1,1,1,1,1,1 },
-                    { 1,1,1,1,1,0,1,4,1,1,1,1 },
+                    { 1,1,1,1,1,0,1,0,1,1,1,1 },
                     { 1,1,1,1,1,1,1,1,1,1,1,1 },
                     { 1,1,1,1,1,1,1,1,1,1,1,1 },
                     { 0,0,0,0,0,0,0,0,1,1,1,1 },
@@ -29,25 +26,49 @@ namespace DungeonProgMaster
                     { 0,0,0,0,0,0,0,0,1,1,1,1 },
                     { 0,0,0,0,0,0,0,0,1,1,1,1 }
                 }, 
-                    new Player(new Point(1,1), PlayerMove.Bottom))},
+                    new Player(new Point(1,1), PlayerMoveAnim.Bottom))
+            },
+            {
+                new Level(1,
+                    new int[,]
+                {
+                    { 1,1,1,0,1,1,1,1,1,1,1,1 },
+                    { 1,1,1,0,1,1,1,1,1,1,1,1 },
+                    { 1,1,1,0,1,1,1,1,1,1,1,1 },
+                    { 0,1,0,0,1,1,1,1,1,1,1,1 },
+                    { 0,1,0,0,0,0,0,1,1,1,1,1 },
+                    { 0,1,1,1,1,1,0,1,1,1,1,1 },
+                    { 0,0,0,0,0,1,0,1,1,1,1,1 },
+                    { 1,1,1,1,0,1,0,1,1,1,1,1 },
+                    { 1,1,1,1,0,1,0,0,0,0,0,1 },
+                    { 1,1,1,1,0,1,1,1,1,2,0,1 },
+                    { 1,1,1,1,0,0,0,0,0,0,0,1 },
+                    { 1,1,1,1,1,1,1,1,1,1,1,1 }
+                }, 
+                    new Player(new Point(1,1), PlayerMoveAnim.Bottom))
+            },
         };
 
         public static Level GetLevel(int id)
         {
-            return levels[id];
+            if (levels.Count > id)
+                return levels[id];
+            else throw new ArgumentOutOfRangeException("Уровня с таким ID ещё нет!");
         }
     }
 
     class Level
     {
-        public int[,] map;
+        public readonly int id;
+        public readonly int[,] map;
         private Player reservePlayer;
         public Player player;
         private List<Script> scripts;
         public int ScriptCount { get { return scripts.Count; } }
 
-        public Level(int[,] map, Player player)
+        public Level(int id, int[,] map, Player player)
         {
+            this.id = id;
             this.map = map;
             this.player = player;
             reservePlayer = new Player(Point.Ceiling(player.position), player.movement);
@@ -106,10 +127,25 @@ namespace DungeonProgMaster
     {
         public static Dictionary<PlayerMove, string> sketches = new Dictionary<PlayerMove, string>()
         {
-            {PlayerMove.Top, "Player.MoveTop()" },
-            {PlayerMove.Right, "Player.MoveRight()" },
-            {PlayerMove.Bottom, "Player.MoveBottom()" },
-            {PlayerMove.Left, "Player.MoveLeft()" },
+            {PlayerMove.Forward, "Player.MoveForward()" },
+            {PlayerMove.Rotate, "Player.Rotate()" },
         };
     }
+
+    //шаблон
+    //new int[,]
+    //            {
+    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
+    //                { 1,1,1,1,1,1,1,1,1,2,1,1 },
+    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
+    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
+    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
+    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
+    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
+    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
+    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
+    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
+    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
+    //                { 1,1,1,1,1,1,1,1,1,1,1,1 }
+    //            }, 
 }
