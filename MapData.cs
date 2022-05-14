@@ -6,7 +6,7 @@ namespace DungeonProgMaster
 {
     static class MapData
     {
-        private static Dictionary<Tales, Bitmap> images = new Dictionary<Tales, Bitmap>()
+        readonly static Dictionary<Tales, Bitmap> images = new Dictionary<Tales, Bitmap>()
         {
             { Tales.Blank, new Bitmap(Application.StartupPath + @"..\..\..\Resources\Blank.png")},
             { Tales.Ground, new Bitmap(Application.StartupPath + @"..\..\..\Resources\Ground.png")},

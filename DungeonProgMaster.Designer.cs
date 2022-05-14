@@ -98,7 +98,7 @@ namespace DungeonProgMaster
                 }
             var player = level.player;
             //игрок
-            gr.DrawImage(player.anim[player.currentFrame], new RectangleF(player.worldPosition, player.worldSize),
+            gr.DrawImage(player.anim[player.currentFrame], new RectangleF(player.WorldPosition, player.WorldSize),
                  new RectangleF(PointF.Empty, player.anim[player.currentFrame].Size), GraphicsUnit.Pixel);
         }
 
@@ -281,7 +281,7 @@ namespace DungeonProgMaster
 
             addButton_contextMenu = new ContextMenuStrip();
             for (var i = 0; i < 2; i++)
-                addButton_contextMenu.Items.Add(Sketches.sketches[(PlayerMove)i]);
+                addButton_contextMenu.Items.Add(Sketches.sketches[(Command)i]);
 
             addButton_contextMenu.ItemClicked += new ToolStripItemClickedEventHandler(AddButtonMenu_ItemClick);
             addButton_contextMenu.Show(addButton, new Point(addButton.Height,0));

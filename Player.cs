@@ -7,11 +7,11 @@ namespace DungeonProgMaster
 {
     class Player
     {
-        private Dictionary<PlayerMoveAnim, List<Bitmap>> animations;
+        readonly Dictionary<PlayerMoveAnim, List<Bitmap>> animations;
         public PointF position;
-        public PointF worldPosition { get; private set; }
+        public PointF WorldPosition { get; private set; }
         public Point targetPosition;
-        public SizeF worldSize { get; private set; }
+        public SizeF WorldSize { get; private set; }
         public PlayerMoveAnim movement;
         public int currentFrame = 0;
         public List<Bitmap> anim;
@@ -62,7 +62,7 @@ namespace DungeonProgMaster
             var center = 64 * sizer.coeff / 2;
             var inWorldPosition = new PointF(sizer.floorSize.Width * position.X + (-center + sizer.floorSize.Width / 3),
                 sizer.floorSize.Height * position.Y - center);
-            worldPosition = inWorldPosition;
+            WorldPosition = inWorldPosition;
         }
         
         /// <summary>
@@ -71,7 +71,7 @@ namespace DungeonProgMaster
         private void SetWorldSize(Sizer sizer)
         {
             var inWorldSize = new SizeF(64 * sizer.coeff * 1.2f, 64 * sizer.coeff * 1.2f);
-            worldSize = inWorldSize;
+            WorldSize = inWorldSize;
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace DungeonProgMaster
         Forward = 5
     }
 
-    enum PlayerMove
+    enum Command
     {
         Rotate = 0,
         Forward = 1,

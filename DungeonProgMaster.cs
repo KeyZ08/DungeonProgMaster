@@ -59,7 +59,7 @@ namespace DungeonProgMaster
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="args"></param>
-        private void PlayerMovementAnim(object sender, EventArgs args)
+        private void PlayerMovement(object sender, EventArgs args)
         {
             var player = level.player;
             if (player.position == player.targetPosition)
@@ -78,7 +78,6 @@ namespace DungeonProgMaster
                 player.position.X = (float)Math.Round(pos.X, 2);
                 player.position.Y = (float)Math.Round(pos.Y, 2);
 
-
                 player.SetWorldPositionAndSize(sizer);
             }
             UpdatePlayerFrame();
@@ -95,46 +94,14 @@ namespace DungeonProgMaster
             var player = level.player;
             //вычисление анимации
             var anim = player.PlayerMoveAnim(player.movement);
-            if (player.currentFrame != 0) player.currentFrame++;
+            if (player.currentFrame >= 0) player.currentFrame++;
             if (player.currentFrame >= anim.Count)
-                player.currentFrame = 1;
+                player.currentFrame = 0;
             player.anim = anim;
         }
 
-        static Dictionary<PlayerMove, Action<Player>> Commands = new()
-        {
-            {
-                PlayerMove.Forward,
-                new Action<Player>((player) =>
-                {
-                    if(player.movement == PlayerMoveAnim.Right)
-                        player.targetPosition.X += 1;
-                    else if (player.movement == PlayerMoveAnim.Left)
-                        player.targetPosition.X -= 1;
-                    else if (player.movement == PlayerMoveAnim.Top)
-                        player.targetPosition.Y -= 1;
-                    else if (player.movement == PlayerMoveAnim.Bottom)
-                        player.targetPosition.Y += 1;
-                    player.currentFrame = 1;
-                })
-            },
-            {
-                PlayerMove.Rotate,
-                new Action<Player>((player) =>
-                {
-                    if (player.movement == PlayerMoveAnim.Right)
-                        player.movement = PlayerMoveAnim.Bottom;
-                    else if (player.movement == PlayerMoveAnim.Left)
-                        player.movement = PlayerMoveAnim.Top;
-                    else if (player.movement == PlayerMoveAnim.Top)
-                        player.movement = PlayerMoveAnim.Right;
-                    else if (player.movement == PlayerMoveAnim.Bottom)
-                        player.movement = PlayerMoveAnim.Left;
-                    player.currentFrame = 0;
-                })
-            },
-        };
-
+        
+        
         #endregion
 
         private void PlayButtonClick(object sender, EventArgs args)
@@ -150,7 +117,7 @@ namespace DungeonProgMaster
                 {
                     if (level.player.isAnimated) { i--; continue; }
                     level.player.isAnimated = true;
-                    Commands[level.GetScript(i).Move].Invoke(level.player);
+                    Commands.commands[level.GetScript(i).Move].Invoke(level.player);
                     //выделяет исполняемую строку
                     notepad.BeginInvoke(new Action(() => notepad.SelectedIndex = i - 1));
                     if (!WatсhOnTarget())
@@ -159,8 +126,8 @@ namespace DungeonProgMaster
                         notepad.BeginInvoke(new Action(() => notepad.Enabled = true));
                         return;
                     }
-                    animator = level.GetScript(i).Move == PlayerMove.Rotate? new Timers.Timer(150) : new Timers.Timer(100);
-                    animator.Elapsed += PlayerMovementAnim;
+                    animator = level.GetScript(i).Move == Command.Rotate? new Timers.Timer(150) : new Timers.Timer(100);
+                    animator.Elapsed += PlayerMovement;
                     animator.Start();
                 }
                 while (level.player.isAnimated) { /*ждем*/ }
@@ -174,7 +141,7 @@ namespace DungeonProgMaster
         private void AddButtonMenu_ItemClick(object sender, ToolStripItemClickedEventArgs args)
         {
             var item = args.ClickedItem;
-            var move = (PlayerMove)((ToolStrip)sender).Items.IndexOf(item);
+            var move = (Command)((ToolStrip)sender).Items.IndexOf(item);
             level.ScriptAdd(new Script(move), notepad);
         }
 

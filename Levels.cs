@@ -16,7 +16,7 @@ namespace DungeonProgMaster
                     { 0,0,0,0,0,0,0,0,0,0,0,0 },
                     { 1,1,1,1,1,1,1,1,1,2,1,1 },
                     { 1,1,1,1,1,1,1,1,1,1,1,1 },
-                    { 1,0,1,1,1,1,1,1,1,1,1,1 },
+                    { 1,1,1,1,1,1,1,1,1,1,1,1 },
                     { 1,1,1,1,1,0,1,0,1,1,1,1 },
                     { 1,1,1,1,1,1,1,1,1,1,1,1 },
                     { 1,1,1,1,1,1,1,1,1,1,1,1 },
@@ -26,7 +26,7 @@ namespace DungeonProgMaster
                     { 0,0,0,0,0,0,0,0,1,1,1,1 },
                     { 0,0,0,0,0,0,0,0,1,1,1,1 }
                 }, 
-                    new Player(new Point(1,1), PlayerMoveAnim.Bottom))
+                    new Player(new Point(1,1), PlayerMoveAnim.Right))
             },
             {
                 new Level(1,
@@ -53,7 +53,7 @@ namespace DungeonProgMaster
         {
             if (levels.Count > id)
                 return levels[id];
-            else throw new ArgumentOutOfRangeException("Уровня с таким ID ещё нет!");
+            else throw new ArgumentOutOfRangeException($"Уровня с ID:{id} ещё нет!");
         }
     }
 
@@ -61,9 +61,9 @@ namespace DungeonProgMaster
     {
         public readonly int id;
         public readonly int[,] map;
-        private Player reservePlayer;
+        readonly Player reservePlayer;
         public Player player;
-        private List<Script> scripts;
+        readonly List<Script> scripts;
         public int ScriptCount { get { return scripts.Count; } }
 
         public Level(int id, int[,] map, Player player)
@@ -113,10 +113,10 @@ namespace DungeonProgMaster
 
     class Script
     {
-        public PlayerMove Move { get; private set; }
+        public Command Move { get; private set; }
         public string Sketch { get; private set; }
 
-        public Script(PlayerMove move)
+        public Script(Command move)
         {
             Move = move;
             Sketch = Sketches.sketches[move];
@@ -125,10 +125,10 @@ namespace DungeonProgMaster
 
     static class Sketches
     {
-        public static Dictionary<PlayerMove, string> sketches = new Dictionary<PlayerMove, string>()
+        public static Dictionary<Command, string> sketches = new Dictionary<Command, string>()
         {
-            {PlayerMove.Forward, "Player.MoveForward()" },
-            {PlayerMove.Rotate, "Player.Rotate()" },
+            {Command.Forward, "Player.MoveForward()" },
+            {Command.Rotate, "Player.Rotate()" },
         };
     }
 
