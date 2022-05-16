@@ -9,9 +9,7 @@ namespace DungeonProgMaster
     {
         readonly Dictionary<PlayerMoveAnim, List<Bitmap>> animations;
         public PointF position;
-        public PointF WorldPosition { get; private set; }
         public Point targetPosition;
-        public SizeF WorldSize { get; private set; }
         public PlayerMoveAnim movement;
         public int currentFrame = 0;
         public List<Bitmap> anim;
@@ -23,10 +21,10 @@ namespace DungeonProgMaster
             targetPosition = position;
             var images = new Bitmap(Application.StartupPath + @"..\..\..\Resources\Character_SpriteSheet.png");
             animations = new Dictionary<PlayerMoveAnim, List<Bitmap>>();
-            CreateAnimations(images, global::DungeonProgMaster.PlayerMoveAnim.Top);
-            CreateAnimations(images, global::DungeonProgMaster.PlayerMoveAnim.Bottom);
-            CreateAnimations(images, global::DungeonProgMaster.PlayerMoveAnim.Left);
-            CreateAnimations(images, global::DungeonProgMaster.PlayerMoveAnim.Right);
+            CreateAnimations(images, PlayerMoveAnim.Top);
+            CreateAnimations(images, PlayerMoveAnim.Bottom);
+            CreateAnimations(images, PlayerMoveAnim.Left);
+            CreateAnimations(images, PlayerMoveAnim.Right);
             movement = defaultAnim;
             anim = animations[movement];
         }
@@ -40,38 +38,9 @@ namespace DungeonProgMaster
             anim = animations[movement];
         }
 
-        public List<Bitmap> PlayerMoveAnim(PlayerMoveAnim move)
+        public List<Bitmap> PlayerMoveAnimations(PlayerMoveAnim move)
         {
             return animations.TryGetValue(move, out var result) ? result: throw new ArgumentException($"{move} нет в словаре");
-        }
-
-        /// <summary>
-        /// Устанавливает мировые координаты и размер персонажа соответственно размеру мира
-        /// </summary>
-        public void SetWorldPositionAndSize(Sizer sizer)
-        {
-            SetWorldPosition(sizer);
-            SetWorldSize(sizer);
-        }
-
-        /// <summary>
-        /// Устанавливает мировые координаты игрока соответственно размеру мира
-        /// </summary>
-        private void SetWorldPosition(Sizer sizer)
-        {
-            var center = 64 * sizer.coeff / 2;
-            var inWorldPosition = new PointF(sizer.floorSize.Width * position.X + (-center + sizer.floorSize.Width / 3),
-                sizer.floorSize.Height * position.Y - center);
-            WorldPosition = inWorldPosition;
-        }
-        
-        /// <summary>
-        /// Устанавливает размер персонажа соответственно размеру мира 
-        /// </summary>
-        private void SetWorldSize(Sizer sizer)
-        {
-            var inWorldSize = new SizeF(64 * sizer.coeff * 1.2f, 64 * sizer.coeff * 1.2f);
-            WorldSize = inWorldSize;
         }
 
         /// <summary>

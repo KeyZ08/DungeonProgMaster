@@ -26,7 +26,8 @@ namespace DungeonProgMaster
                     { 0,0,0,0,0,0,0,0,1,1,1,1 },
                     { 0,0,0,0,0,0,0,0,1,1,1,1 }
                 }, 
-                    new Player(new Point(1,1), PlayerMoveAnim.Right))
+                    new Player(new Point(1,1), PlayerMoveAnim.Right),
+                    new Point[0])
             },
             {
                 new Level(1,
@@ -45,7 +46,8 @@ namespace DungeonProgMaster
                     { 1,1,1,1,0,0,0,0,0,0,0,1 },
                     { 1,1,1,1,1,1,1,1,1,1,1,1 }
                 }, 
-                    new Player(new Point(1,1), PlayerMoveAnim.Bottom))
+                    new Player(new Point(1,1), PlayerMoveAnim.Bottom),
+                    new Point[]{ new Point(2,1)})
             },
         };
 
@@ -63,22 +65,26 @@ namespace DungeonProgMaster
         public readonly int[,] map;
         readonly Player reservePlayer;
         public Player player;
+        public readonly List<Point> pieces;
         readonly List<Script> scripts;
+        public HashSet<Point> pickedPieces;
         public int ScriptCount { get { return scripts.Count; } }
 
-        public Level(int id, int[,] map, Player player)
+        public Level(int id, int[,] map, Player player, Point[] pieces)
         {
             this.id = id;
             this.map = map;
             this.player = player;
             reservePlayer = new Player(Point.Ceiling(player.position), player.movement);
+            this.pieces = new List<Point>(pieces);
+            pickedPieces = new HashSet<Point>();
             scripts = new List<Script>();
         }
 
-        public void Reset(Sizer sizer)
+        public void Reset()
         {
             player = new Player(Point.Ceiling(reservePlayer.position), reservePlayer.movement, player);
-            player.SetWorldPositionAndSize(sizer);
+            pickedPieces.Clear();
         }
 
         public void ScriptsClear(ListBox notepad)
