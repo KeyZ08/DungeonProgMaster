@@ -3,6 +3,7 @@ using System.Drawing;
 using Timers = System.Timers;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace DungeonProgMaster
 {
@@ -12,18 +13,18 @@ namespace DungeonProgMaster
 
         private PointF WorldPlayerPosition;
         private SizeF WorldPlayerSize;
-        //скорость анимации
         private Timers.Timer pieceAnimator;
+        private float frameTimeSpeed = 0.5f;//чем больше тем медленнее
         private Piece pieceData;
 
         public DungeonProgMaster()
         {
+            level = Levels.GetLevel(0);
             InitializeComponent();
             InitializeDesign();
-            level = Levels.GetLevel(0);
 
             pieceData = new Piece();
-            pieceAnimator = new Timers.Timer(100);
+            pieceAnimator = new Timers.Timer(100 * frameTimeSpeed);
             pieceAnimator.Elapsed += PieceUpdateFrame;
             pieceAnimator.Start();
         }
@@ -36,6 +37,18 @@ namespace DungeonProgMaster
             level.Reset();
             SetPlayerWorldPositionAndSize(sizer);
             gamePlace.Invalidate();
+        }
+
+        private void OnKeyDownNotepad(object sender, KeyEventArgs args)
+        {
+            var key = args.KeyCode;
+            if(key == Keys.Back)
+            {
+                NotepadRemoveItem();
+            }
+            else if(key == Keys.Enter)
+            {
+            }
         }
 
         #region Player
@@ -136,7 +149,7 @@ namespace DungeonProgMaster
                 {
                     level = Levels.GetLevel(level.id + 1);
                     LevelReset();
-                    notepad.BeginInvoke(new Action(() => level.ScriptsClear(notepad)));
+                    //notepad.BeginInvoke(new Action(() => level.ScriptsClear(notepad)));
                 }
                 else LevelReset();
             }
@@ -154,25 +167,27 @@ namespace DungeonProgMaster
         {
             if (level.player.isAnimated) return;
             LevelReset();
+
+
             var task = Task.Run(() =>
             {
                 SetEnabledControls(false, menu.Controls);
                 notepad.BeginInvoke(new Action(() => notepad.Enabled = false));
-
-                for (var i = 0; i < level.ScriptCount; i++)
+                var scripts = level.GetAllScripts();
+                for (var i = 0; i < scripts.Length; i++)
                 {
                     if (level.player.isAnimated) { i--; continue; }
                     level.player.isAnimated = true;
-                    Commands.commands[level.GetScript(i).Move].Invoke(level.player);
+                    Commands.commands[scripts[i].Move].Invoke(level.player);
                     //выделяет исполняемую строку
-                    notepad.BeginInvoke(new Action(() => notepad.SelectedIndex = i - 1));
+                    //notepad.BeginInvoke(new Action(() => notepad.SelectedIndex = i - 1));
                     if (!WatсhOnTarget())
                     {
                         SetEnabledControls(true, menu.Controls);
                         notepad.BeginInvoke(new Action(() => notepad.Enabled = true));
                         return;
                     }
-                    var playerAnimator = level.GetScript(i).Move == Command.Rotate? new Timers.Timer(150) : new Timers.Timer(100);
+                    var playerAnimator = scripts[i].Move == Command.Rotate ? new Timers.Timer(150 * frameTimeSpeed) : new Timers.Timer(100 * frameTimeSpeed);
                     playerAnimator.Elapsed += PlayerMovement;
                     playerAnimator.Start();
                 }
@@ -186,89 +201,58 @@ namespace DungeonProgMaster
 
         private void AddButtonMenu_ItemClick(object sender, ToolStripItemClickedEventArgs args)
         {
-            var item = args.ClickedItem;
-            var move = (Command)((ToolStrip)sender).Items.IndexOf(item);
-            level.ScriptAdd(new Script(move), notepad);
+            var start = notepad.SelectionStart - 1;
+            var end = start + notepad.SelectionLength;
+            var command = Sketches.sketchesByName[args.ClickedItem.Text];
+
+            int startS, endS;
+            FindSelectedScripts(start, end, out startS, out endS);
+            if (notepad.SelectionLength == 0) 
+            {
+                level.ScriptsInsert(startS, new Script(command));
+            }
+            else
+            {
+                level.ScriptsRemove(startS, endS - startS);
+                level.ScriptsInsert(startS - (endS - startS), new Script(command));
+            }
+            notepad.Text = ScriptsWrite();
+            notepad.Select(end + notepad.Lines[endS].Length, 0);
         }
 
         private void NotepadResetClick(object sender, EventArgs args)
         {
-            level.ScriptsClear(notepad);
+            level.ScriptsClear();
+            notepad.Text = ScriptsWrite();
         }
 
-        private void NotepadRemoveItem(object sender, EventArgs args)
+        private void NotepadRemoveItem()
         {
-            var index = notepad.SelectedIndex;
-            if (index == -1) return;
-            //выделяем соседнюю строку
-            notepad.SelectedIndex = (notepad.Items.Count - 1 == index || index - 1 != -1) ? index - 1 : index + 1; 
-            level.ScriptRemoveAt(index, notepad);
+            var start = notepad.SelectionStart;
+            var end = start + notepad.SelectionLength - 1;
+
+            int startS, endS;
+            FindSelectedScripts(start, end, out startS, out endS);
+
+            level.ScriptsRemove(startS, endS - startS);
+            notepad.Text = ScriptsWrite();
+            notepad.SelectionStart = start;
         }
 
-        private void Notepad_MouseMove(object sender, MouseEventArgs e)
+        private void FindSelectedScripts(int start, int end, out int startS, out int endS)
         {
-            //если нажата левая кнопка мыши, начинаем Drag&Drop
-            if (e.Button == MouseButtons.Left)
+            var sum = 0;
+            startS = -1;
+            endS = -1;
+            var str = notepad.Text.Split('\n');
+            for (var i = 0; i < str.Length; i++)
             {
-                //индекс элемента, который мы перемещаем
-                indexToMove = notepad.IndexFromPoint(e.X, e.Y);
-                notepad.DoDragDrop(indexToMove, DragDropEffects.Move);
+                if (i != 0) sum += 1;//1 = '\n'.Length
+                if (startS == -1 && sum + str[i].Length >= start) startS = i;
+                if (startS != -1 && sum + str[i].Length >= end) endS = i;
+                sum += str[i].Length;
+                if (endS != -1) break;
             }
-        }
-
-        private void Notepad_DragEnter(object sender, DragEventArgs e)
-        {
-            e.Effect = DragDropEffects.Move;
-        }
-
-        private void Notepad_DragDrop(object sender, DragEventArgs e)
-        {
-            int newIndex = notepad.IndexFromPoint(notepad.PointToClient(new Point(e.X, e.Y)));
-            //если вставка происходит в начало списка
-            if (indexToMove == -1 || indexToMove == 65535) return;
-            //получаем перетаскиваемый элемент
-            var item = level.GetScript(indexToMove);
-            object itemToMove = notepad.Items[indexToMove];
-            if (newIndex == -1)
-            {
-                //удаляем элемент
-                level.ScriptRemoveAt(indexToMove, notepad);
-                //добавляем в конец списка
-                level.ScriptAdd(item, notepad);
-            }
-            //вставляем где-то в середину списка
-            else if (indexToMove != newIndex)
-            {
-                //удаляем элемент
-                level.ScriptRemoveAt(indexToMove, notepad);
-                //вставляем в конкретную позицию
-                level.ScriptInsert(newIndex, item, notepad);
-            }
-        }
-
-        private void Notepad_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            if (e.Index == -1) return;
-            e.DrawBackground();
-
-            Graphics g = e.Graphics;
-            Brush brush = ((e.State & DrawItemState.Selected) == DrawItemState.Selected) ?
-                          Brushes.DarkSlateGray : new SolidBrush(e.BackColor);
-            g.FillRectangle(brush, e.Bounds);
-            var allString = notepad.Items[e.Index].ToString().Split('.');
-            for (var i = 0; i < allString.Length; i++)
-            {
-                var st = (e.Index + 1).ToString();
-                e.Graphics.DrawString(st, new Font(FontFamily.GenericMonospace, 12, FontStyle.Regular),
-                     new SolidBrush(e.ForeColor), e.Bounds, StringFormat.GenericDefault);
-
-                e.Graphics.DrawString("." + allString[i], new Font(FontFamily.GenericMonospace, 12, FontStyle.Regular),
-                     new SolidBrush(i == 0 ? Color.SkyBlue : e.ForeColor),
-                     new RectangleF(st.Length * 12 + e.Bounds.X * i + (i == 0 ? 0 : allString[i - 1].Length) * 12, e.Bounds.Y, allString[i].Length * 16, e.Bounds.Height),
-                     StringFormat.GenericDefault);
-            }
-
-            e.DrawFocusRectangle();
         }
 
         private void AddButtonClick(object sender, EventArgs args)
@@ -281,7 +265,9 @@ namespace DungeonProgMaster
 
             addButton_contextMenu = new ContextMenuStrip();
             for (var i = 0; i < 2; i++)
-                addButton_contextMenu.Items.Add(Sketches.sketches[(Command)i]);
+            {
+                var a = addButton_contextMenu.Items.Add(Sketches.sketches[(Command)i]);
+            }
 
             addButton_contextMenu.ItemClicked += new ToolStripItemClickedEventHandler(AddButtonMenu_ItemClick);
             addButton_contextMenu.Show(addButton, new Point(addButton.Height, 0));

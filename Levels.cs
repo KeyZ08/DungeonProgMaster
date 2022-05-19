@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
 namespace DungeonProgMaster
@@ -66,9 +68,8 @@ namespace DungeonProgMaster
         readonly Player reservePlayer;
         public Player player;
         public readonly List<Point> pieces;
-        readonly List<Script> scripts;
+        public LinkedList<Script> scripts;
         public HashSet<Point> pickedPieces;
-        public int ScriptCount { get { return scripts.Count; } }
 
         public Level(int id, int[,] map, Player player, Point[] pieces)
         {
@@ -78,7 +79,7 @@ namespace DungeonProgMaster
             reservePlayer = new Player(Point.Ceiling(player.position), player.movement);
             this.pieces = new List<Point>(pieces);
             pickedPieces = new HashSet<Point>();
-            scripts = new List<Script>();
+            scripts = new LinkedList<Script>();
         }
 
         public void Reset()
@@ -87,33 +88,59 @@ namespace DungeonProgMaster
             pickedPieces.Clear();
         }
 
-        public void ScriptsClear(ListBox notepad)
+        public void ScriptsClear()
         {
-            notepad.Items.Clear();
             scripts.Clear();
         }
 
-        public Script GetScript(int index)
+        public void ScriptUpdate(Script str)
         {
-            return scripts[index];
+            scripts.Clear();
+            scripts.AddLast(str);
         }
 
-        public void ScriptRemoveAt(int index, ListBox notepad)
+        public void ScriptAdd(Script str)
         {
-            scripts.RemoveAt(index);
-            notepad.Items.RemoveAt(index);
-        }
-        
-        public void ScriptInsert(int index, Script script, ListBox notepad)
-        {
-            scripts.Insert(index, script);
-            notepad.Items.Insert(index, script.Sketch);
+            scripts.AddLast(str);
         }
 
-        public void ScriptAdd( Script script, ListBox notepad)
+        public void ScriptsRemove(int startS, int count)
         {
-            scripts.Add(script);
-            notepad.Items.Add(script.Sketch);
+            var node = scripts.First;
+            for (var i = 0; i < scripts.Count; i++)
+            {
+                if (i == startS)
+                {
+                    for (var j = 0; j <= count; j++)
+                    {
+                        var next = node.Next;
+                        scripts.Remove(node);
+                        node = next;
+                    }
+                    break;
+                }
+                node = node.Next;
+            }
+        }
+
+        public void ScriptsInsert(int startS, Script script)
+        {
+            if (scripts.Count == 0) { scripts.AddLast(script); return; };
+            var node = scripts.First;
+            for (var i = 0; i < scripts.Count; i++)
+            {
+                if (i == startS)
+                {
+                    scripts.AddAfter(node, script);
+                    break;
+                }
+                node = node.Next;
+            }
+        }
+
+        public Script[] GetAllScripts()
+        {
+            return scripts.ToArray();
         }
     }
 
@@ -133,8 +160,14 @@ namespace DungeonProgMaster
     {
         public static Dictionary<Command, string> sketches = new Dictionary<Command, string>()
         {
-            {Command.Forward, "Player.MoveForward()" },
-            {Command.Rotate, "Player.Rotate()" },
+            {Command.Forward, "Player.MoveForward();" },
+            {Command.Rotate, "Player.Rotate();" },
+        };
+
+        public static Dictionary<string, Command> sketchesByName = new Dictionary<string, Command>()
+        {
+            {"Player.MoveForward();", Command.Forward },
+            {"Player.Rotate();", Command.Rotate},
         };
     }
 
