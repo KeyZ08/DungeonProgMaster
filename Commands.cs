@@ -43,4 +43,9 @@ namespace DungeonProgMaster
             },
         };
     }
+    enum Command
+    {
+        Rotate = 0,
+        Forward = 1,
+    }
 }

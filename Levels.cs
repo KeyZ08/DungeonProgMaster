@@ -29,7 +29,7 @@ namespace DungeonProgMaster
                     { 0,0,0,0,0,0,0,0,1,1,1,1 }
                 }, 
                     new Player(new Point(1,1), PlayerMoveAnim.Right),
-                    new Point[0])
+                    Array.Empty<Point>())
             },
             {
                 new Level(1,
@@ -149,10 +149,18 @@ namespace DungeonProgMaster
         public Command Move { get; private set; }
         public string Sketch { get; private set; }
 
+        private Action<Player> Doing;
+
         public Script(Command move)
         {
             Move = move;
             Sketch = Sketches.sketches[move];
+            Doing = Commands.commands[move];
+        }
+
+        public void Play(Player player)
+        {
+            Doing.Invoke(player);
         }
     }
 

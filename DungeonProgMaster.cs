@@ -14,8 +14,8 @@ namespace DungeonProgMaster
         private PointF WorldPlayerPosition;
         private SizeF WorldPlayerSize;
         private Timers.Timer pieceAnimator;
-        private float frameTimeSpeed = 0.5f;//чем больше тем медленнее
-        private Piece pieceData;
+        private float frameTimeSpeed = 1f;//чем больше тем медленнее
+        private readonly Piece pieceData;
 
         public DungeonProgMaster()
         {
@@ -168,19 +168,15 @@ namespace DungeonProgMaster
             if (level.player.isAnimated) return;
             LevelReset();
 
-
             var task = Task.Run(() =>
             {
                 SetEnabledControls(false, menu.Controls);
-                notepad.BeginInvoke(new Action(() => notepad.Enabled = false));
                 var scripts = level.GetAllScripts();
                 for (var i = 0; i < scripts.Length; i++)
                 {
                     if (level.player.isAnimated) { i--; continue; }
                     level.player.isAnimated = true;
-                    Commands.commands[scripts[i].Move].Invoke(level.player);
-                    //выделяет исполняемую строку
-                    //notepad.BeginInvoke(new Action(() => notepad.SelectedIndex = i - 1));
+                    scripts[i].Play(level.player);
                     if (!WatсhOnTarget())
                     {
                         SetEnabledControls(true, menu.Controls);
@@ -205,8 +201,7 @@ namespace DungeonProgMaster
             var end = start + notepad.SelectionLength;
             var command = Sketches.sketchesByName[args.ClickedItem.Text];
 
-            int startS, endS;
-            FindSelectedScripts(start, end, out startS, out endS);
+            FindSelectedScripts(start, end, out int startS, out int endS);
             if (notepad.SelectionLength == 0) 
             {
                 level.ScriptsInsert(startS, new Script(command));
@@ -231,8 +226,7 @@ namespace DungeonProgMaster
             var start = notepad.SelectionStart;
             var end = start + notepad.SelectionLength - 1;
 
-            int startS, endS;
-            FindSelectedScripts(start, end, out startS, out endS);
+            FindSelectedScripts(start, end, out int startS, out int endS);
 
             level.ScriptsRemove(startS, endS - startS);
             notepad.Text = ScriptsWrite();

@@ -65,10 +65,4 @@ namespace DungeonProgMaster
         Rotate = 4,
         Forward = 5
     }
-
-    enum Command
-    {
-        Rotate = 0,
-        Forward = 1,
-    }
 }
