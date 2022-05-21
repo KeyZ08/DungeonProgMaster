@@ -157,38 +157,54 @@ namespace DungeonProgMaster
             }
         }
 
-        public Script[] GetScripts()
+        public List<Script> GetScripts()
         {
-            var result = new List<Script>();
-            var buffer = new List<Script>();
+            return GenerateScripts(scripts.ToList());
+        }
 
-            bool repeat = false;
-            foreach(var i in scripts)
+        private List<Script> GenerateScripts(List<Script> scripts)
+        {
+            if (scripts == null || scripts.Count == 0) return new List<Script>();
+            int hooks = 0;
+            var result = new List<Script>();
+            var buffer = new LinkedList<List<Script>>();
+            foreach (var i in scripts)
             {
                 if (i.Move == Command.RepeatStart)
                 {
-                    repeat = true;
-                    continue;
+                    hooks++;
+                    buffer.AddLast(new List<Script>());
+                    buffer.Last.Value.Add(i);
                 }
-                if (i.Move == Command.RepeatEnd)
+                else if (i.Move == Command.RepeatEnd)
                 {
-                    repeat = false;
-                    for (var j = 0; j < 5; j++)
-                        for(var k = 0; k < buffer.Count; k++)
-                            result.Add(buffer[k]);
-                    buffer.Clear();
-                    continue;
+                    hooks--;
+                    buffer.Last.Value.Add(i);
+                    ScriptLoopCreate(hooks, result, buffer);
                 }
-                if (!repeat)
-                {
-                    result.Add(i);
-                }
-                else
-                {
-                    buffer.Add(i);
-                }
+                else if (hooks == 0) result.Add(i);
+                else buffer.Last.Value.Add(i);
             }
-            return result.ToArray();
+            return result;
+        }
+
+        private void ScriptLoopCreate(int hooks, List<Script> result, LinkedList<List<Script>> buffer)
+        {
+            if (hooks == 0)
+            {
+                buffer.Last.Value.RemoveAt(0);
+                buffer.Last.Value.RemoveAt(buffer.Last.Value.Count - 1);
+                var comboScript = new List<Script>();
+                for (var j = 0; j < 5; j++)
+                    comboScript.AddRange(buffer.Last.Value);
+                result.AddRange(comboScript);
+            }
+            else
+            {
+                var comboScript = GenerateScripts(buffer.Last.Value);
+                buffer.RemoveLast();
+                buffer.Last.Value.AddRange(comboScript);
+            }
         }
 
         public void PlayerRotate()
@@ -199,12 +215,7 @@ namespace DungeonProgMaster
         public void PlayerMove()
         {
             if (player.position == player.targetPosition)
-            {
-                if (pieces.Contains(player.targetPosition) && !pickedPieces.Contains(player.targetPosition))
-                    pickedPieces.Add(player.targetPosition);
-                player.isAnimated = false;
                 return;
-            }
 
             var frame = 1.0f / player.anim.Count;
             player.Move(frame);
@@ -226,7 +237,7 @@ namespace DungeonProgMaster
 
         public string Declaration { get; private set; }
 
-        public readonly Action<Player> Doing;
+        private readonly Action<Player> Doing;
 
         public Script(Command move)
         {
@@ -234,14 +245,6 @@ namespace DungeonProgMaster
             Sketch = Sketches.data[move].sketch;
             Declaration = Sketches.data[move].declaration;
             Doing = Commands.commands[move];
-        }
-
-        public Script(Command move, Action<Player> action)
-        {
-            Move = move;
-            Sketch = Sketches.data[move].sketch;
-            Declaration = Sketches.data[move].declaration;
-            Doing = action;
         }
 
         public void Play(Player player)

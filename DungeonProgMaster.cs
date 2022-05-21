@@ -64,16 +64,16 @@ namespace DungeonProgMaster
 
             SetPlayerWorldPositionAndSize(sizer);
             UpdatePlayerFrame();
-
-            if (level.player.nextMovement != level.player.movement)
-            {
-                System.Threading.Thread.Sleep(150);
-                level.PlayerRotate();
-            }
+            
             if (level.player.position != level.player.targetPosition)
             {
                 System.Threading.Thread.Sleep(100);
                 PlayerMovement();
+            }
+            if (level.player.nextMovement != level.player.movement)
+            {
+                System.Threading.Thread.Sleep(150);
+                level.PlayerRotate();
             }
 
             gamePlace.Invalidate();
@@ -165,7 +165,7 @@ namespace DungeonProgMaster
             {
                 SetEnabledControls(false, menu.Controls);
                 var scripts = level.GetScripts();
-                for (var i = 0; i < scripts.Length; i++)
+                for (var i = 0; i < scripts.Count; i++)
                 {
                     level.player.isAnimated = true;
                     scripts[i].Play(level.player);

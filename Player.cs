@@ -16,8 +16,6 @@ namespace DungeonProgMaster
         public List<Bitmap> anim;
         public bool isAnimated = false;
 
-        
-
         public Player(Point position, PlayerMoveAnim defaultAnim)
         {
             this.position = position;
