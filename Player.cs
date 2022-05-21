@@ -11,9 +11,12 @@ namespace DungeonProgMaster
         public PointF position;
         public Point targetPosition;
         public PlayerMoveAnim movement;
+        public PlayerMoveAnim nextMovement;
         public int currentFrame = 0;
         public List<Bitmap> anim;
         public bool isAnimated = false;
+
+        
 
         public Player(Point position, PlayerMoveAnim defaultAnim)
         {
@@ -27,6 +30,7 @@ namespace DungeonProgMaster
             CreateAnimations(images, PlayerMoveAnim.Right);
             movement = defaultAnim;
             anim = animations[movement];
+            nextMovement = movement;
         }
 
         public Player(Point position, PlayerMoveAnim defaultAnim, Player p)
@@ -35,6 +39,24 @@ namespace DungeonProgMaster
             movement = defaultAnim;
             targetPosition = position;
             animations = p.animations;
+            anim = animations[movement];
+            nextMovement = movement;
+        }
+
+        public void Move(float frame)
+        {
+            var pos = position;
+            if (movement == PlayerMoveAnim.Right) pos.X += frame;
+            else if (movement == PlayerMoveAnim.Left) pos.X -= frame;
+            else if (movement == PlayerMoveAnim.Top) pos.Y -= frame;
+            else if (movement == PlayerMoveAnim.Bottom) pos.Y += frame;
+            position.X = (float)Math.Round(pos.X, 2);
+            position.Y = (float)Math.Round(pos.Y, 2);
+        }
+
+        public void Rotate()
+        {
+            movement = nextMovement;
             anim = animations[movement];
         }
 

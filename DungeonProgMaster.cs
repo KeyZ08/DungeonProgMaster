@@ -58,32 +58,25 @@ namespace DungeonProgMaster
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="args"></param>
-        private void PlayerMovement(object sender, EventArgs args)
+        private void PlayerMovement()
         {
-            var player = level.player;
-            if (player.position == player.targetPosition)
-            {
-                if (level.pieces.Contains(player.targetPosition) && !level.pickedPieces.Contains(player.targetPosition))
-                    level.pickedPieces.Add(player.targetPosition);
-                player.isAnimated = false;
-                (sender as Timers.Timer).Dispose();
-            }
-            else
-            {
-                var frame = 1.0f / player.anim.Count;
-                var pos = player.position;
-                if (player.movement == PlayerMoveAnim.Right) pos.X += frame;
-                else if (player.movement == PlayerMoveAnim.Left) pos.X -= frame;
-                else if (player.movement == PlayerMoveAnim.Top) pos.Y -= frame;
-                else if (player.movement == PlayerMoveAnim.Bottom) pos.Y += frame;
-                player.position.X = (float)Math.Round(pos.X, 2);
-                player.position.Y = (float)Math.Round(pos.Y, 2);
-                SetPlayerWorldPositionAndSize(sizer);
-            }
+            level.PlayerMove();
+
+            SetPlayerWorldPositionAndSize(sizer);
             UpdatePlayerFrame();
 
+            if (level.player.nextMovement != level.player.movement)
+            {
+                System.Threading.Thread.Sleep(150);
+                level.PlayerRotate();
+            }
+            if (level.player.position != level.player.targetPosition)
+            {
+                System.Threading.Thread.Sleep(100);
+                PlayerMovement();
+            }
+
             gamePlace.Invalidate();
-            return;
         }
 
         /// <summary>
@@ -171,23 +164,18 @@ namespace DungeonProgMaster
             var task = Task.Run(() =>
             {
                 SetEnabledControls(false, menu.Controls);
-                var scripts = level.GetAllScripts();
+                var scripts = level.GetScripts();
                 for (var i = 0; i < scripts.Length; i++)
                 {
-                    if (level.player.isAnimated) { i--; continue; }
                     level.player.isAnimated = true;
                     scripts[i].Play(level.player);
                     if (!WatсhOnTarget())
                     {
                         SetEnabledControls(true, menu.Controls);
-                        notepad.BeginInvoke(new Action(() => notepad.Enabled = true));
                         return;
                     }
-                    var playerAnimator = scripts[i].Move == Command.Rotate ? new Timers.Timer(150 * frameTimeSpeed) : new Timers.Timer(100 * frameTimeSpeed);
-                    playerAnimator.Elapsed += PlayerMovement;
-                    playerAnimator.Start();
+                    PlayerMovement();
                 }
-                while (level.player.isAnimated) { /*ждем*/ }
                 Finished();
 
                 SetEnabledControls(true, menu.Controls);
@@ -199,7 +187,7 @@ namespace DungeonProgMaster
         {
             var start = notepad.SelectionStart - 1;
             var end = start + notepad.SelectionLength;
-            var command = Sketches.sketchesByName[args.ClickedItem.Text];
+            var command = level.openedScripts[contextMenu.Items.IndexOf(args.ClickedItem)].Move;
 
             FindSelectedScripts(start, end, out int startS, out int endS);
             if (notepad.SelectionLength == 0) 
@@ -251,20 +239,20 @@ namespace DungeonProgMaster
 
         private void AddButtonClick(object sender, EventArgs args)
         {
-            if (addButton_contextMenu != null)
+            if (contextMenu != null)
             {
-                addButton_contextMenu.Show(addButton, new Point(addButton.Height, 0));
+                contextMenu.Show(addButton, new Point(addButton.Height, 0));
                 return;
             }
 
-            addButton_contextMenu = new ContextMenuStrip();
-            for (var i = 0; i < 2; i++)
+            contextMenu = new ContextMenuStrip();
+            for (var i = 0; i < level.openedScripts.Length; i++)
             {
-                var a = addButton_contextMenu.Items.Add(Sketches.sketches[(Command)i]);
+                contextMenu.Items.Add(level.openedScripts[i].Declaration);
             }
 
-            addButton_contextMenu.ItemClicked += new ToolStripItemClickedEventHandler(AddButtonMenu_ItemClick);
-            addButton_contextMenu.Show(addButton, new Point(addButton.Height, 0));
+            contextMenu.ItemClicked += new ToolStripItemClickedEventHandler(AddButtonMenu_ItemClick);
+            contextMenu.Show(addButton, new Point(addButton.Height, 0));
         }
 
         private void WindowResize()

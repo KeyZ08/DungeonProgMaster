@@ -17,7 +17,7 @@ namespace DungeonProgMaster
         private Button playButton;
         private Button addButton;
         private Button notepadReset;
-        private ContextMenuStrip addButton_contextMenu;
+        private ContextMenuStrip contextMenu;
 
         /// <summary>
         ///  Required designer variable.
