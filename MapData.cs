@@ -29,6 +29,7 @@ namespace DungeonProgMaster
     public class Piece
     {
         private int currentFrame = 0;
+
         public int CurrentFrame 
         { 
             get { return currentFrame; } 
@@ -39,6 +40,7 @@ namespace DungeonProgMaster
                 else currentFrame = value;
             } 
         }
+
         public List<Image> Frames { get; private set; }
 
         public Piece()

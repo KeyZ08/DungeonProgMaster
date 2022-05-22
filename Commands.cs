@@ -76,7 +76,7 @@ namespace DungeonProgMaster
         {
             {Command.Forward, ("Player.MoveForward();", "Player.MoveForward();") },
             {Command.Rotate, ("Player.Rotate();", "Player.Rotate();") },
-            {Command.RepeatStart, ("Repeat(5){", "Repeat()") },
+            {Command.RepeatStart, ("Repeat(4){", "Repeat()") },
             {Command.RepeatEnd, ("}", "EndRepeat()") },
         };
     }

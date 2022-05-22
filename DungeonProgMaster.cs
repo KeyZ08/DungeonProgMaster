@@ -60,7 +60,7 @@ namespace DungeonProgMaster
         /// <param name="args"></param>
         private void PlayerMovement()
         {
-            level.PlayerMove();
+            level.PlayerMove(sounds);
 
             SetPlayerWorldPositionAndSize(sizer);
             UpdatePlayerFrame();
@@ -142,7 +142,7 @@ namespace DungeonProgMaster
                 {
                     level = Levels.GetLevel(level.id + 1);
                     LevelReset();
-                    //notepad.BeginInvoke(new Action(() => level.ScriptsClear(notepad)));
+                    notepad.BeginInvoke(new Action(() => notepad.ResetText()));
                 }
                 else LevelReset();
             }

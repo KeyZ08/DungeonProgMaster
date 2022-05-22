@@ -1,8 +1,10 @@
-﻿using System;
+﻿using NAudio.Wave;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace DungeonProgMaster
@@ -29,7 +31,7 @@ namespace DungeonProgMaster
                     { 0,0,0,0,0,0,0,0,1,1,1,1 }
                 }, 
                     new Player(new Point(1,1), PlayerMoveAnim.Right),
-                    new Point[]{ new Point(4,1)}, new Command[0])
+                    new Point[]{ new Point(4,1), new Point(5,1), new Point(6,1),new Point(7,1)}, new Command[0])
             },
             {
                 new Level(1,
@@ -112,12 +114,6 @@ namespace DungeonProgMaster
             scripts.Clear();
         }
 
-        public void ScriptUpdate(Script str)
-        {
-            scripts.Clear();
-            scripts.AddLast(str);
-        }
-
         public void ScriptAdd(Script str)
         {
             scripts.AddLast(str);
@@ -195,7 +191,7 @@ namespace DungeonProgMaster
                 buffer.Last.Value.RemoveAt(0);
                 buffer.Last.Value.RemoveAt(buffer.Last.Value.Count - 1);
                 var comboScript = new List<Script>();
-                for (var j = 0; j < 5; j++)
+                for (var j = 0; j < 4; j++)
                     comboScript.AddRange(buffer.Last.Value);
                 result.AddRange(comboScript);
             }
@@ -212,18 +208,31 @@ namespace DungeonProgMaster
             player.Rotate();
         }
 
-        public void PlayerMove()
+        public void PlayerMove(Dictionary<string, (WaveOut wave, string audio)> sounds)
         {
             if (player.position == player.targetPosition)
                 return;
-
+            
             var frame = 1.0f / player.anim.Count;
             player.Move(frame);
+
+            if ((player.currentFrame == 2 || player.currentFrame == 4) && sounds.TryGetValue("Floor", out (WaveOut wave, string audio) floor))
+            {
+                floor.wave.Init(new AudioFileReader(floor.audio));
+                floor.wave.Play();
+            };
 
             if (player.position == player.targetPosition)
             {
                 if (pieces.Contains(player.targetPosition) && !pickedPieces.Contains(player.targetPosition))
+                {
                     pickedPieces.Add(player.targetPosition);
+                    if (sounds.TryGetValue("Money", out (WaveOut wave, string audio) money))
+                    {
+                        money.wave.Init(new AudioFileReader(money.audio));
+                        money.wave.Play(); 
+                    }
+                }
                 player.isAnimated = false;
             }
         }
@@ -254,19 +263,24 @@ namespace DungeonProgMaster
     }
 
     //шаблон
-    //new int[,]
-    //            {
-    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
-    //                { 1,1,1,1,1,1,1,1,1,2,1,1 },
-    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
-    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
-    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
-    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
-    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
-    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
-    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
-    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
-    //                { 1,1,1,1,1,1,1,1,1,1,1,1 },
-    //                { 1,1,1,1,1,1,1,1,1,1,1,1 }
-    //            }, 
+    //{
+    //    new Level(0,
+    //        new int[,]
+    //    {
+    //        { 0,0,0,0,0,0,0,0,0,0,0,0 },
+    //        { 1,1,1,1,1,1,1,1,1,2,1,1 },
+    //        { 1,1,1,1,1,1,1,1,1,1,1,1 },
+    //        { 1,1,1,1,1,1,1,1,1,1,1,1 },
+    //        { 1,1,1,1,1,0,1,0,1,1,1,1 },
+    //        { 1,1,1,1,1,1,1,1,1,1,1,1 },
+    //        { 1,1,1,1,1,1,1,1,1,1,1,1 },
+    //        { 0,0,0,0,0,0,0,0,1,1,1,1 },
+    //        { 0,0,0,0,0,0,0,0,1,1,1,1 },
+    //        { 0,0,0,0,0,0,0,0,1,1,1,1 },
+    //        { 0,0,0,0,0,0,0,0,1,1,1,1 },
+    //        { 0,0,0,0,0,0,0,0,1,1,1,1 }
+    //    }, 
+    //        new Player(new Point(1, 1), PlayerMoveAnim.Right),
+    //        new Point[] { new Point(4, 1), new Point(5, 1), new Point(6, 1), new Point(7, 1) }, new Command[0])
+    //},
 }

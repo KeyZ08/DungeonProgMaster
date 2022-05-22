@@ -1,8 +1,9 @@
 ﻿
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading.Tasks;
+using System.Media;
 using System.Windows.Forms;
 
 namespace DungeonProgMaster
@@ -18,6 +19,12 @@ namespace DungeonProgMaster
         private Button addButton;
         private Button notepadReset;
         private ContextMenuStrip contextMenu;
+        private Dictionary<string, (WaveOut wave, string audio)> sounds = 
+            new Dictionary<string, (WaveOut wave, string audio)>()
+        {
+            { "Money", (new WaveOut(), Application.StartupPath + @"..\..\..\Resources\Money.wav") },
+            { "Floor", (new WaveOut(), Application.StartupPath + @"..\..\..\Resources\Floor.wav") },
+        };
 
         /// <summary>
         ///  Required designer variable.
@@ -67,6 +74,18 @@ namespace DungeonProgMaster
 
             Load += (sender, args) => OnSizeChanged(EventArgs.Empty);
             SizeChanged += (sender, args) => WindowResize();
+
+            var music = new WaveOutEvent();
+            var sound = Application.StartupPath + @"..\..\..\Resources\BackgroundSong.mp3";
+            music.Init(new AudioFileReader(sound));
+            music.Play();
+            music.PlaybackStopped += new EventHandler<StoppedEventArgs>(
+                (object sender, StoppedEventArgs args) =>
+                {
+                    var obj = (sender as WaveOutEvent);
+                    obj.Init(new AudioFileReader(sound));
+                    obj.Play();
+                });
         }
 
         /// <summary>
