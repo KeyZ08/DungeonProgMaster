@@ -7,28 +7,12 @@ namespace DungeonProgMaster
     {
         public static void ForwardMove(Player player)
         {
-            if (player.movement == PlayerMoveAnim.Right)
-                player.targetPosition.X += 1;
-            else if (player.movement == PlayerMoveAnim.Left)
-                player.targetPosition.X -= 1;
-            else if (player.movement == PlayerMoveAnim.Top)
-                player.targetPosition.Y -= 1;
-            else if (player.movement == PlayerMoveAnim.Bottom)
-                player.targetPosition.Y += 1;
-            player.currentFrame = 0;
+            player.GetNextTargetPosition();
         }
 
         public static void Rotate(Player player)
         {
-            if (player.movement == PlayerMoveAnim.Right)
-                player.nextMovement = PlayerMoveAnim.Bottom;
-            else if (player.movement == PlayerMoveAnim.Left)
-                player.nextMovement = PlayerMoveAnim.Top;
-            else if (player.movement == PlayerMoveAnim.Top)
-                player.nextMovement = PlayerMoveAnim.Right;
-            else if (player.movement == PlayerMoveAnim.Bottom)
-                player.nextMovement = PlayerMoveAnim.Left;
-            player.currentFrame = 0;
+            player.GetNextMovement();
         }
 
         public static void RepeatStart(Player player)
@@ -72,11 +56,11 @@ namespace DungeonProgMaster
 
     static class Sketches
     {
-        public static Dictionary<Command, (string sketch, string declaration)> data = new Dictionary<Command, (string sketch, string declaration)>()
+        public static Dictionary<Command, (string sketch, string declaration)> data = new()
         {
-            {Command.Forward, ("Player.MoveForward();", "Player.MoveForward();") },
+            {Command.Forward, ("Player.Forward();", "Player.Forward();") },
             {Command.Rotate, ("Player.Rotate();", "Player.Rotate();") },
-            {Command.RepeatStart, ("Repeat(4){", "Repeat()") },
+            {Command.RepeatStart, ("Repeat(4){", "Repeat(4)") },
             {Command.RepeatEnd, ("}", "EndRepeat()") },
         };
     }

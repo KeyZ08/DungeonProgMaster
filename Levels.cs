@@ -1,17 +1,13 @@
-﻿using NAudio.Wave;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace DungeonProgMaster
 {
     class Levels
     {
-        static readonly List<Level> levels = new List<Level>()
+        static readonly List<Level> levels = new()
         {
             {
                 new Level(0,
@@ -31,7 +27,7 @@ namespace DungeonProgMaster
                     { 0,0,0,0,0,0,0,0,1,1,1,1 }
                 }, 
                     new Player(new Point(1,1), PlayerMoveAnim.Right),
-                    new Point[]{ new Point(4,1), new Point(5,1), new Point(6,1),new Point(7,1)}, new Command[0])
+                    new Point[]{ new Point(4,1), new Point(5,1), new Point(6,1),new Point(7,1)}, Array.Empty<Command>())
             },
             {
                 new Level(1,
@@ -51,7 +47,7 @@ namespace DungeonProgMaster
                     { 1,1,1,1,1,1,1,1,1,1,1,1 }
                 }, 
                     new Player(new Point(1,1), PlayerMoveAnim.Bottom),
-                    new Point[]{ new Point(2,1)}, new Command[0])
+                    new Point[]{ new Point(2,1)}, Array.Empty<Command>())
             },
         };
 
@@ -155,10 +151,10 @@ namespace DungeonProgMaster
 
         public List<Script> GetScripts()
         {
-            return GenerateScripts(scripts.ToList());
+            return ScriptParse(scripts.ToList());
         }
 
-        private List<Script> GenerateScripts(List<Script> scripts)
+        private List<Script> ScriptParse(List<Script> scripts)
         {
             if (scripts == null || scripts.Count == 0) return new List<Script>();
             int hooks = 0;
@@ -175,8 +171,9 @@ namespace DungeonProgMaster
                 else if (i.Move == Command.RepeatEnd)
                 {
                     hooks--;
+                    if (hooks < 0) continue;
                     buffer.Last.Value.Add(i);
-                    ScriptLoopCreate(hooks, result, buffer);
+                    ScriptRepeatCreate(hooks, result, buffer);
                 }
                 else if (hooks == 0) result.Add(i);
                 else buffer.Last.Value.Add(i);
@@ -184,7 +181,7 @@ namespace DungeonProgMaster
             return result;
         }
 
-        private void ScriptLoopCreate(int hooks, List<Script> result, LinkedList<List<Script>> buffer)
+        private void ScriptRepeatCreate(int hooks, List<Script> result, LinkedList<List<Script>> buffer)
         {
             if (hooks == 0)
             {
@@ -197,68 +194,53 @@ namespace DungeonProgMaster
             }
             else
             {
-                var comboScript = GenerateScripts(buffer.Last.Value);
+                var comboScript = ScriptParse(buffer.Last.Value);
                 buffer.RemoveLast();
                 buffer.Last.Value.AddRange(comboScript);
             }
         }
 
-        public void PlayerRotate()
+        public bool ItIsPiece()
         {
-            player.Rotate();
+            if (player.position != player.targetPosition) return false;
+            return pieces.Contains(player.targetPosition);
         }
 
-        public void PlayerMove(Dictionary<string, (WaveOut wave, string audio)> sounds)
+        public bool ItIsPickedPiece()
         {
-            if (player.position == player.targetPosition)
-                return;
-            
-            var frame = 1.0f / player.anim.Count;
-            player.Move(frame);
+            if (player.position != player.targetPosition) return false;
+            return pickedPieces.Contains(player.targetPosition);
+        }
 
-            if ((player.currentFrame == 2 || player.currentFrame == 4) && sounds.TryGetValue("Floor", out (WaveOut wave, string audio) floor))
-            {
-                floor.wave.Init(new AudioFileReader(floor.audio));
-                floor.wave.Play();
-            };
+        public bool AllPiecesAssembled()
+        {
+            return pickedPieces.Count == pieces.Count;
+        }
 
-            if (player.position == player.targetPosition)
+        public bool IsFinished()
+        {
+            return map[(int)player.position.Y, (int)player.position.X] == (int)MapData.Tales.Finish;
+        }
+
+        public void TakePeace()
+        {
+            if (player.position != player.targetPosition) throw new Exception("Ошибка расположения игрока");
+            if (pickedPieces.Contains(player.targetPosition) || !pieces.Contains(player.targetPosition)) throw new Exception("Монета уже подобрана, либо её нет на этом месте");
+            pickedPieces.Add(player.targetPosition);
+        }
+
+        public MapData.Tales WatchOnTarget()
+        {
+            var pos = player.targetPosition;
+            if (pos.X < 0 || pos.Y < 0 || pos.X >= map.GetLength(0) || pos.Y >= map.GetLength(1))
             {
-                if (pieces.Contains(player.targetPosition) && !pickedPieces.Contains(player.targetPosition))
-                {
-                    pickedPieces.Add(player.targetPosition);
-                    if (sounds.TryGetValue("Money", out (WaveOut wave, string audio) money))
-                    {
-                        money.wave.Init(new AudioFileReader(money.audio));
-                        money.wave.Play(); 
-                    }
-                }
-                player.isAnimated = false;
+                return MapData.Tales.Wall;
             }
-        }
-    }
-
-    class Script
-    {
-        public Command Move { get; private set; }
-        
-        public string Sketch { get; private set; }
-
-        public string Declaration { get; private set; }
-
-        private readonly Action<Player> Doing;
-
-        public Script(Command move)
-        {
-            Move = move;
-            Sketch = Sketches.data[move].sketch;
-            Declaration = Sketches.data[move].declaration;
-            Doing = Commands.commands[move];
-        }
-
-        public void Play(Player player)
-        {
-            Doing.Invoke(player);
+            else if (map[pos.Y, pos.X] == (int)MapData.Tales.Blank)
+            {
+                return MapData.Tales.Blank;
+            }
+            else return MapData.Tales.Ground;
         }
     }
 

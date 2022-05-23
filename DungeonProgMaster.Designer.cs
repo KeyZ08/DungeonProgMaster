@@ -118,8 +118,8 @@ namespace DungeonProgMaster
 
             //игрок
             var player = level.player;
-            gr.DrawImage(player.anim[player.currentFrame], new RectangleF(WorldPlayerPosition, WorldPlayerSize),
-                 new RectangleF(PointF.Empty, player.anim[player.currentFrame].Size), GraphicsUnit.Pixel);
+            gr.DrawImage(player.Anim[player.CurrentFrame], new RectangleF(WorldPlayerPosition, WorldPlayerSize),
+                 new RectangleF(PointF.Empty, player.Anim[player.CurrentFrame].Size), GraphicsUnit.Pixel);
             
         }
 
@@ -192,6 +192,13 @@ namespace DungeonProgMaster
 
         private void NotepadTextChanged(object sender, EventArgs args)
         {
+            notepad.Text = ScriptsWrite();
+            ScriptDesignPlayer();
+            ScriptDesignRepeat();
+        }
+
+        private void ScriptDesignPlayer()
+        {
             var oldSelect = notepad.SelectionStart;
             var start = WordFind("Player", notepad.Text);
             if (start.Count == 0) return;
@@ -199,6 +206,19 @@ namespace DungeonProgMaster
             {
                 notepad.Select(start[i], 6);
                 notepad.SelectionColor = Color.LightSkyBlue;
+            }
+            notepad.Select(oldSelect, 0);
+        }
+
+        private void ScriptDesignRepeat()
+        {
+            var oldSelect = notepad.SelectionStart;
+            var start = WordFind("Repeat", notepad.Text);
+            if (start.Count == 0) return;
+            for (var i = 0; i < start.Count; i++)
+            {
+                notepad.Select(start[i], 6);
+                notepad.SelectionColor = Color.LightGoldenrodYellow;
             }
             notepad.Select(oldSelect, 0);
         }
@@ -232,16 +252,19 @@ namespace DungeonProgMaster
         /// <returns>Строка для отображения в notepad</returns>
         private string ScriptsWrite()
         {
+            var hooks = 0;
             var str = new System.Text.StringBuilder();
             var num = 0;
             foreach (var i in level.scripts)
             {
+                if (i.Move == Command.RepeatEnd) hooks--;
                 var transfer = "";
                 if (num != 0) transfer += "\r\n";
-                str.Append($"{transfer}  {num}. {i.Sketch}");
+                str.Append($"{transfer} {(num < 10 ? "  " : "")} {num}. {new String(' ', hooks < 0 ? 0 : hooks * 4)}{i.Sketch}");
                 num++;
+                if (i.Move == Command.RepeatStart) hooks++;
             }
-            if (str.Length == 0) return "  0.";
+            if (str.Length == 0) return "    0.";
             return str.ToString();
         }
 
@@ -271,6 +294,48 @@ namespace DungeonProgMaster
             return button;
         }
 
+        /// <summary>
+        /// Устанавливает мировые координаты и размер персонажа соответственно размеру мира
+        /// </summary>
+        private void SetPlayerWorldPositionAndSize(Sizer sizer)
+        {
+            WorldPlayerSize = sizer.GetWorldSize(new Size(64, 64));
+            WorldPlayerPosition = sizer.GetWorldPosition(level.player.position, WorldPlayerSize);
+        }
+
+        private void PieceUpdateFrame(object sender, EventArgs args)
+        {
+            pieceData.CurrentFrame++;
+            gamePlace.Invalidate();
+        }
+
+        private void WindowResize()
+        {
+            WorkTableResize();
+
+            var rows = level.map.GetLength(0);
+            var columns = level.map.GetLength(1);
+            float coeff = (float)gamePlace.Height / columns / 32;
+            var imageSize = new SizeF(coeff, coeff) * 32;
+            sizer = new Sizer(rows, columns, coeff, imageSize);
+
+            SetPlayerWorldPositionAndSize(sizer);
+            gamePlace.Invalidate();
+        }
+
+        /// <summary>
+        /// Устанавливает каждому из коллекции Control-ов значение Enabled равным enabled
+        /// </summary>
+        /// <param name="collection">Коллекция Control-ов</param>
+        /// <param name="enabled">Значение, которое нужно установить в Enabled</param>
+        private static void SetEnabledControls(bool enabled, Control.ControlCollection collection)
+        {
+            foreach (var i in collection)
+            {
+                var k = i as Button;
+                k.BeginInvoke(new Action(() => k.Enabled = enabled));
+            }
+        }
         #endregion
     }
 }

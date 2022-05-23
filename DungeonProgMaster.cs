@@ -4,6 +4,8 @@ using Timers = System.Timers;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using NAudio.Wave;
+using System.Linq;
 
 namespace DungeonProgMaster
 {
@@ -13,9 +15,9 @@ namespace DungeonProgMaster
 
         private PointF WorldPlayerPosition;
         private SizeF WorldPlayerSize;
-        private Timers.Timer pieceAnimator;
+        private readonly Timers.Timer pieceAnimator;
         private float frameTimeSpeed = 1f;//чем больше тем медленнее
-        private readonly Piece pieceData;
+        private readonly MapData.Piece pieceData;
 
         public DungeonProgMaster()
         {
@@ -23,7 +25,7 @@ namespace DungeonProgMaster
             InitializeComponent();
             InitializeDesign();
 
-            pieceData = new Piece();
+            pieceData = new MapData.Piece();
             pieceAnimator = new Timers.Timer(100 * frameTimeSpeed);
             pieceAnimator.Elapsed += PieceUpdateFrame;
             pieceAnimator.Start();
@@ -51,7 +53,34 @@ namespace DungeonProgMaster
             }
         }
 
-        #region Player
+        public void PlayerMove()
+        {
+            var player = level.player;
+            if (player.position == player.targetPosition)
+                return;
+
+            var frame = 1.0f / player.Anim.Count;
+            player.Move(frame);
+
+            if ((player.CurrentFrame == 2 || player.CurrentFrame == 4) && sounds.TryGetValue("Floor", out (WaveOut wave, string audio) floor))
+            {
+                floor.wave.Init(new AudioFileReader(floor.audio));
+                floor.wave.Play();
+            };
+
+            if (player.position == player.targetPosition)
+            {
+                if (level.ItIsPiece() && !level.ItIsPickedPiece())
+                {
+                    level.TakePeace();
+                    if (sounds.TryGetValue("Money", out (WaveOut wave, string audio) money))
+                    {
+                        money.wave.Init(new AudioFileReader(money.audio));
+                        money.wave.Play();
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Перемещает персонажа по карте соответственно скорости анимации
@@ -60,81 +89,55 @@ namespace DungeonProgMaster
         /// <param name="args"></param>
         private void PlayerMovement()
         {
-            level.PlayerMove(sounds);
+            PlayerMove();
 
             SetPlayerWorldPositionAndSize(sizer);
-            UpdatePlayerFrame();
-            
-            if (level.player.position != level.player.targetPosition)
+            var player = level.player;
+            player.UpdatePlayerFrame();
+
+            if (player.position != player.targetPosition)
             {
-                System.Threading.Thread.Sleep(100);
+                System.Threading.Thread.Sleep((int)(80 * frameTimeSpeed));
                 PlayerMovement();
             }
-            if (level.player.nextMovement != level.player.movement)
+            if (player.NextMovement != player.movement)
             {
-                System.Threading.Thread.Sleep(150);
-                level.PlayerRotate();
+                System.Threading.Thread.Sleep((int)(130 * frameTimeSpeed));
+                player.Rotate();
             }
 
             gamePlace.Invalidate();
         }
 
-        /// <summary>
-        /// Обновляет картинку персонажа
-        /// </summary>
-        private void UpdatePlayerFrame()
+        private bool WatсhWallAndBlank()
         {
-            var player = level.player;
-            //вычисление анимации
-            var anim = player.PlayerMoveAnimations(player.movement);
-            if (player.currentFrame >= 0) player.currentFrame++;
-            if (player.currentFrame >= anim.Count)
-                player.currentFrame = 0;
-            player.anim = anim;
-        }
-
-        /// <summary>
-        /// Устанавливает мировые координаты и размер персонажа соответственно размеру мира
-        /// </summary>
-        private void SetPlayerWorldPositionAndSize(Sizer sizer)
-        {
-            WorldPlayerSize = sizer.GetWorldSize(new Size(64, 64));
-            WorldPlayerPosition = sizer.GetWorldPosition(level.player.position, WorldPlayerSize);
-        }
-
-        private bool WatсhOnTarget()
-        {
-            var pointFpos = level.player.targetPosition;
-            if (pointFpos.X == pointFpos.X && pointFpos.Y == pointFpos.Y)
+            var target = level.WatchOnTarget();
+            if (target == MapData.Tales.Wall)
             {
-                var pos = new Point(pointFpos.X, pointFpos.Y);
-                if (pos.X < 0 || pos.Y < 0 || pos.X >= sizer.columns || pos.Y >= sizer.rows)
-                {
-                    MessageBox.Show("Похоже вы пытались выйти за пределы карты, чего делать нельзя. Будьте осторожней.", "Ой",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    LevelReset();
-                    return false;
-                }
-                else if (level.map[pos.Y, pos.X] == (int)MapData.Tales.Blank)
-                {
-                    MessageBox.Show("Вы чуть не упали в дыру в полу. Будьте осторожней!", "Ой",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    LevelReset();
-                    return false;
-                }
+                MessageBox.Show("Похоже вы пытались выйти за пределы карты, чего делать нельзя. Будьте осторожней.", "Ой",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LevelReset();
+                return false;
+            }
+            else if (target == MapData.Tales.Blank)
+            {
+                MessageBox.Show("Вы чуть не упали в дыру в полу. Будьте осторожней!", "Ой",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LevelReset();
+                return false;
             }
             return true;
         }
 
         private void Finished()
         {
-            if(level.pickedPieces.Count != level.pieces.Count)
+            if(!level.AllPiecesAssembled())
             {
                 MessageBox.Show("Для перехода на следующий уровень нужно собрать все монеты!", "",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 LevelReset();
             }
-            else if (level.map[(int)level.player.position.Y, (int)level.player.position.X] == (int)MapData.Tales.Finish)
+            else if (level.IsFinished())
             {
                 var message = MessageBox.Show("Уровень пройден! Перейти на следующий уровень? ", "Ура!",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Information);
@@ -154,34 +157,34 @@ namespace DungeonProgMaster
             }
         }
 
-        #endregion
-
         private void PlayButtonClick(object sender, EventArgs args)
         {
-            if (level.player.isAnimated) return;
-            LevelReset();
+            if (level.player.IsAnimated) return;
 
             var task = Task.Run(() =>
             {
+                level.player.IsAnimated = true;
                 SetEnabledControls(false, menu.Controls);
                 var scripts = level.GetScripts();
                 for (var i = 0; i < scripts.Count; i++)
                 {
-                    level.player.isAnimated = true;
                     scripts[i].Play(level.player);
-                    if (!WatсhOnTarget())
+                    if (!WatсhWallAndBlank())
                     {
                         SetEnabledControls(true, menu.Controls);
                         return;
                     }
                     PlayerMovement();
                 }
+                level.player.IsAnimated = false;
                 Finished();
 
                 SetEnabledControls(true, menu.Controls);
                 notepad.BeginInvoke(new Action(() => notepad.Enabled = true));
             });
         }
+
+        #region Actions with Scripts
 
         private void AddButtonMenu_ItemClick(object sender, ToolStripItemClickedEventArgs args)
         {
@@ -226,10 +229,11 @@ namespace DungeonProgMaster
             var sum = 0;
             startS = -1;
             endS = -1;
-            var str = notepad.Text.Split('\n');
+            
+            var str = notepad.Lines;
             for (var i = 0; i < str.Length; i++)
             {
-                if (i != 0) sum += 1;//1 = '\n'.Length
+                if (i != 0) sum += 2;//2 = '\n'.Length
                 if (startS == -1 && sum + str[i].Length >= start) startS = i;
                 if (startS != -1 && sum + str[i].Length >= end) endS = i;
                 sum += str[i].Length;
@@ -239,12 +243,6 @@ namespace DungeonProgMaster
 
         private void AddButtonClick(object sender, EventArgs args)
         {
-            if (contextMenu != null)
-            {
-                contextMenu.Show(addButton, new Point(addButton.Height, 0));
-                return;
-            }
-
             contextMenu = new ContextMenuStrip();
             for (var i = 0; i < level.openedScripts.Length; i++)
             {
@@ -255,38 +253,6 @@ namespace DungeonProgMaster
             contextMenu.Show(addButton, new Point(addButton.Height, 0));
         }
 
-        private void WindowResize()
-        {
-            WorkTableResize();
-
-            var rows = level.map.GetLength(0);
-            var columns = level.map.GetLength(1);
-            float coeff = (float)gamePlace.Height / columns / 32;
-            var imageSize = new SizeF(coeff, coeff) * 32;
-            sizer = new Sizer(rows, columns, coeff, imageSize);
-
-            SetPlayerWorldPositionAndSize(sizer);
-            gamePlace.Invalidate();
-        }
-
-        /// <summary>
-        /// Устанавливает каждому из коллекции Control-ов значение Enabled равным enabled
-        /// </summary>
-        /// <param name="collection">Коллекция Control-ов</param>
-        /// <param name="enabled">Значение, которое нужно установить в Enabled</param>
-        private static void SetEnabledControls(bool enabled, Control.ControlCollection collection)
-        {
-            foreach (var i in collection)
-            {
-                var k = i as Button;
-                k.BeginInvoke(new Action(() => k.Enabled = enabled));
-            }
-        }
-
-        private void PieceUpdateFrame(object sender, EventArgs args)
-        {
-            pieceData.CurrentFrame++;
-            gamePlace.Invalidate();
-        }
+        #endregion
     }
 }
