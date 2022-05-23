@@ -11,9 +11,10 @@ namespace DungeonProgMaster
         public PointF position;
         public Point targetPosition;
         public PlayerMoveAnim movement;
-        public int currentFrame = 0;
-        public List<Bitmap> anim;
-        public bool isAnimated = false;
+        public PlayerMoveAnim NextMovement { get; private set; }
+        public int CurrentFrame { get; private set; }
+        public List<Bitmap> Anim { get; private set; }
+        public bool IsAnimated { get; set; }
 
         public Player(Point position, PlayerMoveAnim defaultAnim)
         {
@@ -26,7 +27,10 @@ namespace DungeonProgMaster
             CreateAnimations(images, PlayerMoveAnim.Left);
             CreateAnimations(images, PlayerMoveAnim.Right);
             movement = defaultAnim;
-            anim = animations[movement];
+            Anim = animations[movement];
+            NextMovement = movement;
+            CurrentFrame = 0;
+            IsAnimated = false;
         }
 
         public Player(Point position, PlayerMoveAnim defaultAnim, Player p)
@@ -35,7 +39,66 @@ namespace DungeonProgMaster
             movement = defaultAnim;
             targetPosition = position;
             animations = p.animations;
-            anim = animations[movement];
+            Anim = animations[movement];
+            NextMovement = movement;
+            CurrentFrame = 0;
+            IsAnimated = false;
+        }
+
+        public void GetNextMovement()
+        {
+            if (movement == PlayerMoveAnim.Right)
+                NextMovement = PlayerMoveAnim.Bottom;
+            else if (movement == PlayerMoveAnim.Left)
+                NextMovement = PlayerMoveAnim.Top;
+            else if (movement == PlayerMoveAnim.Top)
+                NextMovement = PlayerMoveAnim.Right;
+            else if (movement == PlayerMoveAnim.Bottom)
+                NextMovement = PlayerMoveAnim.Left;
+            CurrentFrame = 0;
+        }
+
+        public void GetNextTargetPosition()
+        {
+            if (movement == PlayerMoveAnim.Right)
+                targetPosition.X += 1;
+            else if (movement == PlayerMoveAnim.Left)
+                targetPosition.X -= 1;
+            else if (movement == PlayerMoveAnim.Top)
+                targetPosition.Y -= 1;
+            else if (movement == PlayerMoveAnim.Bottom)
+                targetPosition.Y += 1;
+            CurrentFrame = 0;
+        }
+
+        public void Move(float distance)
+        {
+            var pos = position;
+            if (movement == PlayerMoveAnim.Right) pos.X += distance;
+            else if (movement == PlayerMoveAnim.Left) pos.X -= distance;
+            else if (movement == PlayerMoveAnim.Top) pos.Y -= distance;
+            else if (movement == PlayerMoveAnim.Bottom) pos.Y += distance;
+            position.X = (float)Math.Round(pos.X, 2);
+            position.Y = (float)Math.Round(pos.Y, 2);
+        }
+
+        public void Rotate()
+        {
+            movement = NextMovement;
+            Anim = animations[movement];
+        }
+
+        /// <summary>
+        /// Обновляет картинку персонажа
+        /// </summary>
+        public void UpdatePlayerFrame()
+        {
+            //вычисление анимации
+            var anim = PlayerMoveAnimations(movement);
+            if (CurrentFrame >= 0) CurrentFrame++;
+            if (CurrentFrame >= anim.Count)
+                CurrentFrame = 0;
+            this.Anim = anim;
         }
 
         public List<Bitmap> PlayerMoveAnimations(PlayerMoveAnim move)
@@ -64,11 +127,5 @@ namespace DungeonProgMaster
         Right = 2,
         Rotate = 4,
         Forward = 5
-    }
-
-    enum Command
-    {
-        Rotate = 0,
-        Forward = 1,
     }
 }

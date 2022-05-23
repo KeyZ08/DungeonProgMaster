@@ -3,6 +3,9 @@ using System.Drawing;
 using Timers = System.Timers;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Collections.Generic;
+using NAudio.Wave;
+using System.Linq;
 
 namespace DungeonProgMaster
 {
@@ -12,18 +15,18 @@ namespace DungeonProgMaster
 
         private PointF WorldPlayerPosition;
         private SizeF WorldPlayerSize;
-        //скорость анимации
-        private Timers.Timer pieceAnimator;
-        private Piece pieceData;
+        private readonly Timers.Timer pieceAnimator;
+        private float frameTimeSpeed = 1f;//чем больше тем медленнее
+        private readonly MapData.Piece pieceData;
 
         public DungeonProgMaster()
         {
+            level = Levels.GetLevel(0);
             InitializeComponent();
             InitializeDesign();
-            level = Levels.GetLevel(0);
 
-            pieceData = new Piece();
-            pieceAnimator = new Timers.Timer(100);
+            pieceData = new MapData.Piece();
+            pieceAnimator = new Timers.Timer(100 * frameTimeSpeed);
             pieceAnimator.Elapsed += PieceUpdateFrame;
             pieceAnimator.Start();
         }
@@ -38,97 +41,103 @@ namespace DungeonProgMaster
             gamePlace.Invalidate();
         }
 
-        #region Player
+        private void OnKeyDownNotepad(object sender, KeyEventArgs args)
+        {
+            var key = args.KeyCode;
+            if(key == Keys.Back)
+            {
+                NotepadRemoveItem();
+            }
+            else if(key == Keys.Enter)
+            {
+            }
+        }
+
+        public void PlayerMove()
+        {
+            var player = level.player;
+            if (player.position == player.targetPosition)
+                return;
+
+            var frame = 1.0f / player.Anim.Count;
+            player.Move(frame);
+
+            if ((player.CurrentFrame == 2 || player.CurrentFrame == 4) && sounds.TryGetValue("Floor", out (WaveOut wave, string audio) floor))
+            {
+                floor.wave.Init(new AudioFileReader(floor.audio));
+                floor.wave.Play();
+            };
+
+            if (player.position == player.targetPosition)
+            {
+                if (level.ItIsPiece() && !level.ItIsPickedPiece())
+                {
+                    level.TakePeace();
+                    if (sounds.TryGetValue("Money", out (WaveOut wave, string audio) money))
+                    {
+                        money.wave.Init(new AudioFileReader(money.audio));
+                        money.wave.Play();
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Перемещает персонажа по карте соответственно скорости анимации
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="args"></param>
-        private void PlayerMovement(object sender, EventArgs args)
+        private void PlayerMovement()
         {
+            PlayerMove();
+
+            SetPlayerWorldPositionAndSize(sizer);
             var player = level.player;
-            if (player.position == player.targetPosition)
+            player.UpdatePlayerFrame();
+
+            if (player.position != player.targetPosition)
             {
-                if (level.pieces.Contains(player.targetPosition) && !level.pickedPieces.Contains(player.targetPosition))
-                    level.pickedPieces.Add(player.targetPosition);
-                player.isAnimated = false;
-                (sender as Timers.Timer).Dispose();
+                System.Threading.Thread.Sleep((int)(80 * frameTimeSpeed));
+                PlayerMovement();
             }
-            else
+            if (player.NextMovement != player.movement)
             {
-                var frame = 1.0f / player.anim.Count;
-                var pos = player.position;
-                if (player.movement == PlayerMoveAnim.Right) pos.X += frame;
-                else if (player.movement == PlayerMoveAnim.Left) pos.X -= frame;
-                else if (player.movement == PlayerMoveAnim.Top) pos.Y -= frame;
-                else if (player.movement == PlayerMoveAnim.Bottom) pos.Y += frame;
-                player.position.X = (float)Math.Round(pos.X, 2);
-                player.position.Y = (float)Math.Round(pos.Y, 2);
-                SetPlayerWorldPositionAndSize(sizer);
+                System.Threading.Thread.Sleep((int)(130 * frameTimeSpeed));
+                player.Rotate();
             }
-            UpdatePlayerFrame();
 
             gamePlace.Invalidate();
-            return;
         }
 
-        /// <summary>
-        /// Обновляет картинку персонажа
-        /// </summary>
-        private void UpdatePlayerFrame()
+        private bool WatсhWallAndBlank()
         {
-            var player = level.player;
-            //вычисление анимации
-            var anim = player.PlayerMoveAnimations(player.movement);
-            if (player.currentFrame >= 0) player.currentFrame++;
-            if (player.currentFrame >= anim.Count)
-                player.currentFrame = 0;
-            player.anim = anim;
-        }
-
-        /// <summary>
-        /// Устанавливает мировые координаты и размер персонажа соответственно размеру мира
-        /// </summary>
-        private void SetPlayerWorldPositionAndSize(Sizer sizer)
-        {
-            WorldPlayerSize = sizer.GetWorldSize(new Size(64, 64));
-            WorldPlayerPosition = sizer.GetWorldPosition(level.player.position, WorldPlayerSize);
-        }
-
-        private bool WatсhOnTarget()
-        {
-            var pointFpos = level.player.targetPosition;
-            if (pointFpos.X == pointFpos.X && pointFpos.Y == pointFpos.Y)
+            var target = level.WatchOnTarget();
+            if (target == MapData.Tales.Wall)
             {
-                var pos = new Point(pointFpos.X, pointFpos.Y);
-                if (pos.X < 0 || pos.Y < 0 || pos.X >= sizer.columns || pos.Y >= sizer.rows)
-                {
-                    MessageBox.Show("Похоже вы пытались выйти за пределы карты, чего делать нельзя. Будьте осторожней.", "Ой",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    LevelReset();
-                    return false;
-                }
-                else if (level.map[pos.Y, pos.X] == (int)MapData.Tales.Blank)
-                {
-                    MessageBox.Show("Вы чуть не упали в дыру в полу. Будьте осторожней!", "Ой",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    LevelReset();
-                    return false;
-                }
+                MessageBox.Show("Похоже вы пытались выйти за пределы карты, чего делать нельзя. Будьте осторожней.", "Ой",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LevelReset();
+                return false;
+            }
+            else if (target == MapData.Tales.Blank)
+            {
+                MessageBox.Show("Вы чуть не упали в дыру в полу. Будьте осторожней!", "Ой",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LevelReset();
+                return false;
             }
             return true;
         }
 
         private void Finished()
         {
-            if(level.pickedPieces.Count != level.pieces.Count)
+            if(!level.AllPiecesAssembled())
             {
                 MessageBox.Show("Для перехода на следующий уровень нужно собрать все монеты!", "",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 LevelReset();
             }
-            else if (level.map[(int)level.player.position.Y, (int)level.player.position.X] == (int)MapData.Tales.Finish)
+            else if (level.IsFinished())
             {
                 var message = MessageBox.Show("Уровень пройден! Перейти на следующий уровень? ", "Ура!",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Information);
@@ -136,7 +145,7 @@ namespace DungeonProgMaster
                 {
                     level = Levels.GetLevel(level.id + 1);
                     LevelReset();
-                    notepad.BeginInvoke(new Action(() => level.ScriptsClear(notepad)));
+                    notepad.BeginInvoke(new Action(() => notepad.ResetText()));
                 }
                 else LevelReset();
             }
@@ -148,35 +157,26 @@ namespace DungeonProgMaster
             }
         }
 
-        #endregion
-
         private void PlayButtonClick(object sender, EventArgs args)
         {
-            if (level.player.isAnimated) return;
-            LevelReset();
+            if (level.player.IsAnimated) return;
+
             var task = Task.Run(() =>
             {
+                level.player.IsAnimated = true;
                 SetEnabledControls(false, menu.Controls);
-                notepad.BeginInvoke(new Action(() => notepad.Enabled = false));
-
-                for (var i = 0; i < level.ScriptCount; i++)
+                var scripts = level.GetScripts();
+                for (var i = 0; i < scripts.Count; i++)
                 {
-                    if (level.player.isAnimated) { i--; continue; }
-                    level.player.isAnimated = true;
-                    Commands.commands[level.GetScript(i).Move].Invoke(level.player);
-                    //выделяет исполняемую строку
-                    notepad.BeginInvoke(new Action(() => notepad.SelectedIndex = i - 1));
-                    if (!WatсhOnTarget())
+                    scripts[i].Play(level.player);
+                    if (!WatсhWallAndBlank())
                     {
                         SetEnabledControls(true, menu.Controls);
-                        notepad.BeginInvoke(new Action(() => notepad.Enabled = true));
                         return;
                     }
-                    var playerAnimator = level.GetScript(i).Move == Command.Rotate? new Timers.Timer(150) : new Timers.Timer(100);
-                    playerAnimator.Elapsed += PlayerMovement;
-                    playerAnimator.Start();
+                    PlayerMovement();
                 }
-                while (level.player.isAnimated) { /*ждем*/ }
+                level.player.IsAnimated = false;
                 Finished();
 
                 SetEnabledControls(true, menu.Controls);
@@ -184,141 +184,75 @@ namespace DungeonProgMaster
             });
         }
 
+        #region Actions with Scripts
+
         private void AddButtonMenu_ItemClick(object sender, ToolStripItemClickedEventArgs args)
         {
-            var item = args.ClickedItem;
-            var move = (Command)((ToolStrip)sender).Items.IndexOf(item);
-            level.ScriptAdd(new Script(move), notepad);
+            var start = notepad.SelectionStart - 1;
+            var end = start + notepad.SelectionLength;
+            var command = level.openedScripts[contextMenu.Items.IndexOf(args.ClickedItem)].Move;
+
+            FindSelectedScripts(start, end, out int startS, out int endS);
+            if (notepad.SelectionLength == 0) 
+            {
+                level.ScriptsInsert(startS, new Script(command));
+            }
+            else
+            {
+                level.ScriptsRemove(startS, endS - startS);
+                level.ScriptsInsert(startS - (endS - startS), new Script(command));
+            }
+            notepad.Text = ScriptsWrite();
+            notepad.Select(end + notepad.Lines[endS].Length, 0);
         }
 
         private void NotepadResetClick(object sender, EventArgs args)
         {
-            level.ScriptsClear(notepad);
+            level.ScriptsClear();
+            notepad.Text = ScriptsWrite();
         }
 
-        private void NotepadRemoveItem(object sender, EventArgs args)
+        private void NotepadRemoveItem()
         {
-            var index = notepad.SelectedIndex;
-            if (index == -1) return;
-            //выделяем соседнюю строку
-            notepad.SelectedIndex = (notepad.Items.Count - 1 == index || index - 1 != -1) ? index - 1 : index + 1; 
-            level.ScriptRemoveAt(index, notepad);
+            var start = notepad.SelectionStart;
+            var end = start + notepad.SelectionLength - 1;
+
+            FindSelectedScripts(start, end, out int startS, out int endS);
+
+            level.ScriptsRemove(startS, endS - startS);
+            notepad.Text = ScriptsWrite();
+            notepad.SelectionStart = start;
         }
 
-        private void Notepad_MouseMove(object sender, MouseEventArgs e)
+        private void FindSelectedScripts(int start, int end, out int startS, out int endS)
         {
-            //если нажата левая кнопка мыши, начинаем Drag&Drop
-            if (e.Button == MouseButtons.Left)
+            var sum = 0;
+            startS = -1;
+            endS = -1;
+            
+            var str = notepad.Lines;
+            for (var i = 0; i < str.Length; i++)
             {
-                //индекс элемента, который мы перемещаем
-                indexToMove = notepad.IndexFromPoint(e.X, e.Y);
-                notepad.DoDragDrop(indexToMove, DragDropEffects.Move);
+                if (i != 0) sum += 2;//2 = '\n'.Length
+                if (startS == -1 && sum + str[i].Length >= start) startS = i;
+                if (startS != -1 && sum + str[i].Length >= end) endS = i;
+                sum += str[i].Length;
+                if (endS != -1) break;
             }
-        }
-
-        private void Notepad_DragEnter(object sender, DragEventArgs e)
-        {
-            e.Effect = DragDropEffects.Move;
-        }
-
-        private void Notepad_DragDrop(object sender, DragEventArgs e)
-        {
-            int newIndex = notepad.IndexFromPoint(notepad.PointToClient(new Point(e.X, e.Y)));
-            //если вставка происходит в начало списка
-            if (indexToMove == -1 || indexToMove == 65535) return;
-            //получаем перетаскиваемый элемент
-            var item = level.GetScript(indexToMove);
-            object itemToMove = notepad.Items[indexToMove];
-            if (newIndex == -1)
-            {
-                //удаляем элемент
-                level.ScriptRemoveAt(indexToMove, notepad);
-                //добавляем в конец списка
-                level.ScriptAdd(item, notepad);
-            }
-            //вставляем где-то в середину списка
-            else if (indexToMove != newIndex)
-            {
-                //удаляем элемент
-                level.ScriptRemoveAt(indexToMove, notepad);
-                //вставляем в конкретную позицию
-                level.ScriptInsert(newIndex, item, notepad);
-            }
-        }
-
-        private void Notepad_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            if (e.Index == -1) return;
-            e.DrawBackground();
-
-            Graphics g = e.Graphics;
-            Brush brush = ((e.State & DrawItemState.Selected) == DrawItemState.Selected) ?
-                          Brushes.DarkSlateGray : new SolidBrush(e.BackColor);
-            g.FillRectangle(brush, e.Bounds);
-            var allString = notepad.Items[e.Index].ToString().Split('.');
-            for (var i = 0; i < allString.Length; i++)
-            {
-                var st = (e.Index + 1).ToString();
-                e.Graphics.DrawString(st, new Font(FontFamily.GenericMonospace, 12, FontStyle.Regular),
-                     new SolidBrush(e.ForeColor), e.Bounds, StringFormat.GenericDefault);
-
-                e.Graphics.DrawString("." + allString[i], new Font(FontFamily.GenericMonospace, 12, FontStyle.Regular),
-                     new SolidBrush(i == 0 ? Color.SkyBlue : e.ForeColor),
-                     new RectangleF(st.Length * 12 + e.Bounds.X * i + (i == 0 ? 0 : allString[i - 1].Length) * 12, e.Bounds.Y, allString[i].Length * 16, e.Bounds.Height),
-                     StringFormat.GenericDefault);
-            }
-
-            e.DrawFocusRectangle();
         }
 
         private void AddButtonClick(object sender, EventArgs args)
         {
-            if (addButton_contextMenu != null)
+            contextMenu = new ContextMenuStrip();
+            for (var i = 0; i < level.openedScripts.Length; i++)
             {
-                addButton_contextMenu.Show(addButton, new Point(addButton.Height, 0));
-                return;
+                contextMenu.Items.Add(level.openedScripts[i].Declaration);
             }
 
-            addButton_contextMenu = new ContextMenuStrip();
-            for (var i = 0; i < 2; i++)
-                addButton_contextMenu.Items.Add(Sketches.sketches[(Command)i]);
-
-            addButton_contextMenu.ItemClicked += new ToolStripItemClickedEventHandler(AddButtonMenu_ItemClick);
-            addButton_contextMenu.Show(addButton, new Point(addButton.Height, 0));
+            contextMenu.ItemClicked += new ToolStripItemClickedEventHandler(AddButtonMenu_ItemClick);
+            contextMenu.Show(addButton, new Point(addButton.Height, 0));
         }
 
-        private void WindowResize()
-        {
-            WorkTableResize();
-
-            var rows = level.map.GetLength(0);
-            var columns = level.map.GetLength(1);
-            float coeff = (float)gamePlace.Height / columns / 32;
-            var imageSize = new SizeF(coeff, coeff) * 32;
-            sizer = new Sizer(rows, columns, coeff, imageSize);
-
-            SetPlayerWorldPositionAndSize(sizer);
-            gamePlace.Invalidate();
-        }
-
-        /// <summary>
-        /// Устанавливает каждому из коллекции Control-ов значение Enabled равным enabled
-        /// </summary>
-        /// <param name="collection">Коллекция Control-ов</param>
-        /// <param name="enabled">Значение, которое нужно установить в Enabled</param>
-        private static void SetEnabledControls(bool enabled, Control.ControlCollection collection)
-        {
-            foreach (var i in collection)
-            {
-                var k = i as Button;
-                k.BeginInvoke(new Action(() => k.Enabled = enabled));
-            }
-        }
-
-        private void PieceUpdateFrame(object sender, EventArgs args)
-        {
-            pieceData.CurrentFrame++;
-            gamePlace.Invalidate();
-        }
+        #endregion
     }
 }
