@@ -125,7 +125,5 @@ namespace DungeonProgMaster
         Bottom = 0,
         Left = 3,
         Right = 2,
-        Rotate = 4,
-        Forward = 5
     }
 }
