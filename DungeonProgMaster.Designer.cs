@@ -193,32 +193,19 @@ namespace DungeonProgMaster
         private void NotepadTextChanged(object sender, EventArgs args)
         {
             notepad.Text = ScriptsWrite();
-            ScriptDesignPlayer();
-            ScriptDesignRepeat();
+            SetWordColor("Player", Color.LightSkyBlue);
+            SetWordColor("Repeat", Color.LightGoldenrodYellow);
         }
 
-        private void ScriptDesignPlayer()
+        private void SetWordColor(string word, Color color)
         {
             var oldSelect = notepad.SelectionStart;
-            var start = WordFind("Player", notepad.Text);
+            var start = WordFind(word, notepad.Text);
             if (start.Count == 0) return;
             for (var i = 0; i < start.Count; i++)
             {
                 notepad.Select(start[i], 6);
-                notepad.SelectionColor = Color.LightSkyBlue;
-            }
-            notepad.Select(oldSelect, 0);
-        }
-
-        private void ScriptDesignRepeat()
-        {
-            var oldSelect = notepad.SelectionStart;
-            var start = WordFind("Repeat", notepad.Text);
-            if (start.Count == 0) return;
-            for (var i = 0; i < start.Count; i++)
-            {
-                notepad.Select(start[i], 6);
-                notepad.SelectionColor = Color.LightGoldenrodYellow;
+                notepad.SelectionColor = color;
             }
             notepad.Select(oldSelect, 0);
         }

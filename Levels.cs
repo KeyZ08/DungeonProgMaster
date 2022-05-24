@@ -105,11 +105,8 @@ namespace DungeonProgMaster
             pickedPieces.Clear();
         }
 
-        public void ScriptsClear()
-        {
-            scripts.Clear();
-        }
-
+        public void ScriptsClear() => scripts.Clear();
+        
         public void ScriptAdd(Script str)
         {
             scripts.AddLast(str);

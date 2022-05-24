@@ -41,7 +41,7 @@ namespace DungeonProgMaster
                 }
             }
 
-            public List<Image> Frames { get; private set; }
+            public readonly List<Image> Frames;
 
             public Piece()
             {

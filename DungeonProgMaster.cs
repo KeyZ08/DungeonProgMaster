@@ -48,9 +48,6 @@ namespace DungeonProgMaster
             {
                 NotepadRemoveItem();
             }
-            else if(key == Keys.Enter)
-            {
-            }
         }
 
         public void PlayerMove()
