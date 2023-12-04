@@ -5,18 +5,21 @@ using UnityEngine;
 public class GameContoller : MonoBehaviour
 {
     [SerializeField] private PlayerVisualizer playerV;
-    [SerializeField] private GameVisualizer gameV;
+    [SerializeField] private MapVisualizer mapV;
 
     private Size mapSize = new Size(12, 12);
+    private Level level;
 
     private void Start()
     {
-        playerV.Constructor(gameV.GetCellCenter(Vector2Int.one * 5));
+        level = LevelsHandler.Levels[0];
+        mapV.DrawMap(level.Map);
+        playerV.Constructor(mapV.GetCellCenter(Vector2Int.one * 5));
     }
 
     private void Update()
     {
-        var cell = gameV.GetCellByWorlPoint(playerV.Position);
+        var cell = mapV.GetCellByWorlPoint(playerV.Position);
         if(!InMapBounds(cell))
             throw new ArgumentOutOfRangeException("Вне игрового поля!");
 
@@ -31,12 +34,12 @@ public class GameContoller : MonoBehaviour
         if (verticalInput != 0)
         {
             var vector = verticalInput > 0 ? Vector2Int.up : Vector2Int.down;
-            playerV.MoveTo(gameV.GetCellCenter(startCell + vector));
+            playerV.MoveTo(mapV.GetCellCenter(startCell + vector));
         }
         if (horizontalInput != 0)
         {
             var vector = horizontalInput > 0 ? Vector2Int.right : Vector2Int.left;
-            playerV.MoveTo(gameV.GetCellCenter(startCell + vector));
+            playerV.MoveTo(mapV.GetCellCenter(startCell + vector));
         }
     }
 
