@@ -1255,11 +1255,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 947637254}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d9ab0427c870664a8a83c8afe8945e8, type: 3}
+  m_Script: {fileID: 11500000, guid: 0082b2bc9f4a499458bbbb8e052382f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   tilemap: {fileID: 1298682597}
   ground: {fileID: 11400000, guid: ead4ee409262c2d4196e2e1bf5766011, type: 2}
+  hole: {fileID: 11400000, guid: c9aa29c9ee0a8834085eb0a9b9049feb, type: 2}
+  wall: {fileID: 11400000, guid: c9aa29c9ee0a8834085eb0a9b9049feb, type: 2}
+  finish: {fileID: 11400000, guid: ba7b6642df5e84842aba2a7f28033511, type: 2}
 --- !u!114 &947637256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1273,7 +1276,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerV: {fileID: 1759930614}
-  gameV: {fileID: 947637255}
+  mapV: {fileID: 947637255}
 --- !u!4 &947637257
 Transform:
   m_ObjectHideFlags: 0
