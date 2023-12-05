@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Player
+namespace Commands
 {
     public class Player
     {
@@ -23,7 +22,7 @@ namespace Player
         }
     }
 
-    public static class Program
+    public static class CommandsCompiler
     {
         public static List<string> Script()
         {

@@ -2,9 +2,9 @@ using System;
 
 public class Command
 {
-    public delegate void CommandMethod(Player player, string stepsOrDirection);
+    public delegate void CommandMethod(Character player, string stepsOrDirection);
 
-    public void MoveForward(Player player, string numOfSteps)
+    public void MoveForward(Character player, string numOfSteps)
     {
         var steps = Convert.ToInt32(numOfSteps);
         if (player.CurrentDirection == Direction.Top)
@@ -17,7 +17,7 @@ public class Command
             player.CurrentPosition.x -= steps;
     }
 
-    public void Rotate(Player player, string direction)
+    public void Rotate(Character player, string direction)
     {
         direction = direction.ToLower();
         var currentPosition = player.CurrentDirection.ToInt();
@@ -33,7 +33,7 @@ public class Command
             throw new ArgumentException();
     }
 
-    public void Repeat(Player player, string stepsOrDirection, CommandMethod command, int numberOfRepetitions)
+    public void Repeat(Character player, string stepsOrDirection, CommandMethod command, int numberOfRepetitions)
     {
         CommandMethod commandMethod;
         commandMethod = command;
