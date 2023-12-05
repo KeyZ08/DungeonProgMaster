@@ -1,9 +1,9 @@
 public class Level
 {
     public readonly Map Map;
-    public Player Player;
+    public Character Player;
 
-    public Level(Map map, Player player)
+    public Level(Map map, Character player)
     {
         Map = map;
         Player = player;

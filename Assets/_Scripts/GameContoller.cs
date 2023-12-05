@@ -1,11 +1,21 @@
 using System;
 using System.Drawing;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameContoller : MonoBehaviour
 {
+    [Header("Controllers")]
     [SerializeField] private PlayerVisualizer playerV;
     [SerializeField] private MapVisualizer mapV;
+    [SerializeField] private CompileController compiler;
+
+    [Header("Input Field")]
+    [SerializeField] private TMP_InputField inputField;
+
+    [Header("Buttons")]
+    [SerializeField] private Button playBtn;
 
     private Size mapSize = new Size(12, 12);
     private Level level;
@@ -15,6 +25,8 @@ public class GameContoller : MonoBehaviour
         level = LevelsHandler.Levels[0];
         mapV.DrawMap(level.Map);
         playerV.Constructor(mapV.GetCellCenter(Vector2Int.one * 5));
+
+        playBtn.onClick.AddListener(PlayBtnClick);
     }
 
     private void Update()
@@ -24,6 +36,15 @@ public class GameContoller : MonoBehaviour
             throw new ArgumentOutOfRangeException("Вне игрового поля!");
 
         PlayerMove(cell);
+    }
+
+    private void PlayBtnClick()
+    {
+        var steps = compiler.Compile(inputField.text);
+        foreach(var step in steps)
+        {
+            Debug.Log(step);
+        }
     }
 
     private void PlayerMove(Vector2Int startCell)

@@ -20,7 +20,7 @@ public static class LevelsHandler
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}});
-        var playerLevel1 = new Player(new Vector2(8, 4), Direction.Top);
+        var playerLevel1 = new Character(new Vector2(8, 4), Direction.Top);
 
         Levels = new List<Level>()
         {

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Player
+public class Character
 {
     public readonly Vector2 StartPosition;
     public Vector2 CurrentPosition;
@@ -8,7 +8,7 @@ public class Player
     public readonly Direction StartDirection;
     public Direction CurrentDirection;
 
-    public Player(Vector2 statPosition, Direction startDirection)
+    public Character(Vector2 statPosition, Direction startDirection)
     {
         StartPosition = statPosition;
         CurrentPosition = statPosition;
