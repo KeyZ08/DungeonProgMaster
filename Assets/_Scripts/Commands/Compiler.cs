@@ -12,7 +12,6 @@ public static class Compiler
 
         CSharpCodeProvider provider = new CSharpCodeProvider();
         CompilerResults results = provider.CompileAssemblyFromSource(new CompilerParameters(), script);
-
         var cls = results.CompiledAssembly.GetType("Commands.CommandsCompiler");
         var method = cls.GetMethod("Script");
         return (List<string>)method.Invoke(null, null);

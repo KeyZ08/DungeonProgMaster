@@ -2,16 +2,16 @@ using UnityEngine;
 
 public class Character
 {
-    public readonly Vector2 StartPosition;
-    public Vector2 CurrentPosition;
+    public readonly Vector2Int StartPosition;
+    public Vector2Int CurrentPosition;
 
     public readonly Direction StartDirection;
     public Direction CurrentDirection;
 
-    public Character(Vector2 statPosition, Direction startDirection)
+    public Character(Vector2Int startPosition, Direction startDirection)
     {
-        StartPosition = statPosition;
-        CurrentPosition = statPosition;
+        StartPosition = startPosition;
+        CurrentPosition = startPosition;
 
         StartDirection = startDirection;
         CurrentDirection = startDirection;
