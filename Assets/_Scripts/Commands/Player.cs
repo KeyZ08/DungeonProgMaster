@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 
 namespace Commands
 {
@@ -6,19 +7,31 @@ namespace Commands
     {
         public static List<string> MoveArray = new List<string>();
 
-        public static void Go()
+        public static void Forward(int count = 1)
         {
-            MoveArray.Add("go");
+            if (count < 0) throw new ArgumentOutOfRangeException("Не должно быть < 0");
+            for (int i = 0; i < count; i++)
+            {
+                MoveArray.Add("forward");
+            }
         }
 
-        public static void TurnRight()
+        public static void TurnRight(int count = 1)
         {
-            MoveArray.Add("right");
+            if (count < 0) throw new ArgumentOutOfRangeException("Не должно быть < 0");
+            for (int i = 0; i < count; i++)
+            {
+                MoveArray.Add("turn_right");
+            }
         }
 
-        public static void TurnLeft()
+        public static void TurnLeft(int count = 1)
         {
-            MoveArray.Add("left");
+            if (count < 0) throw new ArgumentOutOfRangeException("Не должно быть < 0");
+            for (int i = 0; i < count; i++)
+            {
+                MoveArray.Add("turn_left");
+            }
         }
     }
 

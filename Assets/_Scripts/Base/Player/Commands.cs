@@ -1,45 +1,30 @@
 using System;
 
-public class Command
+public static class Command
 {
-    public delegate void CommandMethod(Character player, string stepsOrDirection);
-
-    public void MoveForward(Character player, string numOfSteps)
+    public static void MoveForward(Character player, int count = 1)
     {
-        var steps = Convert.ToInt32(numOfSteps);
         if (player.CurrentDirection == Direction.Top)
-            player.CurrentPosition.y += steps;
+            player.CurrentPosition.y += count;
         else if (player.CurrentDirection == Direction.Right)
-            player.CurrentPosition.x += steps;
+            player.CurrentPosition.x += count;
         else if (player.CurrentDirection == Direction.Bottom)
-            player.CurrentPosition.y -= steps;
+            player.CurrentPosition.y -= count;
+        else if (player.CurrentDirection == Direction.Left)
+            player.CurrentPosition.x -= count;
         else
-            player.CurrentPosition.x -= steps;
+            throw new NotImplementedException(player.CurrentDirection.ToString());
     }
 
-    public void Rotate(Character player, string direction)
+    public static void RotateRight(Character player)
     {
-        direction = direction.ToLower();
-        var currentPosition = player.CurrentDirection.ToInt();
-        if (direction == "right")
-        {
-            player.CurrentDirection = (Direction)(((currentPosition - 1) % 4 + 4) % 4);
-        }
-        else if (direction == "left")
-        {
-            player.CurrentDirection = (Direction)(currentPosition + 1 % 4);
-        }
-        else
-            throw new ArgumentException();
+        var currentDirection = player.CurrentDirection.ToInt();
+        player.CurrentDirection = (Direction)((currentDirection + 4 - 1) % 4);
     }
 
-    public void Repeat(Character player, string stepsOrDirection, CommandMethod command, int numberOfRepetitions)
+    public static void RotateLeft(Character player)
     {
-        CommandMethod commandMethod;
-        commandMethod = command;
-        for (var i = 0; i < numberOfRepetitions; i++)
-        {
-            commandMethod(player, stepsOrDirection);
-        }
+        var currentDirection = player.CurrentDirection.ToInt();
+        player.CurrentDirection = (Direction)((currentDirection + 1) % 4);
     }
 }

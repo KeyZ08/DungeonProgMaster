@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using System;
 
 public class MapVisualizer : MonoBehaviour
 {
@@ -25,15 +26,28 @@ public class MapVisualizer : MonoBehaviour
         };
     }
 
+    public Vector3Int FromMapToVisual(Vector2Int pos, Map map)
+    {
+        //(x,y) = (row, column) in map
+        //строки в map идут сверху вниз а рисуем их мы снизу вверх 
+        return new Vector3Int(pos.y, map.MapRows - 1 - pos.x);
+    }
+
+    public Vector2Int FromVisualToMap(Vector2Int pos, Map map)
+    {
+        return new Vector2Int(map.MapRows - 1 - pos.y, pos.x);
+    }
+
     public void DrawMap(Map map)
     {
+        tilemap.ClearAllTiles();
         if (tileByType == null) Construct();
-        for (int y = 0; y < map.MapRows; y++)
+        for (int row = 0; row < map.MapRows; row++)
         {
-            for (int x = 0; x < map.MapColumns; x++)
+            for (int column = 0; column < map.MapColumns; column++)
             {
-                var tile = map.GetTile(x, y);
-                tilemap.SetTile(new Vector3Int(x,y), tileByType[tile]);
+                var tile = map.GetTile(row, column);
+                tilemap.SetTile(FromMapToVisual(new Vector2Int(row, column), map), tileByType[tile]);
             }
         }
     }

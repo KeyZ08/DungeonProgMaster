@@ -20,11 +20,27 @@ public static class LevelsHandler
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}});
-        var playerLevel1 = new Character(new Vector2(8, 4), Direction.Top);
+        var playerLevel1 = new Character(new Vector2Int(8, 4), Direction.Top);
+
+        var mapLevel2 = new Map(new int[,] {
+        {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
+        {2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2},
+        {2, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 2},
+        {2, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 2},
+        {2, 1, 0, 1, 1, 1, 1, 1, 4, 0, 1, 2},
+        {2, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2},
+        {2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2},
+        {2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2},
+        {2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2},
+        {2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2},
+        {2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2},
+        {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}});
+        var playerLevel2 = new Character(new Vector2Int(7, 2), Direction.Top);
 
         Levels = new List<Level>()
         {
-            new Level(mapLevel1, playerLevel1)
+            new Level(mapLevel1, playerLevel1),
+            new Level(mapLevel2, playerLevel2)
         };
     }
 }
