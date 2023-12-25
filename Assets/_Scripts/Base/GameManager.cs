@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
             Debug.Log("Your map:");
             Debug.Log(LevelsHandler.Levels[0].Map.ToString());
             Debug.Log("Player start position:");
-            Debug.Log(LevelsHandler.Levels[0].Player.StartPosition);
+            Debug.Log(LevelsHandler.Levels[0].Character.StartPosition);
         }
     }
 }

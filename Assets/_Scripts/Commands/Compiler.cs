@@ -1,7 +1,6 @@
 using Microsoft.CSharp;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using UnityEngine;
 
 public static class Compiler
 {
@@ -12,6 +11,7 @@ public static class Compiler
 
         CSharpCodeProvider provider = new CSharpCodeProvider();
         CompilerResults results = provider.CompileAssemblyFromSource(new CompilerParameters(), script);
+        //UnityEngine.Debug.Log(results.Errors[0]);
         var cls = results.CompiledAssembly.GetType("Commands.CommandsCompiler");
         var method = cls.GetMethod("Script");
         return (List<string>)method.Invoke(null, null);
@@ -26,6 +26,6 @@ public static class Compiler
 
         var result = Compile(program, source);
         foreach (var el in result)
-            Debug.Log(el);
+            UnityEngine.Debug.Log(el);
     }
 }

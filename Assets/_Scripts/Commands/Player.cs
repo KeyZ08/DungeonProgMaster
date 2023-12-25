@@ -33,6 +33,11 @@ namespace Commands
                 MoveArray.Add("turn_left");
             }
         }
+
+        public static void Attack()
+        {
+            MoveArray.Add("attack");
+        }
     }
 
     public static class CommandsCompiler
