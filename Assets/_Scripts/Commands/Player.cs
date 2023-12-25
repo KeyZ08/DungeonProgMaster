@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Commands
 {
@@ -7,12 +7,20 @@ namespace Commands
     {
         public static List<string> MoveArray = new List<string>();
 
+        private static void AddMove(string move)
+        {
+            if (MoveArray.Count <= 100)
+                MoveArray.Add(move);
+            else
+                throw new Exception("Привышено максимальное количество шагов");
+        }
+
         public static void Forward(int count = 1)
         {
             if (count < 0) throw new ArgumentOutOfRangeException("Не должно быть < 0");
             for (int i = 0; i < count; i++)
             {
-                MoveArray.Add("forward");
+                AddMove("forward");
             }
         }
 
@@ -21,7 +29,7 @@ namespace Commands
             if (count < 0) throw new ArgumentOutOfRangeException("Не должно быть < 0");
             for (int i = 0; i < count; i++)
             {
-                MoveArray.Add("turn_right");
+                AddMove("turn_right");
             }
         }
 
@@ -30,7 +38,7 @@ namespace Commands
             if (count < 0) throw new ArgumentOutOfRangeException("Не должно быть < 0");
             for (int i = 0; i < count; i++)
             {
-                MoveArray.Add("turn_left");
+                AddMove("turn_left");
             }
         }
 
@@ -44,7 +52,8 @@ namespace Commands
     {
         public static List<string> Script()
         {
-            // to do
+            #region Task
+            #endregion
 
             return Player.MoveArray;
         }
