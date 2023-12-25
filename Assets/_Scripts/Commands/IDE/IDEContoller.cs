@@ -1,5 +1,4 @@
 ﻿using IDE;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 

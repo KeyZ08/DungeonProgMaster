@@ -1147,6 +1147,7 @@ GameObject:
   - component: {fileID: 422791783}
   - component: {fileID: 422791782}
   - component: {fileID: 422791781}
+  - component: {fileID: 422791784}
   m_Layer: 5
   m_Name: InputField
   m_TagString: Untagged
@@ -1311,6 +1312,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 422791779}
   m_CullTransparentMesh: 1
+--- !u!114 &422791784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422791779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2566a5e86fc3004b845ae50a4c8c73f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &454206359
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,7 +3,6 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -39,6 +38,6 @@ public static class Compiler
 
         var result = Compile(program, source);
         foreach (var el in result)
-            UnityEngine.Debug.Log(el);
+            Debug.Log(el);
     }
 }
