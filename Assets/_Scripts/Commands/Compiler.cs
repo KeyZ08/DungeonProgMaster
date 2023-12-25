@@ -3,7 +3,6 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -27,7 +26,7 @@ public static class Compiler
         if (task.IsCompleted)
             return task.Result;
         else
-            throw new Exception("Ваша программа работает очень долго");
+            throw new Exception("пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ");
     }
 
     public static void TestCompiling(string source)

@@ -5,6 +5,7 @@ public class CharacterRenderer : MonoBehaviour
 {
     public static readonly string[] idleDirections = { "IdleUp", "IdleLeft", "IdleDown", "IdleRight"};
     public static readonly string[] moveDirections = { "MoveUp", "MoveLeft", "MoveDown", "MoveRight" };
+    public static readonly string[] attackDirections = { "AttackUp", "AttackLeft", "AttackDown", "AttackRight" };
 
     Animator animator;
     int lastDirection;
@@ -19,7 +20,12 @@ public class CharacterRenderer : MonoBehaviour
         lastDirection = direction.ToInt();
     }
 
-    public void PlayAnim(bool isMove)
+    public void PlayAttack()
+    {
+        animator.Play(attackDirections[lastDirection]);
+    }
+
+    public void PlayMove(bool isMove)
     {
         string[] directionArray;
         if (!isMove)
