@@ -11,10 +11,6 @@ public class GameContoller : MonoBehaviour
     [SerializeField] private Transform spawner;
     [SerializeField] private CharacterVisualizer CharacterPrefab;
 
-    [Header("Prefabs")]
-    [SerializeField] private CoinController CoinPrefab;
-    [SerializeField] private SkeletonController SkeletonPrefab;
-
     [Header("Controllers")]
     [SerializeField] private MapVisualizer mapV;
     [SerializeField] private CompileController compiler;
@@ -33,14 +29,15 @@ public class GameContoller : MonoBehaviour
     private Character character;
     private List<UnitController> units;
     private CharacterVisualizer characterV;
-
     private List<string> playerSteps;
-
     public int coins;
 
+    private UnitControllerInstaller unitInstaller;
 
     private void Start() 
     {
+        unitInstaller = FindAnyObjectByType<UnitControllerInstaller>();
+
         level = LevelsHandler.Levels[1];
         units = new List<UnitController>();
         LevelConstruct(level);
@@ -53,8 +50,7 @@ public class GameContoller : MonoBehaviour
         mapV.DrawMap(level.Map);
         LevelUnitsCreate();
 
-        var characterPos = (Vector2Int)mapV.FromMapToVisual(level.Character.StartPosition, level.Map);
-        //координаты map и координаты тайлов расходятся, потому задаем character-у нужную нам позицию
+        var characterPos = level.Character.StartPosition;
         character = new Character(characterPos, level.Character.StartDirection);
         var cellPos = mapV.GetCellCenter(characterPos);
         characterV = Instantiate(CharacterPrefab, cellPos, Quaternion.identity, spawner);
@@ -66,18 +62,7 @@ public class GameContoller : MonoBehaviour
         for (int i = 0; i < level.Units.Count; i++)
         {
             var unit = level.Units[i].GetCopy(); 
-            var pos = (Vector2Int)mapV.FromMapToVisual(unit.Position, level.Map);
-            var spawnPos = mapV.GetCellCenter(pos);
-
-            UnitController obj;
-            if(unit is Coin)
-                obj = Instantiate(CoinPrefab, spawnPos, Quaternion.identity, spawner);
-            else if(unit is Skeleton)
-                obj = Instantiate(SkeletonPrefab, spawnPos, Quaternion.identity, spawner);
-            else
-                throw new NotImplementedException();
-
-            obj.Construct(unit, this);
+            var obj = unitInstaller.Instantiate(unit, mapV.GetCellCenter(unit.Position), Quaternion.identity, spawner);
             units.Add(obj);
         }
     }
@@ -123,24 +108,20 @@ public class GameContoller : MonoBehaviour
             while (characterV.IsAnimated)
                 yield return null;
 
-            var chInMap = mapV.FromVisualToMap(character.CurrentPosition, level.Map);
-            Come(units.Find(x => x.Position == chInMap));
+            Come(units.Find(x => x.Position == character.CurrentPosition));
 
             //если следующее дествие - forward, то проверяем, что мы можем его выполнить
             //(никуда не выпали и не уперлись)
             if (index + 1 < playerSteps.Count && playerSteps[index + 1] == "forward")
             {
-                var forward = character.CurrentDirection.Vector();
-                var forwardInMap = mapV.FromVisualToMap(character.CurrentPosition + forward, level.Map);
-                if (!level.Map.IsGround(chInMap) || !IsFreeForMove(forwardInMap))
+                if (!level.Map.IsGround(character.CurrentPosition))
                     break;
-                var forwardUnit = units.Find(x => x.Position == forwardInMap);
-                if (forwardUnit != null && forwardUnit.Type == Tangibility.Obstacle)
+                if (!IsNextMoveFree(character.CurrentPosition, character.CurrentDirection))
                     break;
             }
         }
 
-        var characterInMap = mapV.FromVisualToMap(character.CurrentPosition, level.Map);
+        var characterInMap = character.CurrentPosition;
         if (level.Map.IsFinish(characterInMap))
             Win();
         else
@@ -152,18 +133,7 @@ public class GameContoller : MonoBehaviour
         if (step == "forward")
         {
             Command.MoveForward(character);
-            var isNextMoveFree = nextStep == "forward";
-            if (nextStep == "forward")
-            {
-                var chInMap = mapV.FromVisualToMap(character.CurrentPosition, level.Map);
-                var forward = character.CurrentDirection.Vector();
-                var forwardInMap = mapV.FromVisualToMap(character.CurrentPosition + forward, level.Map);
-                if (!level.Map.IsGround(chInMap) || !IsFreeForMove(forwardInMap))
-                    isNextMoveFree = false;
-                var forwardUnit = units.Find(x => x.Position == forwardInMap);
-                if (forwardUnit != null && forwardUnit.Type == Tangibility.Obstacle)
-                    isNextMoveFree = false;
-            }
+            var isNextMoveFree = nextStep == "forward" && IsNextMoveFree(character.CurrentPosition, character.CurrentDirection);
             characterV.MoveTo(mapV.GetCellCenter(character.CurrentPosition), isNextMoveFree);
         }
         else if (step == "turn_right")
@@ -178,10 +148,7 @@ public class GameContoller : MonoBehaviour
         }
         else if (step == "attack")
         {
-            var chInMap = mapV.FromVisualToMap(character.CurrentPosition, level.Map);
-            var forward = character.CurrentDirection.Vector();
-            var forwardInMap = mapV.FromVisualToMap(character.CurrentPosition + forward, level.Map);
-
+            var forwardInMap = character.CurrentPosition + character.Forward;
             var forwardUnit = units.Find(x => x.Position == forwardInMap);
             Attack(forwardUnit, nextStep == "attack");
         }
@@ -189,38 +156,42 @@ public class GameContoller : MonoBehaviour
             throw new NotImplementedException(step);
     }
 
-    public void Attack(IUnit unit, bool nextAlsoAttack)
+    public void Attack(UnitController unit, bool nextAlsoAttack)
     {
-        characterV.Attack(() => 
-            { 
-                if(unit != null) 
-                    unit.OnAttack(ContactDirection.Side, this); 
+        characterV.Attack(
+            () => { 
+                if(unit != null && unit is IAttackeble attackeble)
+                    attackeble.OnAttack(ContactDirection.Side, this); 
             }, nextAlsoAttack);
     }
 
-    public void Come(IUnit unit)
+    public void Come(UnitController unit)
     {
-        if (unit == null) return;
-        unit.OnCome(ContactDirection.Directly, this);
+        if (unit != null && unit is IOnCome onComeable)
+            onComeable.OnCome(ContactDirection.Directly, this);
     }
 
-    public void Take(IUnit unit)
+    public void Take(UnitController unit)
     {
-        if (unit == null) return;
-        //unit.OnPositionalAction("take");
+        if (unit != null && unit is ITakeable takeable)
+            takeable.OnTake(ContactDirection.Directly, this);
     }
 
     /// <summary>
     /// true - свободно, false - преграда.
     /// Преградой является то на что нельзя встать, пропасть - не преграда
     /// </summary>
-    private bool IsFreeForMove(Vector2Int mapPos)
+    private bool IsNextMoveFree(Vector2Int position, Direction direction)
     {
-        var inBounds = level.Map.InMapBounds(mapPos);
-        if (!inBounds) 
+        var posInMap = position + direction.Vector();
+        if (!level.Map.InMapBounds(posInMap))
             return false;
 
-        if (level.Map.IsWall(mapPos)) 
+        if (level.Map.IsWall(posInMap))
+            return false;
+
+        var unit = units.Find(x => x.Position == posInMap);
+        if (unit != null && unit.Type == Tangibility.Obstacle)
             return false;
 
         return true;

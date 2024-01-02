@@ -8,6 +8,8 @@ public class Character
     public readonly Direction StartDirection;
     public Direction CurrentDirection;
 
+    public Vector2Int Forward => CurrentDirection.Vector();
+
     public Character(Vector2Int startPosition, Direction startDirection)
     {
         StartPosition = startPosition;

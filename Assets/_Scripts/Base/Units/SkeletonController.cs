@@ -1,24 +1,12 @@
-﻿public sealed class SkeletonController : UnitController
+﻿public sealed class SkeletonController : UnitController, IAttackeble
 {
-    public override void OnAttack(ContactDirection contact, GameContoller controller)
+    public void OnAttack(ContactDirection contact, GameContoller controller)
     {
-        if (contact == ContactDirection.Side)
+        if (contact == ContactDirection.Side && unit is Skeleton skeleton)
         {
-            unit.OnAttack(contact, controller);
-            if ((unit as Skeleton).Health <= 0)
-            {
+            skeleton.Health -= 50;
+            if(skeleton.Health <= 0)
                 Destroy(gameObject);
-            }
         }
-    }
-
-    public override void OnCome(ContactDirection contact, GameContoller controller)
-    {
-        unit.OnCome(contact, controller);
-    }
-
-    public override void OnTake(ContactDirection contact, GameContoller controller)
-    {
-        unit.OnTake(contact, controller);
     }
 }

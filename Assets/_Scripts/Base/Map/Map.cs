@@ -6,6 +6,11 @@ public class Map
     public readonly int MapColumns;
     private readonly int[,] Tiles;
 
+    //  ^ y
+    //  |
+    //  |      x
+    //  +------>
+
     public Map(int[,] tiles)
     {
         MapRows = tiles.GetLength(0);
@@ -13,14 +18,11 @@ public class Map
         Tiles = tiles;
     }
 
-    public TileType GetTile(int row, int column)
-    {
-        return (TileType)Tiles[row, column];
-    }
-
     public TileType GetTile(Vector2Int pos)
     {
-        return (TileType)Tiles[pos.x, pos.y];
+        var newRow = MapRows - 1 - pos.y; //разворачиваем ось y
+        var tile = new Vector2Int(pos.x, newRow);
+        return (TileType)Tiles[tile.y, tile.x];
     }
 
     /// <summary>
@@ -28,9 +30,9 @@ public class Map
     /// </summary>
     public bool InMapBounds(Vector2Int cell)
     {
-        //(x,y) = (row, column)
-        if (cell.y >= MapColumns || cell.y < 0 ||
-            cell.x >= MapRows || cell.x < 0)
+        //(x,y) = (column, row)
+        if (cell.y >= MapRows || cell.y < 0 ||
+            cell.x >= MapColumns || cell.x < 0)
             return false;
         return true;
     }

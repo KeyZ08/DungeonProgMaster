@@ -1,15 +1,15 @@
-﻿using UnityEngine;
-
-public interface IUnit
+﻿public interface IAttackeble
 {
-    public Tangibility Type { get; }
-
-    public Vector2Int Position { get; }
-
     public abstract void OnAttack(ContactDirection contact, GameContoller controller);//ударили
+}
 
+public interface ITakeable
+{
     public abstract void OnTake(ContactDirection contact, GameContoller controller);//подобрали
+}
 
+public interface IOnCome
+{
     public abstract void OnCome(ContactDirection contact, GameContoller controller);//наступили
 }
 
