@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+using System.Text;
 using UnityEngine;
 
 public class Character
@@ -10,12 +12,22 @@ public class Character
 
     public Vector2Int Forward => CurrentDirection.Vector();
 
-    public Character(Vector2Int startPosition, Direction startDirection)
+    [JsonConstructor]
+    public Character([JsonProperty("Position")] Vector2Int startPosition, [JsonProperty("Direction")] Direction startDirection)
     {
         StartPosition = startPosition;
         CurrentPosition = startPosition;
 
         StartDirection = startDirection;
         CurrentDirection = startDirection;
+    }
+
+    public override string ToString()
+    {
+        var result = new StringBuilder("Character: { ");
+        result.Append($"Position: {CurrentPosition}, ");
+        result.Append($"Direction: {CurrentDirection}");
+        result.Append(" }");
+        return result.ToString();
     }
 }

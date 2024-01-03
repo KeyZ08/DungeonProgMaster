@@ -10,9 +10,9 @@ public class UnitControllerInstaller : MonoBehaviour
     {
         UnitController unitController;
         if(unit is Coin)
-            unitController = GameObject.Instantiate(coinControllerPrefab, position, rotation, spawner).GetComponent<CoinController>();
+            unitController = GameObject.Instantiate<CoinController>(coinControllerPrefab, position, rotation, spawner);
         else if(unit is Skeleton)
-            unitController = GameObject.Instantiate(skeletonControllerPrefab, position, rotation, spawner).GetComponent<SkeletonController>();
+            unitController = GameObject.Instantiate<SkeletonController>(skeletonControllerPrefab, position, rotation, spawner);
         else
             throw new NotImplementedException();
         unitController.Construct(unit);

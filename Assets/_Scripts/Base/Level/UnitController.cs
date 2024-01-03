@@ -13,6 +13,6 @@ public abstract class UnitController : MonoBehaviour
 
     private void OnDestroy()
     {
-        FindAnyObjectByType<GameContoller>().OnUnitDestroy(this);
+        FindAnyObjectByType<GameContoller>()?.OnUnitDestroy(this);
     }
 }

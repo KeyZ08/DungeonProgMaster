@@ -1,20 +1,23 @@
+using Newtonsoft.Json;
+using System.Text;
 using UnityEngine;
 
 public class Map
 {
     public readonly int MapRows;
     public readonly int MapColumns;
-    private readonly int[,] Tiles;
+    public readonly int[][] Tiles;
 
     //  ^ y
     //  |
     //  |      x
     //  +------>
 
-    public Map(int[,] tiles)
+    [JsonConstructor]
+    public Map([JsonProperty("Tiles")] int[][] tiles)
     {
-        MapRows = tiles.GetLength(0);
-        MapColumns = tiles.Length / MapRows;
+        MapRows = tiles.Length;
+        MapColumns = tiles[0].Length;
         Tiles = tiles;
     }
 
@@ -22,7 +25,7 @@ public class Map
     {
         var newRow = MapRows - 1 - pos.y; //разворачиваем ось y
         var tile = new Vector2Int(pos.x, newRow);
-        return (TileType)Tiles[tile.y, tile.x];
+        return (TileType)Tiles[tile.y][tile.x];
     }
 
     /// <summary>
@@ -59,17 +62,17 @@ public class Map
 
     public override string ToString()
     {
-        var result = "";
+        var result = new StringBuilder("Tiles:\n{\n");
         for (var row = 0; row < MapRows; row++)
             for (var column = 0; column < MapColumns; column++)
             {
-                if (column == MapColumns - 1)
-                    result += $"{Tiles[row, column]}\n";
-                else if (row == 8 && column == 4)
-                    result += "O ";
-                else
-                    result += $"{Tiles[row, column]} ";
+                var newRow = MapRows - 1 - row;//инвертируем Y тк строка пишет сверху вниз
+                var tile = GetTile(new Vector2Int(column, newRow));
+                result.Append((int)tile);
+                if (column == MapColumns - 1) 
+                    result.Append("\n");
             }
-        return result;
+        result.Append("}\n");
+        return result.ToString();
     }
 }

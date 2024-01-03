@@ -1,16 +1,26 @@
-﻿using UnityEngine;
+﻿using Newtonsoft.Json;
+using System.Text;
+using UnityEngine;
 
 public sealed class Coin : Unit
 {
     public int Cost;
 
-    public Coin(Vector2Int position, int cost = 1) : base(position, Tangibility.None) 
+    public override string UnitId => "Coin";
+
+    [JsonConstructor]
+    public Coin([JsonProperty("Position")] Vector2Int position, [JsonProperty("Cost")] int cost = 1) : base(position, Tangibility.None) 
     { 
         Cost = cost;
     }
 
-    public override Unit GetCopy()
+    public override string ToString()
     {
-        return new Coin(position, Cost);
+        var result = new StringBuilder();
+        result.Append("Coin: { \t\t");
+        result.Append($"Position: {Position}, ");
+        result.Append($"Cost: {Cost}");
+        result.Append(" }");
+        return result.ToString();
     }
 }

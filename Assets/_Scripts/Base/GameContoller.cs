@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using EasyButtons;
 
 public class GameContoller : MonoBehaviour
 {
@@ -25,45 +26,75 @@ public class GameContoller : MonoBehaviour
     [Header("Buttons")]
     [SerializeField] private Button playBtn;
 
-    private Level level;
+    private Map map;
     private Character character;
     private List<UnitController> units;
+
     private CharacterVisualizer characterV;
     private List<string> playerSteps;
-    public int coins;
+    private int actualLevel = 1;
 
     private UnitControllerInstaller unitInstaller;
+    private LevelsHandlerScriptableObject levels;
+
+    public int coins;
+    private bool _isPlayed;
+
+    private bool IsPlayed
+    {
+        get => _isPlayed;
+        set
+        {
+            _isPlayed = value;
+            if (_isPlayed)
+            {
+                playBtn.interactable = false;
+            }
+            else
+            {
+                playBtn.interactable = true;
+            }
+        }
+    }
 
     private void Start() 
     {
         unitInstaller = FindAnyObjectByType<UnitControllerInstaller>();
+        levels = Resources.Load<LevelsHandlerScriptableObject>("LevelsHandler");
 
-        level = LevelsHandler.Levels[1];
-        units = new List<UnitController>();
+        var level = levels.GetLevel(actualLevel);
         LevelConstruct(level);
 
         playBtn.onClick.AddListener(PlayBtnClick);
     }
 
+    [Button]
+    public void Test()
+    {
+        var l = levels.GetLevel(0);
+        Debug.Log(l);
+    }
+
     public void LevelConstruct(Level level)
     {
-        mapV.DrawMap(level.Map);
-        LevelUnitsCreate();
+        map = level.Map;
+        mapV.DrawMap(map);
+        LevelUnitsCreate(level.Units);
 
-        var characterPos = level.Character.StartPosition;
-        character = new Character(characterPos, level.Character.StartDirection);
-        var cellPos = mapV.GetCellCenter(characterPos);
+        character = level.Character;
+        var cellPos = mapV.GetCellCenter(character.CurrentPosition);
         characterV = Instantiate(CharacterPrefab, cellPos, Quaternion.identity, spawner);
         characterV.Constructor(cellPos, character.StartDirection);
     }
 
-    private void LevelUnitsCreate()
+    private void LevelUnitsCreate(List<Unit> units)
     {
-        for (int i = 0; i < level.Units.Count; i++)
+        this.units = new List<UnitController>();
+        for (int i = 0; i < units.Count; i++)
         {
-            var unit = level.Units[i].GetCopy(); 
+            var unit = units[i]; 
             var obj = unitInstaller.Instantiate(unit, mapV.GetCellCenter(unit.Position), Quaternion.identity, spawner);
-            units.Add(obj);
+            this.units.Add(obj);
         }
     }
 
@@ -84,11 +115,13 @@ public class GameContoller : MonoBehaviour
         WinCanvas.gameObject.SetActive(false);
         LoseCanvas.gameObject.SetActive(false);
         LevelDelete();
-        LevelConstruct(level);
+        coins = 0;
+        LevelConstruct(levels.GetLevel(actualLevel));
     }
 
     private void PlayBtnClick()
     {
+        IsPlayed = true;
         playerSteps = compiler.Compile(inputField.text);
         GameStart();
     }
@@ -114,7 +147,7 @@ public class GameContoller : MonoBehaviour
             //(никуда не выпали и не уперлись)
             if (index + 1 < playerSteps.Count && playerSteps[index + 1] == "forward")
             {
-                if (!level.Map.IsGround(character.CurrentPosition))
+                if (!map.IsGround(character.CurrentPosition))
                     break;
                 if (!IsNextMoveFree(character.CurrentPosition, character.CurrentDirection))
                     break;
@@ -122,10 +155,11 @@ public class GameContoller : MonoBehaviour
         }
 
         var characterInMap = character.CurrentPosition;
-        if (level.Map.IsFinish(characterInMap))
+        if (map.IsFinish(characterInMap))
             Win();
         else
             Lose();
+        IsPlayed = false;
     }
 
     private void CharacterWork(string step, string nextStep = null)
@@ -184,10 +218,10 @@ public class GameContoller : MonoBehaviour
     private bool IsNextMoveFree(Vector2Int position, Direction direction)
     {
         var posInMap = position + direction.Vector();
-        if (!level.Map.InMapBounds(posInMap))
+        if (!map.InMapBounds(posInMap))
             return false;
 
-        if (level.Map.IsWall(posInMap))
+        if (map.IsWall(posInMap))
             return false;
 
         var unit = units.Find(x => x.Position == posInMap);
