@@ -1,4 +1,4 @@
-﻿public sealed class SkeletonController : UnitController, IAttackeble
+﻿public sealed class SkeletonController : UnitController, IAttackable
 {
     public void OnAttack(ContactDirection contact, GameContoller controller)
     {

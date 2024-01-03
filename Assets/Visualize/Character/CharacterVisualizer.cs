@@ -21,11 +21,10 @@ public class CharacterVisualizer : MonoBehaviour
 
     public Vector2 Position => transform.position;
 
-    public void Constructor(Vector2 spawnPosition, Direction spawnDirection)
+    public void Constructor(Direction spawnDirection)
     {
         rb = GetComponent<Rigidbody2D>();
-        transform.position = spawnPosition;
-        targetPosition = spawnPosition;
+        targetPosition = transform.position;
         targetDiretion = spawnDirection;
         chRenderer.SetDirection(targetDiretion);
         chRenderer.PlayMove(false);

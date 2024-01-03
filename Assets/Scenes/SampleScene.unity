@@ -2422,7 +2422,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawner: {fileID: 74768255}
-  CharacterPrefab: {fileID: 5492863894252216453, guid: da7fa8b9e5f729a469c2e009357e7861, type: 3}
+  characterPrefab: {fileID: -8155073109549156071, guid: da7fa8b9e5f729a469c2e009357e7861, type: 3}
   mapV: {fileID: 947637255}
   compiler: {fileID: 947637258}
   inputField: {fileID: 422791781}

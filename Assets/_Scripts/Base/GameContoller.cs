@@ -1,16 +1,15 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
-using EasyButtons;
 
 public class GameContoller : MonoBehaviour
 {
-    [Header("Character")]
+    [Header("Spawner")]
     [SerializeField] private Transform spawner;
-    [SerializeField] private CharacterVisualizer CharacterPrefab;
+
+    [Header("Character")]
+    [SerializeField] private CharacterController characterPrefab;
 
     [Header("Controllers")]
     [SerializeField] private MapVisualizer mapV;
@@ -27,11 +26,8 @@ public class GameContoller : MonoBehaviour
     [SerializeField] private Button playBtn;
 
     private Map map;
-    private Character character;
+    private CharacterController character;
     private List<UnitController> units;
-
-    private CharacterVisualizer characterV;
-    private List<string> playerSteps;
     private int actualLevel = 1;
 
     private UnitControllerInstaller unitInstaller;
@@ -68,23 +64,15 @@ public class GameContoller : MonoBehaviour
         playBtn.onClick.AddListener(PlayBtnClick);
     }
 
-    [Button]
-    public void Test()
-    {
-        var l = levels.GetLevel(0);
-        Debug.Log(l);
-    }
-
     public void LevelConstruct(Level level)
     {
         map = level.Map;
         mapV.DrawMap(map);
         LevelUnitsCreate(level.Units);
 
-        character = level.Character;
-        var cellPos = mapV.GetCellCenter(character.CurrentPosition);
-        characterV = Instantiate(CharacterPrefab, cellPos, Quaternion.identity, spawner);
-        characterV.Constructor(cellPos, character.StartDirection);
+        var cellPos = mapV.GetCellCenter(level.Character.CurrentPosition);
+        character = Instantiate(characterPrefab, cellPos, Quaternion.identity, spawner);
+        character.Construct(level.Character, mapV, map, this);
     }
 
     private void LevelUnitsCreate(List<Unit> units)
@@ -100,10 +88,8 @@ public class GameContoller : MonoBehaviour
 
     public void LevelDelete()
     {
-        Destroy(characterV.gameObject);
-        characterV = null;
-        character = null;
-        for(var i = units.Count - 1; i >= 0; i--)
+        Destroy(character.gameObject);
+        for (var i = units.Count - 1; i >= 0; i--)
         {
             Destroy(units[i].gameObject);
             units.RemoveAt(i);
@@ -121,101 +107,16 @@ public class GameContoller : MonoBehaviour
 
     private void PlayBtnClick()
     {
+        var playerSteps = compiler.Compile(inputField.text);
         IsPlayed = true;
-        playerSteps = compiler.Compile(inputField.text);
-        GameStart();
-    }
-
-    private void GameStart()
-    {
-        StartCoroutine(CharacterWorkCoroutine());
-    }
-
-    private IEnumerator CharacterWorkCoroutine()
-    {
-        for (var index = 0; index < playerSteps.Count; index++)
-        {
-            var step = playerSteps[index];
-            CharacterWork(step, index == playerSteps.Count - 1 ? null : playerSteps[index + 1]);
-
-            while (characterV.IsAnimated)
-                yield return null;
-
-            Come(units.Find(x => x.Position == character.CurrentPosition));
-
-            //если следующее дествие - forward, то проверяем, что мы можем его выполнить
-            //(никуда не выпали и не уперлись)
-            if (index + 1 < playerSteps.Count && playerSteps[index + 1] == "forward")
-            {
-                if (!map.IsGround(character.CurrentPosition))
-                    break;
-                if (!IsNextMoveFree(character.CurrentPosition, character.CurrentDirection))
-                    break;
-            }
-        }
-
-        var characterInMap = character.CurrentPosition;
-        if (map.IsFinish(characterInMap))
-            Win();
-        else
-            Lose();
-        IsPlayed = false;
-    }
-
-    private void CharacterWork(string step, string nextStep = null)
-    {
-        if (step == "forward")
-        {
-            Command.MoveForward(character);
-            var isNextMoveFree = nextStep == "forward" && IsNextMoveFree(character.CurrentPosition, character.CurrentDirection);
-            characterV.MoveTo(mapV.GetCellCenter(character.CurrentPosition), isNextMoveFree);
-        }
-        else if (step == "turn_right")
-        {
-            Command.RotateRight(character);
-            characterV.TurnTo(character.CurrentDirection);
-        }
-        else if (step == "turn_left")
-        {
-            Command.RotateLeft(character);
-            characterV.TurnTo(character.CurrentDirection);
-        }
-        else if (step == "attack")
-        {
-            var forwardInMap = character.CurrentPosition + character.Forward;
-            var forwardUnit = units.Find(x => x.Position == forwardInMap);
-            Attack(forwardUnit, nextStep == "attack");
-        }
-        else
-            throw new NotImplementedException(step);
-    }
-
-    public void Attack(UnitController unit, bool nextAlsoAttack)
-    {
-        characterV.Attack(
-            () => { 
-                if(unit != null && unit is IAttackeble attackeble)
-                    attackeble.OnAttack(ContactDirection.Side, this); 
-            }, nextAlsoAttack);
-    }
-
-    public void Come(UnitController unit)
-    {
-        if (unit != null && unit is IOnCome onComeable)
-            onComeable.OnCome(ContactDirection.Directly, this);
-    }
-
-    public void Take(UnitController unit)
-    {
-        if (unit != null && unit is ITakeable takeable)
-            takeable.OnTake(ContactDirection.Directly, this);
+        character.Play(playerSteps);
     }
 
     /// <summary>
     /// true - свободно, false - преграда.
     /// Преградой является то на что нельзя встать, пропасть - не преграда
     /// </summary>
-    private bool IsNextMoveFree(Vector2Int position, Direction direction)
+    public bool IsNextMoveFree(Vector2Int position, Direction direction)
     {
         var posInMap = position + direction.Vector();
         if (!map.InMapBounds(posInMap))
@@ -244,5 +145,20 @@ public class GameContoller : MonoBehaviour
     public void OnUnitDestroy(UnitController unit)
     {
         units.Remove(unit);
+    }
+
+    public void OnCharacterMoveEnd()
+    {
+        IsPlayed = false; 
+        var characterInMap = character.Position;
+        if (map.IsFinish(characterInMap))
+            Win();
+        else
+            Lose();
+    }
+
+    public UnitController GetUnitController(Vector2Int target)
+    {
+        return units.Find(x => x.Position == target);
     }
 }

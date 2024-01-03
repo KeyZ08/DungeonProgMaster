@@ -12,4 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04ae424387979aa4f862aca774211df3, type: 3}
   m_Name: LevelsHandler
   m_EditorClassIdentifier: 
-  jsonLevels: []
+  jsonLevels:
+  - {fileID: 4900000, guid: bce8002a5fd0d224dad80e314365d56b, type: 3}
+  - {fileID: 4900000, guid: b0e05d00073705840852dcdbd721999e, type: 3}
