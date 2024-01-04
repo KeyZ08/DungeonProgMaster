@@ -1,4 +1,4 @@
-﻿public sealed class CoinController : UnitController, IOnCome
+﻿public sealed class CoinController : UnitController<Coin>, IOnCome
 {
     public void OnCome(ContactDirection contact, GameContoller controller)
     {

@@ -1,11 +1,11 @@
-﻿public sealed class SkeletonController : UnitController, IAttackable
+﻿public sealed class SkeletonController : UnitController<Skeleton>, IAttackable
 {
     public void OnAttack(ContactDirection contact, GameContoller controller)
     {
-        if (contact == ContactDirection.Side && unit is Skeleton skeleton)
+        if (contact == ContactDirection.Side)
         {
-            skeleton.Health -= 50;
-            if(skeleton.Health <= 0)
+            unit.Health -= 50;
+            if(unit.Health <= 0)
                 Destroy(gameObject);
         }
     }

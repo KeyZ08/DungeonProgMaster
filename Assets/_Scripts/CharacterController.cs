@@ -7,21 +7,16 @@ public class CharacterController : MonoBehaviour
 {
     [SerializeField] private CharacterVisualizer characterV;
     private Character character;
-
-    private GameContoller controller;
-    
-    private MapVisualizer mapV;
     private Map map;
 
-    private bool isPlayed;
+    private GameContoller controller;
 
     public Vector2Int Position => character.CurrentPosition;
     public Direction Direction => character.CurrentDirection;
 
-    public void Construct(Character character, MapVisualizer mapV, Map map, GameContoller controller)
+    public void Construct(Character character, Map map, GameContoller controller)
     {
         this.character = character;
-        this.mapV = mapV;
         this.map = map;
         this.controller = controller;
         characterV.Constructor(character.StartDirection);
@@ -29,7 +24,6 @@ public class CharacterController : MonoBehaviour
 
     public void Play(List<string> steps)
     {
-        isPlayed = true;
         StartCoroutine(CharacterWorkCoroutine(steps));
     }
 
@@ -43,7 +37,7 @@ public class CharacterController : MonoBehaviour
             while (characterV.IsAnimated)
                 yield return null;
 
-            Come(controller.GetUnitController(character.CurrentPosition));
+            Come();
 
             //если следующее дествие - forward, то проверяем, что мы можем его выполнить
             //(никуда не выпали и не уперлись)
@@ -51,12 +45,11 @@ public class CharacterController : MonoBehaviour
             {
                 if (!map.IsGround(character.CurrentPosition))
                     break;
-                if (!controller.IsNextMoveFree(character.CurrentPosition, character.CurrentDirection))
+                if (!IsNextMoveFree(character.CurrentPosition, character.CurrentDirection))
                     break;
             }
         }
 
-        isPlayed = false;
         controller.OnCharacterMoveEnd();
     }
 
@@ -65,8 +58,8 @@ public class CharacterController : MonoBehaviour
         if (step == "forward")
         {
             Command.MoveForward(character);
-            var isNextMoveFree = nextStep == "forward" && controller.IsNextMoveFree(character.CurrentPosition, character.CurrentDirection);
-            characterV.MoveTo(mapV.GetCellCenter(character.CurrentPosition), isNextMoveFree);
+            var isNextMoveFree = nextStep == "forward" && IsNextMoveFree(character.CurrentPosition, character.CurrentDirection);
+            characterV.MoveTo(controller.GetPosByMap(character.CurrentPosition), isNextMoveFree);
         }
         else if (step == "turn_right")
         {
@@ -80,16 +73,36 @@ public class CharacterController : MonoBehaviour
         }
         else if (step == "attack")
         {
-            var forwardInMap = character.CurrentPosition + character.Forward;
-            var forwardUnit = controller.GetUnitController(forwardInMap);
-            Attack(forwardUnit, nextStep == "attack");
+            Attack(nextStep == "attack");
         }
         else
             throw new NotImplementedException(step);
     }
 
-    public void Attack(UnitController unit, bool nextAlsoAttack)
+    /// <summary>
+    /// true - свободно, false - преграда.
+    /// Преградой является то на что нельзя встать, пропасть - не преграда
+    /// </summary>
+    public bool IsNextMoveFree(Vector2Int position, Direction direction)
     {
+        var posInMap = position + direction.Vector();
+        if (!map.InMapBounds(posInMap))
+            return false;
+
+        if (map.IsWall(posInMap))
+            return false;
+
+        var unit = controller.GetUnitController(posInMap);
+        if (unit != null && unit.Type == Tangibility.Obstacle)
+            return false;
+
+        return true;
+    }
+
+    public void Attack(bool nextAlsoAttack)
+    {
+        var forwardInMap = character.CurrentPosition + character.Forward;
+        var unit = controller.GetUnitController(forwardInMap);
         characterV.Attack(
             () => {
                 if (unit != null && unit is IAttackable attackeble)
@@ -97,14 +110,17 @@ public class CharacterController : MonoBehaviour
             }, nextAlsoAttack);
     }
 
-    public void Come(UnitController unit)
+    public void Come()
     {
+        var unit = controller.GetUnitController(character.CurrentPosition);
         if (unit != null && unit is IOnCome onComeable)
             onComeable.OnCome(ContactDirection.Directly, controller);
     }
 
-    public void Take(UnitController unit)
+    public void Take()
     {
+        var forwardInMap = character.CurrentPosition + character.Forward;
+        var unit = controller.GetUnitController(forwardInMap);
         if (unit != null && unit is ITakeable takeable)
             takeable.OnTake(ContactDirection.Directly, controller);
     }

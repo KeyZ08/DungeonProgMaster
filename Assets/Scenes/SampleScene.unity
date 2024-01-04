@@ -2382,6 +2382,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 947637257}
+  - component: {fileID: 947637259}
   - component: {fileID: 947637256}
   - component: {fileID: 947637255}
   - component: {fileID: 947637258}
@@ -2423,12 +2424,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawner: {fileID: 74768255}
   characterPrefab: {fileID: -8155073109549156071, guid: da7fa8b9e5f729a469c2e009357e7861, type: 3}
+  ui: {fileID: 947637259}
   mapV: {fileID: 947637255}
   compiler: {fileID: 947637258}
-  inputField: {fileID: 422791781}
-  WinCanvas: {fileID: 374823144}
-  LoseCanvas: {fileID: 1305114864}
-  playBtn: {fileID: 141978112}
   coins: 0
 --- !u!4 &947637257
 Transform:
@@ -2457,7 +2455,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf7b938d96c5536468cec84850e2181d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inputField: {fileID: 422791781}
   _asset: {fileID: 11500000, guid: 9426ebffb922632458872d3d432e200d, type: 3}
+--- !u!114 &947637259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 947637254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92dbe8e74b1c56945b671591da7f32d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WinCanvas: {fileID: 374823144}
+  LoseCanvas: {fileID: 1305114864}
+  playBtn: {fileID: 141978112}
+  resetBtnWin: {fileID: 880647057}
+  resetBtnLose: {fileID: 1217065037}
 --- !u!1 &961097363
 GameObject:
   m_ObjectHideFlags: 0

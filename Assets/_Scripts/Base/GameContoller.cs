@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GameContoller : MonoBehaviour
 {
@@ -12,22 +10,13 @@ public class GameContoller : MonoBehaviour
     [SerializeField] private CharacterController characterPrefab;
 
     [Header("Controllers")]
+    [SerializeField] private UIController ui;
     [SerializeField] private MapVisualizer mapV;
     [SerializeField] private CompileController compiler;
 
-    [Header("Input Field")]
-    [SerializeField] private TMP_InputField inputField;
-
-    [Header("UI")]
-    [SerializeField] private Transform WinCanvas;
-    [SerializeField] private Transform LoseCanvas;
-
-    [Header("Buttons")]
-    [SerializeField] private Button playBtn;
-
     private Map map;
     private CharacterController character;
-    private List<UnitController> units;
+    private List<BaseUnitController> units;
     private int actualLevel = 1;
 
     private UnitControllerInstaller unitInstaller;
@@ -42,14 +31,7 @@ public class GameContoller : MonoBehaviour
         set
         {
             _isPlayed = value;
-            if (_isPlayed)
-            {
-                playBtn.interactable = false;
-            }
-            else
-            {
-                playBtn.interactable = true;
-            }
+            ui.SetInteractable(!_isPlayed);
         }
     }
 
@@ -61,7 +43,8 @@ public class GameContoller : MonoBehaviour
         var level = levels.GetLevel(actualLevel);
         LevelConstruct(level);
 
-        playBtn.onClick.AddListener(PlayBtnClick);
+        ui.OnPlayBtnClick.AddListener(PlayBtnClick);
+        ui.OnResetBtnClick.AddListener(LevelReset);
     }
 
     public void LevelConstruct(Level level)
@@ -72,18 +55,39 @@ public class GameContoller : MonoBehaviour
 
         var cellPos = mapV.GetCellCenter(level.Character.CurrentPosition);
         character = Instantiate(characterPrefab, cellPos, Quaternion.identity, spawner);
-        character.Construct(level.Character, mapV, map, this);
+        character.Construct(level.Character, map, this);
     }
 
     private void LevelUnitsCreate(List<Unit> units)
     {
-        this.units = new List<UnitController>();
+        this.units = new List<BaseUnitController>();
         for (int i = 0; i < units.Count; i++)
         {
-            var unit = units[i]; 
+            var unit = units[i];
             var obj = unitInstaller.Instantiate(unit, mapV.GetCellCenter(unit.Position), Quaternion.identity, spawner);
             this.units.Add(obj);
         }
+    }
+
+    private void PlayBtnClick()
+    {
+        var playerSteps = compiler.Compile();
+        IsPlayed = true;
+        character.Play(playerSteps);
+    }
+
+    public void OnCharacterMoveEnd()
+    {
+        IsPlayed = false;
+        if (map.IsFinish(character.Position))
+            ui.WinShow(true);
+        else
+            ui.LoseShow(true);
+    }
+
+    public void OnUnitDestroy(BaseUnitController unit)
+    {
+        units.Remove(unit);
     }
 
     public void LevelDelete()
@@ -98,67 +102,20 @@ public class GameContoller : MonoBehaviour
 
     public void LevelReset()
     {
-        WinCanvas.gameObject.SetActive(false);
-        LoseCanvas.gameObject.SetActive(false);
+        ui.WinShow(false);
+        ui.LoseShow(false);
         LevelDelete();
         coins = 0;
         LevelConstruct(levels.GetLevel(actualLevel));
     }
 
-    private void PlayBtnClick()
-    {
-        var playerSteps = compiler.Compile(inputField.text);
-        IsPlayed = true;
-        character.Play(playerSteps);
-    }
-
-    /// <summary>
-    /// true - свободно, false - преграда.
-    /// Преградой является то на что нельзя встать, пропасть - не преграда
-    /// </summary>
-    public bool IsNextMoveFree(Vector2Int position, Direction direction)
-    {
-        var posInMap = position + direction.Vector();
-        if (!map.InMapBounds(posInMap))
-            return false;
-
-        if (map.IsWall(posInMap))
-            return false;
-
-        var unit = units.Find(x => x.Position == posInMap);
-        if (unit != null && unit.Type == Tangibility.Obstacle)
-            return false;
-
-        return true;
-    }
-
-    public void Win()
-    {
-        WinCanvas.gameObject.SetActive(true);
-    }
-
-    public void Lose()
-    {
-        LoseCanvas.gameObject.SetActive(true);
-    }
-
-    public void OnUnitDestroy(UnitController unit)
-    {
-        units.Remove(unit);
-    }
-
-    public void OnCharacterMoveEnd()
-    {
-        IsPlayed = false; 
-        var characterInMap = character.Position;
-        if (map.IsFinish(characterInMap))
-            Win();
-        else
-            Lose();
-    }
-
-    public UnitController GetUnitController(Vector2Int target)
+    public BaseUnitController GetUnitController(Vector2Int target)
     {
         return units.Find(x => x.Position == target);
+    }
+
+    public Vector2 GetPosByMap(Vector2Int position)
+    {
+        return mapV.GetCellCenter(position);
     }
 }

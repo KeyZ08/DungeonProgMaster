@@ -6,16 +6,23 @@ public class UnitControllerInstaller : MonoBehaviour
     [SerializeField] private CoinController coinControllerPrefab;
     [SerializeField] private SkeletonController skeletonControllerPrefab;
 
-    public UnitController Instantiate(Unit unit, Vector3 position, Quaternion rotation, Transform spawner)
+    public BaseUnitController Instantiate(Unit unit, Vector3 position, Quaternion rotation, Transform spawner)
     {
-        UnitController unitController;
-        if(unit is Coin)
-            unitController = GameObject.Instantiate<CoinController>(coinControllerPrefab, position, rotation, spawner);
-        else if(unit is Skeleton)
-            unitController = GameObject.Instantiate<SkeletonController>(skeletonControllerPrefab, position, rotation, spawner);
+        BaseUnitController unitController;
+        if (unit is Coin coin)
+        {
+            var coinController = GameObject.Instantiate<CoinController>(coinControllerPrefab, position, rotation, spawner);
+            coinController.Construct(coin);
+            unitController = coinController;
+        }
+        else if (unit is Skeleton skeleton)
+        {
+            var skeletonController = GameObject.Instantiate<SkeletonController>(skeletonControllerPrefab, position, rotation, spawner);
+            skeletonController.Construct(skeleton);
+            unitController= skeletonController;
+        }
         else
             throw new NotImplementedException();
-        unitController.Construct(unit);
         return unitController;
     }
 }

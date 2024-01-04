@@ -1,7 +1,7 @@
 public enum TileType
 {
-    Hole,
-    Ground,
-    Wall,
+    Hole = 0,
+    Ground = 1,
+    Wall = 2,
     Finish = 4
 }

@@ -1,18 +1,13 @@
 ﻿using UnityEngine;
 
-public abstract class UnitController : MonoBehaviour
+public abstract class UnitController<TUnit> : BaseUnitController where TUnit : Unit
 {
-    protected Unit unit;
-    public Tangibility Type => unit.Type;
-    public Vector2Int Position => unit.Position;
+    protected TUnit unit;
+    public override Tangibility Type => unit.Type;
+    public override Vector2Int Position => unit.Position;
 
-    public virtual void Construct(Unit unit)
+    public virtual void Construct(TUnit unit)
     {
         this.unit = unit;
-    }
-
-    private void OnDestroy()
-    {
-        FindAnyObjectByType<GameContoller>()?.OnUnitDestroy(this);
     }
 }
