@@ -9,9 +9,21 @@ public class CompileController : MonoBehaviour
     [Header("Script to compile")]
     [SerializeField] private TextAsset _asset;
 
-    public List<string> Compile()
+    private Dictionary<string, ICommand> commands = new Dictionary<string, ICommand>()
     {
-        return Compiler.Compile(inputField.text, _asset.text);
+        { "forward", new MoveForwardCommand() },
+        { "turn_right", new RotateRightCommand() },
+        { "turn_left", new RotateLeftCommand() },
+        { "attack", new AttackCommand() }
+    };
+
+    public List<ICommand> Compile()
+    {
+        var result = new List<ICommand>();
+        var list = Compiler.Compile(inputField.text, _asset.text);
+        for (int i = 0; i < list.Count; i++)
+            result.Add(commands[list[i]]);
+        return result;
     }
 
     public void Test()

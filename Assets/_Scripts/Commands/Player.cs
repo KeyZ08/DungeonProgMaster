@@ -44,7 +44,7 @@ namespace Commands
 
         public static void Attack()
         {
-            MoveArray.Add("attack");
+            AddMove("attack");
         }
     }
 

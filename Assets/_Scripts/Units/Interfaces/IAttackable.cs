@@ -1,4 +1,4 @@
 public interface IAttackable
 {
-    public abstract void OnAttack(ContactDirection contact, GameContoller controller);//ударили
+    public abstract void OnAttack(ContactDirection contact, GameController controller);//ударили
 }

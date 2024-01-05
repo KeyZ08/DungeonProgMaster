@@ -1,6 +1,6 @@
 ﻿public sealed class SkeletonController : UnitController<Skeleton>, IAttackable
 {
-    public void OnAttack(ContactDirection contact, GameContoller controller)
+    public void OnAttack(ContactDirection contact, GameController controller)
     {
         if (contact == ContactDirection.Side)
         {

@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameContoller : MonoBehaviour
+public class GameController : MonoBehaviour
 {
     [Header("Spawner")]
     [SerializeField] private Transform spawner;
 
     [Header("Character")]
-    [SerializeField] private CharacterController characterPrefab;
+    [SerializeField] private MyCharacterController characterPrefab;
 
     [Header("Controllers")]
     [SerializeField] private UIController ui;
@@ -15,7 +15,7 @@ public class GameContoller : MonoBehaviour
     [SerializeField] private CompileController compiler;
 
     private Map map;
-    private CharacterController character;
+    private MyCharacterController character;
     private List<BaseUnitController> units;
     private int actualLevel = 1;
 
