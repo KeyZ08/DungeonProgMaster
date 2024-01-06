@@ -27,8 +27,12 @@ public class CharacterVisualizer : MonoBehaviour
         targetPosition = transform.position;
         targetDiretion = spawnDirection;
         chRenderer.SetDirection(targetDiretion);
-        chRenderer.PlayMove(false);
         rotatedTimer = rotatedTimerDefault;
+    }
+
+    private void Start()
+    {
+        chRenderer.PlayMove(false);
     }
 
     public void TurnTo(Direction direction)

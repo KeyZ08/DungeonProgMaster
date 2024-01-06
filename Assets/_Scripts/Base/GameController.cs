@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
+using Zenject;
 
 public class GameController : MonoBehaviour
 {
@@ -14,13 +16,15 @@ public class GameController : MonoBehaviour
     [SerializeField] private MapVisualizer mapV;
     [SerializeField] private CompileController compiler;
 
+    [Header("DI Container")]
+    [SerializeField] private SceneContext container;
     private Map map;
     private MyCharacterController character;
     private List<BaseUnitController> units;
     private int actualLevel = 1;
 
     private UnitControllerInstaller unitInstaller;
-    private LevelsHandlerScriptableObject levels;
+    [Inject] private LevelsHandlerScriptableObject levels;
 
     public int coins;
     private bool _isPlayed;
@@ -35,17 +39,30 @@ public class GameController : MonoBehaviour
         }
     }
 
-    private void Start() 
+    [Inject]
+    private void Construct(MyCharacterController.Factory characterFactory, Level level)
     {
         unitInstaller = FindAnyObjectByType<UnitControllerInstaller>();
-        levels = Resources.Load<LevelsHandlerScriptableObject>("LevelsHandler");
-
-        var level = levels.GetLevel(actualLevel);
         LevelConstruct(level);
+
+        character = characterFactory.Create(level.Character, level.Map, this);
 
         ui.OnPlayBtnClick.AddListener(PlayBtnClick);
         ui.OnResetBtnClick.AddListener(LevelReset);
     }
+
+
+    //private void Start() 
+    //{
+    //    unitInstaller = FindAnyObjectByType<UnitControllerInstaller>();
+    //    levels = Resources.Load<LevelsHandlerScriptableObject>("LevelsHandler");
+
+    //    var level = levels.GetLevel(actualLevel);
+    //    LevelConstruct(level);
+
+    //    ui.OnPlayBtnClick.AddListener(PlayBtnClick);
+    //    ui.OnResetBtnClick.AddListener(LevelReset);
+    //}
 
     public void LevelConstruct(Level level)
     {
@@ -54,8 +71,10 @@ public class GameController : MonoBehaviour
         LevelUnitsCreate(level.Units);
 
         var cellPos = mapV.GetCellCenter(level.Character.CurrentPosition);
-        character = Instantiate(characterPrefab, cellPos, Quaternion.identity, spawner);
-        character.Construct(level.Character, map, this);
+        //var test = container.Container.Instantiate<MyCharacterController.Factory>();
+        //var testch = test.Create(level.Character, map, this);
+        //character = Instantiate(characterPrefab, cellPos, Quaternion.identity, spawner);
+        //character.Construct(level.Character, map, this);
     }
 
     private void LevelUnitsCreate(List<Unit> units)
@@ -64,7 +83,7 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < units.Count; i++)
         {
             var unit = units[i];
-            var obj = unitInstaller.Instantiate(unit, mapV.GetCellCenter(unit.Position), Quaternion.identity, spawner);
+            var obj = unitInstaller.Instantiate(unit, mapV.GetCellCenter(unit.Position), spawner);
             this.units.Add(obj);
         }
     }
