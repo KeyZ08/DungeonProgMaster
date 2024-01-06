@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -19,11 +20,19 @@ public class CompileController : MonoBehaviour
 
     public List<ICommand> Compile()
     {
-        var result = new List<ICommand>();
-        var list = Compiler.Compile(inputField.text, _asset.text);
-        for (int i = 0; i < list.Count; i++)
-            result.Add(commands[list[i]]);
-        return result;
+        try
+        {
+            var result = new List<ICommand>();
+            var list = Compiler.Compile(inputField.text, _asset.text);
+            for (int i = 0; i < list.Count; i++)
+                result.Add(commands[list[i]]);
+            return result;
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e.Message);
+            return new List<ICommand>();
+        }
     }
 
     public void Test()
