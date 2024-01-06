@@ -26,18 +26,6 @@ public class MapVisualizer : MonoBehaviour
         };
     }
 
-    public Vector3Int FromMapToVisual(Vector2Int pos, Map map)
-    {
-        //(x,y) = (row, column) in map
-        //строки в map идут сверху вниз а рисуем их мы снизу вверх 
-        return new Vector3Int(pos.y, map.MapRows - 1 - pos.x);
-    }
-
-    public Vector2Int FromVisualToMap(Vector2Int pos, Map map)
-    {
-        return new Vector2Int(map.MapRows - 1 - pos.y, pos.x);
-    }
-
     public void DrawMap(Map map)
     {
         tilemap.ClearAllTiles();
@@ -46,8 +34,8 @@ public class MapVisualizer : MonoBehaviour
         {
             for (int column = 0; column < map.MapColumns; column++)
             {
-                var tile = map.GetTile(row, column);
-                tilemap.SetTile(FromMapToVisual(new Vector2Int(row, column), map), tileByType[tile]);
+                var tile = map.GetTile(new Vector2Int(column, row));
+                tilemap.SetTile(new Vector3Int(column, row), tileByType[tile]);
             }
         }
     }

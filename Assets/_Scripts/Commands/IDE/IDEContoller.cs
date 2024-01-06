@@ -1,4 +1,5 @@
 ﻿using IDE;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -49,12 +50,19 @@ public class IDEContoller : MonoBehaviour
                 continue;
 
             foreach (var syntacticConstruction in syntacticConstructions)
-                if (syntacticConstruction.CheckWord(wordInfo.GetWord()))
+                if (syntacticConstruction.CheckWord(GetWord(wordInfo, inputField.text)))
                 {
                     ChangeColor(wordInfo, syntacticConstruction.Color);
                     break;
                 }
         }
+
+        inputField.ActivateInputField();
+    }
+
+    private string GetWord(TMP_WordInfo wordInfo, string text)
+    {
+        return string.Join("", text.Skip(wordInfo.firstCharacterIndex).Take(wordInfo.characterCount).ToArray());
     }
 
     private void ChangeColor(TMP_WordInfo wordInfo, Color32 color)
