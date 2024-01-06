@@ -15,8 +15,11 @@ public static class Compiler
 
         CSharpCodeProvider provider = new CSharpCodeProvider();
         CompilerResults results = provider.CompileAssemblyFromSource(new CompilerParameters(), script);
-        //Debug.Log(results.Errors.Count);
-        //Debug.Log(results.Errors[0]);
+        if (results.Errors.HasErrors)
+        {
+            //Debug.Log(results.Errors[0].Line - 55);
+            throw new Exception(results.Errors[0].ErrorText);
+        }
         var cls = results.CompiledAssembly.GetType("Commands.CommandsCompiler");
         var method = cls.GetMethod("Script");
 
