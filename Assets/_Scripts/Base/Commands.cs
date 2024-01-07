@@ -3,16 +3,6 @@ public interface ICommand
     void Action(GameController controller, MyCharacterController c, ICommand nextStep = null);
 }
 
-public interface ICharacterCommand
-{
-    void Action(Character character);
-}
-
-public interface ICharacterVisualizerCommand
-{
-    void Action(CharacterVisualizer character);
-}
-
 public class MoveForwardCommand : ICommand
 {
     public void Action(GameController controller, MyCharacterController c, ICommand nextStep)

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 public class MyCharacterController : MonoBehaviour
 {
@@ -21,6 +22,8 @@ public class MyCharacterController : MonoBehaviour
         this.controller = controller;
         characterV.Constructor(character.StartDirection);
     }
+
+    public class Factory : PlaceholderFactory<Character, Map, GameController, TransformParameters, MyCharacterController> { }
 
     public void Play(List<ICommand> steps)
     {
