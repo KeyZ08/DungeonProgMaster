@@ -15,7 +15,6 @@ public class MyCharacterController : MonoBehaviour
     public Character Character => character;
     public CharacterVisualizer Visualizer => characterV;
 
-    [Inject]
     public void Construct(Character character, Map map, GameController controller)
     {
         this.character = character;
@@ -24,7 +23,7 @@ public class MyCharacterController : MonoBehaviour
         characterV.Constructor(character.StartDirection);
     }
 
-    public class Factory : PlaceholderFactory<Character, Map, GameController, MyCharacterController> { }
+    public class Factory : PlaceholderFactory<Character, Map, GameController, TransformParameters, MyCharacterController> { }
 
     public void Play(List<ICommand> steps)
     {
