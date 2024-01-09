@@ -10,6 +10,4 @@ public abstract class BaseUnitController : MonoBehaviour
     {
         FindAnyObjectByType<GameController>()?.OnUnitDestroy(this);
     }
-
-    public class Factory : PlaceholderFactory<Unit, TransformParameters, BaseUnitController> { }
 }

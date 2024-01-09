@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 571532556b504af4bb08dbff3c39fd86
+guid: 747588d4c0d97ca4884a2b0165c7dbd2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1901785496931978614
-    second: play-button_0
+      213: 5626893733217126963
+    second: X Square Button_0
   externalObjects: {}
   serializedVersion: 12
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -72,7 +72,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 128
+    maxTextureSize: 64
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
@@ -122,13 +122,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: play-button_0
+      name: X Square Button_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 512
-        height: 512
+        width: 200
+        height: 200
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -136,8 +136,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 67dce9755df746a10800000000000000
-      internalID: 1901785496931978614
+      spriteID: 33a474da90eb61e40800000000000000
+      internalID: 5626893733217126963
       vertices: []
       indices: 
       edges: []
@@ -153,7 +153,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      play-button_0: 1901785496931978614
+      X Square Button_0: 5626893733217126963
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
