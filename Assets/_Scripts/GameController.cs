@@ -51,7 +51,7 @@ public class GameController : MonoBehaviour
 
         var cellPos = mapV.GetCellCenter(level.Character.CurrentPosition);
         var trp = new TransformParameters(spawner, cellPos, Quaternion.identity);
-        character = characterFactory.Create(level.Character, level.Map, this, trp);
+        character = characterFactory.Create(level.Character, level.Map, trp);
     }
 
     public void LoadLevel(int level)

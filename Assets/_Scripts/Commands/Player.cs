@@ -46,6 +46,11 @@ namespace Commands
         {
             AddMove("attack");
         }
+
+        public static void Take()
+        {
+            AddMove("take");
+        }
     }
 
     public static class CommandsCompiler

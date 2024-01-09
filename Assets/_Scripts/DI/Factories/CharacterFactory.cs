@@ -1,19 +1,22 @@
-﻿using Zenject;
+﻿using UnityEngine;
+using Zenject;
 
-public class CharacterFactory : IFactory<Character, Map, GameController, TransformParameters, MyCharacterController>
+public class CharacterFactory : IFactory<Character, Map, TransformParameters, MyCharacterController>
 {
     private DiContainer container;
+    private MyCharacterController prefab;
 
     public CharacterFactory(DiContainer container)
     {
         this.container = container;
     }
 
-    public MyCharacterController Create(Character character, Map map, GameController controller, TransformParameters trp)
+    public MyCharacterController Create(Character character, Map map, TransformParameters trp)
     {
-        var prefab = container.Resolve<MyCharacterController>();
+        if (prefab == null)
+            prefab = Resources.Load<MyCharacterController>("Character");
         var instance = container.InstantiatePrefabForComponent<MyCharacterController>(prefab, trp.Position, trp.Rotation, trp.Parent);
-        instance.Construct(character, map, controller);
+        instance.Construct(character, map);
         return instance;
     }
 }

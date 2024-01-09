@@ -6,24 +6,24 @@ using Zenject;
 public class MyCharacterController : MonoBehaviour
 {
     [SerializeField] private CharacterVisualizer characterV;
+
+    [Inject] private GameController controller;
     private Character character;
     private Map map;
-    private GameController controller;
 
     public Vector2Int Position => character.CurrentPosition;
     public Direction Direction => character.CurrentDirection;
     public Character Character => character;
     public CharacterVisualizer Visualizer => characterV;
 
-    public void Construct(Character character, Map map, GameController controller)
+    public void Construct(Character character, Map map)
     {
         this.character = character;
         this.map = map;
-        this.controller = controller;
         characterV.Constructor(character.StartDirection);
     }
 
-    public class Factory : PlaceholderFactory<Character, Map, GameController, TransformParameters, MyCharacterController> { }
+    public class Factory : PlaceholderFactory<Character, Map, TransformParameters, MyCharacterController> { }
 
     public void Play(List<ICommand> steps)
     {

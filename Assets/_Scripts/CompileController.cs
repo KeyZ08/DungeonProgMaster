@@ -15,7 +15,8 @@ public class CompileController : MonoBehaviour
         { "forward", new MoveForwardCommand() },
         { "turn_right", new RotateRightCommand() },
         { "turn_left", new RotateLeftCommand() },
-        { "attack", new AttackCommand() }
+        { "attack", new AttackCommand() },
+        { "take", new TakeCommand() }
     };
 
     public List<ICommand> Compile()
