@@ -61,7 +61,7 @@ public class TakeCommand : ICommand
         var forwardInMap = character.CurrentPosition + character.Forward;
         var unit = controller.GetUnitController(forwardInMap);
         if (unit != null && unit is ITakeable takeable)
-            takeable.OnTake(ContactDirection.Directly, controller);
+            takeable.OnTake(ContactDirection.Side, controller);
     }
 }
 

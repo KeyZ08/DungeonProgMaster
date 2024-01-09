@@ -8,6 +8,7 @@ public class UnitInstaller : MonoInstaller
         //регистрируем фабрики
         AddBindFactory<Coin, CoinController>();
         AddBindFactory<Skeleton, OneShotSkeletonController>();
+        AddBindFactory<Chest, ChestController>();
         //AddBindFactory<Skeleton, SkeletonController>();
 
         /*
@@ -43,6 +44,7 @@ public class UnitInstaller : MonoInstaller
     {
         [Inject] PlaceholderFactory<Coin, TransformParameters, BaseUnitController> coinFactory;
         [Inject] PlaceholderFactory<Skeleton, TransformParameters, BaseUnitController> skeletonFactory;
+        [Inject] PlaceholderFactory<Chest, TransformParameters, BaseUnitController> chestFactory;
 
         public BaseUnitController Create(Unit unit, TransformParameters trp)
         {
@@ -50,6 +52,8 @@ public class UnitInstaller : MonoInstaller
                 return coinFactory.Create(coin, trp);
             else if (unit is Skeleton skeleton)
                 return skeletonFactory.Create(skeleton, trp);
+            else if (unit is Chest chest)
+                return chestFactory.Create(chest, trp);
             else
                 throw new NotImplementedException();
         }

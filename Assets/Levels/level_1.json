@@ -22,5 +22,14 @@
     },
     "Direction": "Top"
   },
-  "Units": []
+  "Units": [
+    {
+      "Cost": 10,
+      "UnitId": "Chest",
+      "Position": {
+        "x": 4,
+        "y": 4
+      }
+    }
+  ]
 }
