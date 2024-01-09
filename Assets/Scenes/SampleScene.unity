@@ -2546,7 +2546,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a01cffd7a946c74cbc2247e0ca0e29a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterPrefab: {fileID: -8155073109549156071, guid: da7fa8b9e5f729a469c2e009357e7861, type: 3}
 --- !u!1 &1217065035
 GameObject:
   m_ObjectHideFlags: 0
@@ -5955,6 +5954,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc010f519109d0448a8c9f95d052e4f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  controller: {fileID: 947637256}
   ui: {fileID: 947637259}
   mapV: {fileID: 947637255}
   compiler: {fileID: 947637258}
