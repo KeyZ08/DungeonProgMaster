@@ -7,21 +7,18 @@ public class GameController : MonoBehaviour
     [Header("Spawner")]
     [SerializeField] private Transform spawner;
 
-    [Header("Controllers")]
-    [SerializeField] private UIController ui;
-    [SerializeField] private MapVisualizer mapV;
-    [SerializeField] private CompileController compiler;
+    [Inject] private UIController ui;
+    [Inject] private MapVisualizer mapV;
+    [Inject] private CompileController compiler;
 
-    [Header("DI Container")]
-    [SerializeField] private SceneContext container;
+    [Inject] private IUnitControllerFactory unitFactory;
+    [Inject] private MyCharacterController.Factory characterFactory;
+    [Inject] private LevelsHandlerScriptableObject levels;
+
     private Map map;
     private MyCharacterController character;
     private List<BaseUnitController> units;
     private int actualLevel = 1;
-
-    [Inject] private BaseUnitController.Factory unitFactory;
-    [Inject] private LevelsHandlerScriptableObject levels;
-    [Inject] private MyCharacterController.Factory characterFactory;
 
     public int coins;
     private bool _isPlayed;
@@ -38,9 +35,10 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
-        var level = levels.GetLevel(1);
-        LevelConstruct(level); 
+        var level = levels.GetLevel(actualLevel);
+        LevelConstruct(level);
 
+        ui.ConstructLevelBtns(levels.LevelsCount - 1, this); // последний уровень - тестовый - его не включаем
         ui.OnPlayBtnClick.AddListener(PlayBtnClick);
         ui.OnResetBtnClick.AddListener(LevelReset);
     }
@@ -54,6 +52,12 @@ public class GameController : MonoBehaviour
         var cellPos = mapV.GetCellCenter(level.Character.CurrentPosition);
         var trp = new TransformParameters(spawner, cellPos, Quaternion.identity);
         character = characterFactory.Create(level.Character, level.Map, this, trp);
+    }
+
+    public void LoadLevel(int level)
+    {
+        actualLevel = level;
+        LevelReset();
     }
 
     private void LevelUnitsCreate(List<Unit> units)

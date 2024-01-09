@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-[CreateAssetMenu(fileName = "LevelsHandler", menuName = "ScriptableObjects/LevelsHandlerScriptableObject", order = 1)]
+[CreateAssetMenu(fileName = "LevelsHandler", menuName = "ScriptableObjects/LevelsHandler", order = 1)]
 public class LevelsHandlerScriptableObject : ScriptableObject
 {
     [SerializeField] private List<TextAsset> jsonLevels = new List<TextAsset>();

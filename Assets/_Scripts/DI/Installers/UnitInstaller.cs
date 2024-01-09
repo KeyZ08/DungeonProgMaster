@@ -1,24 +1,57 @@
-using UnityEngine;
+using System;
 using Zenject;
 
 public class UnitInstaller : MonoInstaller
 {
-    [SerializeField] private CoinController coinControllerPrefab;
-    [SerializeField] private SkeletonController skeletonControllerPrefab;
-
     public override void InstallBindings()
     {
-        //регистрируем префабы
-        Container.Bind<CoinController>().FromInstance(coinControllerPrefab).AsSingle();
-        Container.Bind<SkeletonController>().FromInstance(skeletonControllerPrefab).AsSingle();
+        //регистрируем фабрики
+        AddBindFactory<Coin, CoinController>();
+        AddBindFactory<Skeleton, OneShotSkeletonController>();
+        //AddBindFactory<Skeleton, SkeletonController>();
 
-        //WARNING
-        //при регистрации нового контроллера
-        //не забудь добавить блок if в AbstractUnitControllerFactory
-        //WARNING
+        /*
+        WARNING
+            при регистрации контроллера для НОВОГО юнита
+            не забудь добавить в UnitControllerFactory
+            inject поле фабрики и блок if
 
-        //регистрируем фабрику (общую для всех)
-        Container.BindFactory<Unit, TransformParameters, BaseUnitController, BaseUnitController.Factory>()
-            .FromFactory<AbstractUnitControllerFactory>();
+            а при регистрации нового контроллера - закинуть префаб в UnitControllersHandler
+
+            P.S. одному Unit соостветсвует один UnitController
+            возможность указания разных контроллеров есть, но ограничено одним контроллером
+            например есть SkeletonController и OneShotSkeletonController, использовать мы можем только один из них
+        WARNING
+        */
+
+        //регистрация общей фабрики
+        Container.Bind<IUnitControllerFactory>().To<UnitControllerFactory>().AsSingle();
+    }
+
+    private void AddBindFactory<TUnit, TController>() where TController : UnitController<TUnit> where TUnit : Unit
+    {
+        //обеспечивает возможность указания разных контроллеров для одного типа Unit
+        Container.BindFactory<TUnit, TransformParameters, BaseUnitController, PlaceholderFactory<TUnit, TransformParameters, BaseUnitController>>()
+            .FromFactory<ConcreteUnitControllerFactory<TController, TUnit>>();
+    }
+
+    /// <summary>
+    /// Благодаря ей мы можем просто вызывать Create передавая базовый Unit и TransformParameters,
+    /// далее она подтягивает нужную фабрику и возвращает её Create
+    /// </summary>
+    public class UnitControllerFactory : IUnitControllerFactory
+    {
+        [Inject] PlaceholderFactory<Coin, TransformParameters, BaseUnitController> coinFactory;
+        [Inject] PlaceholderFactory<Skeleton, TransformParameters, BaseUnitController> skeletonFactory;
+
+        public BaseUnitController Create(Unit unit, TransformParameters trp)
+        {
+            if (unit is Coin coin)
+                return coinFactory.Create(coin, trp);
+            else if (unit is Skeleton skeleton)
+                return skeletonFactory.Create(skeleton, trp);
+            else
+                throw new NotImplementedException();
+        }
     }
 }
