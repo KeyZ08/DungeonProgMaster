@@ -32,7 +32,7 @@ public class UnitInstaller : MonoInstaller
     }
 
     /// <summary>
-    /// Ѕлагодар€ ей мы можем просто вызывать Create передава€ базовый Unit и TransformParameters,
+    /// Ѕлагодар€ ей мы можем просто вызывать Create передава€ базовый Unit,
     /// далее она подт€гивает нужную фабрику и возвращает еЄ Create
     /// </summary>
     public class UnitControllerFactory : IUnitControllerFactory

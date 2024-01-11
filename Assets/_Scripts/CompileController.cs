@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
+using Zenject;
 
 public class CompileController : MonoBehaviour
 {
@@ -10,23 +12,22 @@ public class CompileController : MonoBehaviour
     [Header("Script to compile")]
     [SerializeField] private TextAsset _asset;
 
-    private Dictionary<string, ICommand> commands = new Dictionary<string, ICommand>()
-    {
-        { "forward", new MoveForwardCommand() },
-        { "turn_right", new RotateRightCommand() },
-        { "turn_left", new RotateLeftCommand() },
-        { "attack", new AttackCommand() },
-        { "take", new TakeCommand() }
-    };
+    [Inject] CommandsInstaller commandsInstaller;
 
     public List<ICommand> Compile()
     {
         try
         {
+            var commands = commandsInstaller.GetAllCommands();
+            var methods = MethodsGenerate(commands);
+
             var result = new List<ICommand>();
-            var list = Compiler.Compile(inputField.text, _asset.text);
+            var list = Compiler.Compile(inputField.text, _asset.text, methods);
+
             for (int i = 0; i < list.Count; i++)
-                result.Add(commands[list[i]]);
+                if (commandsInstaller.TryGetCommand(list[i], out var command))
+                    result.Add(command);
+                else Debug.LogWarning($"Команда не найдена: {list[i]}");
             return result;
         }
         catch (Exception e)
@@ -36,8 +37,14 @@ public class CompileController : MonoBehaviour
         }
     }
 
-    public void Test()
+    private string MethodsGenerate(List<string> commands)
     {
-        Compiler.TestCompiling(_asset.text);
+        var strBuilder = new StringBuilder();
+        for (int i = 0;i < commands.Count;i++)
+        {
+            strBuilder.Append($"public static void {commands[i]}() => AddMove(\"{commands[i]}\");");
+            strBuilder.Append("\n");
+        }
+        return strBuilder.ToString();
     }
 }

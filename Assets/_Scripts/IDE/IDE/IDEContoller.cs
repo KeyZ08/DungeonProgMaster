@@ -2,44 +2,52 @@
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using Zenject;
 
 
 public class IDEContoller : MonoBehaviour
 {
+    [Inject] CommandsInstaller commands;
     private TMP_InputField inputField;
 
-    ISyntacticConstruction[] syntacticConstructions = new ISyntacticConstruction[]
-    {
-        new ArraySyntacticConstruction(
-            "Control Constructions", 
-            new string[] { "for", "if", "else", "break", "return", "foreach" }, 
-            new Color32(208, 106, 221, 255)
-            ),
-        new ArraySyntacticConstruction(
-            "Static Classes",
-            new string[] { "Player" },
-            new Color32(34, 226, 187, 255)
-            ),
-        new ArraySyntacticConstruction(
-            "Methods",
-            new string[] { "Forward", "TurnRight", "TurnLeft" },
-            new Color32(229, 229, 112, 255)
-            ),
-        new ArraySyntacticConstruction(
-            "Types",
-            new string[] { "var", "int", "string", "new" },
-            new Color32(64, 150, 222, 255)
-            ),
-        new FuncSyntacticConstruction(
-            "Numbers",
-            word => int.TryParse(word, out _),
-            new Color32(162, 209, 138, 255)
-            )
-    };
+    ISyntacticConstruction[] syntacticConstructions;
 
     public void Start()
     {
         inputField = GetComponent<TMP_InputField>();
+        SyntacticConstructionsFill();
+    }
+
+    private void SyntacticConstructionsFill()
+    {
+        syntacticConstructions = new ISyntacticConstruction[]
+        {
+            new ArraySyntacticConstruction(
+                "Control Constructions",
+                new string[] { "for", "if", "else", "break", "return", "foreach" },
+                new Color32(208, 106, 221, 255)
+                ),
+            new ArraySyntacticConstruction(
+                "Static Classes",
+                new string[] { "Player" },
+                new Color32(34, 226, 187, 255)
+                ),
+            new ArraySyntacticConstruction(
+                "Methods",
+                commands.GetAllCommands().ToArray(),
+                new Color32(229, 229, 112, 255)
+                ),
+            new ArraySyntacticConstruction(
+                "Types",
+                new string[] { "var", "int", "string", "new" },
+                new Color32(64, 150, 222, 255)
+                ),
+            new FuncSyntacticConstruction(
+                "Numbers",
+                word => int.TryParse(word, out _),
+                new Color32(162, 209, 138, 255)
+                )
+        };
     }
 
     public void Update()

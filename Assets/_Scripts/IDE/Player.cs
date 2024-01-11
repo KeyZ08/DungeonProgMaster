@@ -15,42 +15,8 @@ namespace Commands
                 throw new Exception("Привышено максимальное количество шагов");
         }
 
-        public static void Forward(int count = 1)
-        {
-            if (count < 0) throw new ArgumentOutOfRangeException("Не должно быть < 0");
-            for (int i = 0; i < count; i++)
-            {
-                AddMove("forward");
-            }
-        }
-
-        public static void TurnRight(int count = 1)
-        {
-            if (count < 0) throw new ArgumentOutOfRangeException("Не должно быть < 0");
-            for (int i = 0; i < count; i++)
-            {
-                AddMove("turn_right");
-            }
-        }
-
-        public static void TurnLeft(int count = 1)
-        {
-            if (count < 0) throw new ArgumentOutOfRangeException("Не должно быть < 0");
-            for (int i = 0; i < count; i++)
-            {
-                AddMove("turn_left");
-            }
-        }
-
-        public static void Attack()
-        {
-            AddMove("attack");
-        }
-
-        public static void Take()
-        {
-            AddMove("take");
-        }
+        #region Methods
+        #endregion
     }
 
     public static class CommandsCompiler

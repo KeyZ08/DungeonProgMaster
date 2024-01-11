@@ -4,14 +4,14 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using UnityEngine;
 
 public static class Compiler
 {
-    public static List<string> Compile(string program, string source)
+    public static List<string> Compile(string program, string source, string methods)
     {
         var script = source;
-        script = Regex.Replace(script, @"#region[\s\S]*?#endregion", program);
+        script = Regex.Replace(script, @"#region Task[\s\S]*?#endregion", program);
+        script = Regex.Replace(script, @"#region Methods[\s\S]*?#endregion", methods);
 
         CSharpCodeProvider provider = new CSharpCodeProvider();
         CompilerResults results = provider.CompileAssemblyFromSource(new CompilerParameters(), script);
@@ -30,17 +30,5 @@ public static class Compiler
             return task.Result;
         else
             throw new Exception("���� ��������� �������� ����� �����");
-    }
-
-    public static void TestCompiling(string source)
-    {
-        var program = @"
-                for (int i = 0; i < 12; i++)
-                    Player.Go();
-            ";
-
-        var result = Compile(program, source);
-        foreach (var el in result)
-            Debug.Log(el);
     }
 }
