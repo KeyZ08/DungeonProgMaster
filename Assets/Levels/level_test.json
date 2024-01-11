@@ -48,6 +48,14 @@
       }
     },
     {
+      "Cost": 20,
+      "UnitId": "Chest",
+      "Position": {
+        "x": 6,
+        "y": 5
+      }
+    },
+    {
       "Health": 150,
       "UnitId": "Skeleton",
       "Position": {

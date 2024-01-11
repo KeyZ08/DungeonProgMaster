@@ -6,10 +6,9 @@ public class UnitInstaller : MonoInstaller
     public override void InstallBindings()
     {
         //регистрируем фабрики
-        AddBindFactory<Coin, CoinController>();
-        AddBindFactory<Skeleton, OneShotSkeletonController>();
-        AddBindFactory<Chest, ChestController>();
-        //AddBindFactory<Skeleton, SkeletonController>();
+        InstallFactory<Coin, CoinController>();
+        InstallFactory<Chest, ChestController>();
+        InstallFactory<Skeleton, SkeletonController>();
 
         /*
         WARNING
@@ -17,11 +16,9 @@ public class UnitInstaller : MonoInstaller
             не забудь добавить в UnitControllerFactory
             inject поле фабрики и блок if
 
-            а при регистрации нового контроллера - закинуть префаб в UnitControllersHandler
+            а при регистрации нового контроллера - закинуть префаб в UnitPrefabsHandler
 
             P.S. одному Unit соостветсвует один UnitController
-            возможность указания разных контроллеров есть, но ограничено одним контроллером
-            например есть SkeletonController и OneShotSkeletonController, использовать мы можем только один из них
         WARNING
         */
 
@@ -29,11 +26,9 @@ public class UnitInstaller : MonoInstaller
         Container.Bind<IUnitControllerFactory>().To<UnitControllerFactory>().AsSingle();
     }
 
-    private void AddBindFactory<TUnit, TController>() where TController : UnitController<TUnit> where TUnit : Unit
+    private void InstallFactory<TUnit, TController>() where TController : UnitController<TUnit> where TUnit : Unit
     {
-        //обеспечивает возможность указания разных контроллеров для одного типа Unit
-        Container.BindFactory<TUnit, TransformParameters, BaseUnitController, PlaceholderFactory<TUnit, TransformParameters, BaseUnitController>>()
-            .FromFactory<ConcreteUnitControllerFactory<TController, TUnit>>();
+        Container.Bind<IUnitControllerFactory<TController, TUnit>>().To<ConcreteUnitControllerFactory<TController, TUnit>>().AsSingle();
     }
 
     /// <summary>
@@ -42,9 +37,9 @@ public class UnitInstaller : MonoInstaller
     /// </summary>
     public class UnitControllerFactory : IUnitControllerFactory
     {
-        [Inject] PlaceholderFactory<Coin, TransformParameters, BaseUnitController> coinFactory;
-        [Inject] PlaceholderFactory<Skeleton, TransformParameters, BaseUnitController> skeletonFactory;
-        [Inject] PlaceholderFactory<Chest, TransformParameters, BaseUnitController> chestFactory;
+        [Inject] IUnitControllerFactory<CoinController, Coin> coinFactory;
+        [Inject] IUnitControllerFactory<SkeletonController, Skeleton> skeletonFactory;
+        [Inject] IUnitControllerFactory<ChestController, Chest> chestFactory;
 
         public BaseUnitController Create(Unit unit, TransformParameters trp)
         {

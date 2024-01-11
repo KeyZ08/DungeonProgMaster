@@ -4,7 +4,7 @@
     {
         if (contact == ContactDirection.Directly)
         {
-            controller.coins += 1;
+            controller.coins += unit.Cost;
             Destroy(gameObject);
         }
     }

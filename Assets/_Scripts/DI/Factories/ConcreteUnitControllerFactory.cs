@@ -1,7 +1,6 @@
-﻿using UnityEngine;
-using Zenject;
+﻿using Zenject;
 
-public class ConcreteUnitControllerFactory<TController, TUnit> : IFactory<TUnit, TransformParameters, TController>
+public class ConcreteUnitControllerFactory<TController, TUnit> : IUnitControllerFactory<TController, TUnit>
     where TController : UnitController<TUnit> where TUnit : Unit
 {
     private IInstantiator container;
