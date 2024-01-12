@@ -1,4 +1,6 @@
 ﻿using IDE;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -9,6 +11,9 @@ public class IDEContoller : MonoBehaviour
 {
     [Inject] CommandsInstaller commands;
     private TMP_InputField inputField;
+    private List<Tuple<TMP_WordInfo, Color32>> wordColors;
+    private Dictionary<string, Color32> wordHash;
+    private int oldTextHash;
 
     ISyntacticConstruction[] syntacticConstructions;
 
@@ -24,22 +29,22 @@ public class IDEContoller : MonoBehaviour
         {
             new ArraySyntacticConstruction(
                 "Control Constructions",
-                new string[] { "for", "if", "else", "break", "return", "foreach" },
+                new HashSet<string> { "for", "if", "else", "break", "return", "foreach" },
                 new Color32(208, 106, 221, 255)
                 ),
             new ArraySyntacticConstruction(
                 "Static Classes",
-                new string[] { "Player" },
+                new HashSet<string> { "Player" },
                 new Color32(34, 226, 187, 255)
                 ),
             new ArraySyntacticConstruction(
                 "Methods",
-                commands.GetAllCommands().ToArray(),
+                commands.GetAllCommands().ToHashSet(),
                 new Color32(229, 229, 112, 255)
                 ),
             new ArraySyntacticConstruction(
                 "Types",
-                new string[] { "var", "int", "string", "new" },
+                new HashSet<string> { "var", "int", "string", "new" },
                 new Color32(64, 150, 222, 255)
                 ),
             new FuncSyntacticConstruction(
@@ -48,24 +53,56 @@ public class IDEContoller : MonoBehaviour
                 new Color32(162, 209, 138, 255)
                 )
         };
+
+        oldTextHash = "".GetHashCode();
+        wordColors = new List<Tuple<TMP_WordInfo, Color32>>();
+        wordHash = new Dictionary<string, Color32>();
     }
 
     public void Update()
     {
+        var tempTextHash = inputField.text.GetHashCode();
+        if (oldTextHash != tempTextHash)
+        {
+            OnValueChanged();
+            oldTextHash = tempTextHash;
+        }
+
+        foreach (var tuple in wordColors)
+            ChangeColor(tuple.Item1, tuple.Item2);
+
+        inputField.textComponent.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
+
+        inputField.ActivateInputField();
+    }
+
+    public void OnValueChanged()
+    {
+        wordColors.Clear();
         foreach (var wordInfo in inputField.textComponent.textInfo.wordInfo)
         {
             if (wordInfo.characterCount <= 0)
                 continue;
 
+            var word = GetWord(wordInfo, inputField.text);
+
+            if (wordHash.ContainsKey(word))
+            {
+                wordColors.Add(Tuple.Create(wordInfo, wordHash[word]));
+                continue;
+            }
+
             foreach (var syntacticConstruction in syntacticConstructions)
-                if (syntacticConstruction.CheckWord(GetWord(wordInfo, inputField.text)))
+                if (syntacticConstruction.CheckWord(word))
                 {
-                    ChangeColor(wordInfo, syntacticConstruction.Color);
+                    wordHash[word] = syntacticConstruction.Color;
+                    wordColors.Add(Tuple.Create(wordInfo, syntacticConstruction.Color));
                     break;
                 }
-        }
 
-        inputField.ActivateInputField();
+            if (!wordHash.ContainsKey(word))
+                wordHash[word] = new Color32(255, 255, 255, 255);
+        }
     }
 
     private string GetWord(TMP_WordInfo wordInfo, string text)
@@ -86,6 +123,5 @@ public class IDEContoller : MonoBehaviour
             vertexColors[vertexIndex + 2] = color;
             vertexColors[vertexIndex + 3] = color;
         }
-        inputField.textComponent.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
     }
 }
