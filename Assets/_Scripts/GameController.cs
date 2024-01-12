@@ -82,7 +82,7 @@ public class GameController : MonoBehaviour
     public void OnCharacterMoveEnd()
     {
         IsPlayed = false;
-        if (map.IsFinish(character.Position))
+        if (map.IsFinish(character.Character.CurrentPosition))
             ui.WinShow(true);
         else
             ui.LoseShow(true);

@@ -6,13 +6,13 @@ using Zenject;
 public class MyCharacterController : MonoBehaviour
 {
     [SerializeField] private CharacterVisualizer characterV;
+    [SerializeField] private AudioSource stepSound;
+    [SerializeField] private AudioSource swordSound;
 
     [Inject] private GameController controller;
     private Character character;
     private Map map;
 
-    public Vector2Int Position => character.CurrentPosition;
-    public Direction Direction => character.CurrentDirection;
     public Character Character => character;
     public CharacterVisualizer Visualizer => characterV;
 
@@ -73,5 +73,15 @@ public class MyCharacterController : MonoBehaviour
             return false;
 
         return true;
+    }
+
+    public void PlayStepSound()
+    {
+        stepSound.Play();
+    }
+
+    public void PlaySwordSound()
+    {
+        swordSound.Play();
     }
 }

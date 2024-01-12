@@ -161,3 +161,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58b5374261cfa7a4189c6b0bfaaafbe9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 2939698799498226345}
+  damageSound: {fileID: 8300000, guid: c29588ee129be134993687a734793054, type: 3}

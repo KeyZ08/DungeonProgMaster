@@ -121,3 +121,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 1273969683042778417}
+  openSound: {fileID: 8300000, guid: 24e9828c1342a0743bc2454a09209c8c, type: 3}
