@@ -24,7 +24,7 @@ namespace DPM.App
         private Map map;
         private MyCharacterController character;
         private List<BaseUnitController> units;
-        private int actualLevel = 1;
+        private int actualLevel = 0;
 
         public int coins;
         private bool _isPlayed;
