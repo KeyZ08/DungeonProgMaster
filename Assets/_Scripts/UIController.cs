@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 using DPM.UI;
 //не должно использовать UI :(
 
@@ -24,6 +25,8 @@ namespace DPM.App
         [NonSerialized] public Button.ButtonClickedEvent OnPlayBtnClick = new Button.ButtonClickedEvent();
         [NonSerialized] public Button.ButtonClickedEvent OnResetBtnClick = new Button.ButtonClickedEvent();
 
+        private List<LevelBtn> levels;
+
         private void Start()
         {
             playBtn.onClick = OnPlayBtnClick;
@@ -34,6 +37,8 @@ namespace DPM.App
         public void SetInteractable(bool value)
         {
             playBtn.interactable = value;
+            for (int i = 0; i < levels.Count; i++)
+                levels[i].SetInteractable(value);
         }
 
         public void WinShow(bool show)
@@ -48,11 +53,13 @@ namespace DPM.App
 
         public void ConstructLevelBtns(int count, GameController controller)
         {
+            levels = new List<LevelBtn>(count);
             for (int i = 0; i < count; i++)
             {
                 var index = i;
                 var btn = Instantiate(levelBtnPrefab, levelBtnSpawner);
                 btn.Construct((index + 1).ToString(), () => controller.LoadLevel(index));
+                levels.Add(btn);
             }
         }
     }
