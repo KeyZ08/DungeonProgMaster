@@ -1,11 +1,15 @@
-public enum Tangibility //осязаемость
-{
-    Obstacle, //препятствие
-    None
-}
 
-public enum ContactDirection
+namespace DPM.Infrastructure
 {
-    Side, //сбоку (сверху, снизу, справа, слева)
-    Directly, //стоя на этом объекте
+    public enum Tangibility //осязаемость
+    {
+        Obstacle, //препятствие
+        None
+    }
+
+    public enum ContactDirection
+    {
+        Side, //сбоку (сверху, снизу, справа, слева)
+        Directly, //стоя на этом объекте
+    }
 }

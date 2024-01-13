@@ -1,4 +1,9 @@
-public interface IAttackable
+using DPM.Infrastructure;
+
+namespace DPM.App
 {
-    public abstract void OnAttack(ContactDirection contact, GameController controller);//ударили
+    public interface IAttackable
+    {
+        public abstract void OnAttack(ContactDirection contact, GameController controller, int damage);//ударили
+    }
 }

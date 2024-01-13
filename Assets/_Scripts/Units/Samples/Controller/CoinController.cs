@@ -1,11 +1,21 @@
-﻿public sealed class CoinController : UnitController<Coin>, IOnCome
+﻿using UnityEngine;
+using DPM.Domain;
+using DPM.Infrastructure;
+
+namespace DPM.App
 {
-    public void OnCome(ContactDirection contact, GameController controller)
+    public sealed class CoinController : UnitController<Coin>, IOnCome
     {
-        if (contact == ContactDirection.Directly)
+        [SerializeField] private AudioClip coinSound;
+
+        public void OnCome(ContactDirection contact, GameController controller)
         {
-            controller.coins += 1;
-            Destroy(gameObject);
+            if (contact == ContactDirection.Directly)
+            {
+                AudioSource.PlayClipAtPoint(coinSound, transform.position);
+                controller.coins += unit.Cost;
+                Destroy(gameObject);
+            }
         }
     }
 }

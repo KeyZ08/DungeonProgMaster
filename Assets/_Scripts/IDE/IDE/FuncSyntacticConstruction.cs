@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Linq;
 using UnityEngine;
 
-namespace IDE
+namespace DPM.Domain.IDE
 {
-    public class ArraySyntacticConstruction : ISyntacticConstruction
+    public class FuncSyntacticConstruction : ISyntacticConstruction
     {
         private readonly string title;
-        private readonly string[] words;
+        private readonly Func<string, bool> func;
         private readonly Color32 color;
 
-        public ArraySyntacticConstruction(string title, string[] words, Color32 color)
+        public FuncSyntacticConstruction(string title, Func<string, bool> func, Color32 color)
         {
             this.title = title;
-            this.words = words;
+            this.func = func;
             this.color = color;
         }
 
@@ -22,7 +21,7 @@ namespace IDE
 
         bool ISyntacticConstruction.CheckWord(string word)
         {
-            return words.Contains(word);
+            return func(word);
         }
     }
 }

@@ -1,12 +1,24 @@
-﻿public sealed class SkeletonController : UnitController<Skeleton>, IAttackable
+﻿using UnityEngine;
+using DPM.Domain;
+using DPM.Infrastructure;
+
+namespace DPM.App
 {
-    public void OnAttack(ContactDirection contact, GameController controller)
+    public sealed class SkeletonController : UnitController<Skeleton>, IAttackable
     {
-        if (contact == ContactDirection.Side)
+        [SerializeField] private Animator animator;
+        [SerializeField] private AudioClip damageSound;
+
+        public void OnAttack(ContactDirection contact, GameController controller, int damage)
         {
-            unit.Health -= 50;
-            if(unit.Health <= 0)
-                Destroy(gameObject);
+            if (contact == ContactDirection.Side)
+            {
+                animator.SetTrigger("Damage");
+                AudioSource.PlayClipAtPoint(damageSound, transform.position);
+                unit.Health -= damage;
+                if (unit.Health <= 0)
+                    Destroy(gameObject);
+            }
         }
     }
 }

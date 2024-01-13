@@ -1,4 +1,9 @@
-public interface ITakeable
+using DPM.Infrastructure;
+
+namespace DPM.App
 {
-    public abstract void OnTake(ContactDirection contact, GameController controller);//подобрали
+    public interface ITakeable
+    {
+        public abstract void OnTake(ContactDirection contact, GameController controller);//подобрали
+    }
 }

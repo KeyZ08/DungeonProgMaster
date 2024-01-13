@@ -1,13 +1,18 @@
 ﻿using UnityEngine;
+using DPM.Domain;
+using DPM.Infrastructure;
 
-public abstract class UnitController<TUnit> : BaseUnitController where TUnit : Unit
+namespace DPM.App
 {
-    protected TUnit unit;
-    public override Tangibility Type => unit.Type;
-    public override Vector2Int Position => unit.Position;
-
-    public virtual void Construct(TUnit unit)
+    public abstract class UnitController<TUnit> : BaseUnitController where TUnit : Unit
     {
-        this.unit = unit;
+        protected TUnit unit;
+        public override Tangibility Type => unit.Type;
+        public override Vector2Int Position => unit.Position;
+
+        public virtual void Construct(TUnit unit)
+        {
+            this.unit = unit;
+        }
     }
 }
