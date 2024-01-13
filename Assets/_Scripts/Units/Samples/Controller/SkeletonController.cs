@@ -1,19 +1,24 @@
 ﻿using UnityEngine;
+using DPM.Domain;
+using DPM.Infrastructure;
 
-public sealed class SkeletonController : UnitController<Skeleton>, IAttackable
+namespace DPM.App
 {
-    [SerializeField] private Animator animator;
-    [SerializeField] private AudioClip damageSound;
-
-    public void OnAttack(ContactDirection contact, GameController controller, int damage)
+    public sealed class SkeletonController : UnitController<Skeleton>, IAttackable
     {
-        if (contact == ContactDirection.Side)
+        [SerializeField] private Animator animator;
+        [SerializeField] private AudioClip damageSound;
+
+        public void OnAttack(ContactDirection contact, GameController controller, int damage)
         {
-            animator.SetTrigger("Damage");
-            AudioSource.PlayClipAtPoint(damageSound, transform.position);
-            unit.Health -= damage;
-            if(unit.Health <= 0)
-                Destroy(gameObject);
+            if (contact == ContactDirection.Side)
+            {
+                animator.SetTrigger("Damage");
+                AudioSource.PlayClipAtPoint(damageSound, transform.position);
+                unit.Health -= damage;
+                if (unit.Health <= 0)
+                    Destroy(gameObject);
+            }
         }
     }
 }

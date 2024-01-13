@@ -3,21 +3,24 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LevelBtn : MonoBehaviour
+namespace DPM.UI
 {
-    [SerializeField] private Button levelBtn;
-    [SerializeField] private TextMeshProUGUI text;
-
-    [NonSerialized] public Button.ButtonClickedEvent OnClick = new Button.ButtonClickedEvent();
-
-    private void Start()
+    public class LevelBtn : MonoBehaviour
     {
-        levelBtn.onClick = OnClick;
-    }
+        [SerializeField] private Button levelBtn;
+        [SerializeField] private TextMeshProUGUI text;
 
-    public void Construct(string text, Action onClickAction)
-    {
-        this.text.text = text;
-        OnClick.AddListener(onClickAction.Invoke);
+        [NonSerialized] public Button.ButtonClickedEvent OnClick = new Button.ButtonClickedEvent();
+
+        private void Start()
+        {
+            levelBtn.onClick = OnClick;
+        }
+
+        public void Construct(string text, Action onClickAction)
+        {
+            this.text.text = text;
+            OnClick.AddListener(onClickAction.Invoke);
+        }
     }
 }

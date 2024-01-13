@@ -1,10 +1,15 @@
-﻿public class RotateLeftCommand : ICommand
+﻿using DPM.Infrastructure;
+
+namespace DPM.App
 {
-    public void Action(GameController controller, MyCharacterController c, ICommand nextStep)
+    public class RotateLeftCommand : ICommand
     {
-        var character = c.Character;
-        var currentDirection = character.CurrentDirection.ToInt();
-        character.CurrentDirection = (Direction)((currentDirection + 1) % 4);
-        c.Visualizer.TurnTo(character.CurrentDirection);
+        public void Action(GameController controller, MyCharacterController c, ICommand nextStep)
+        {
+            var character = c.Character;
+            var currentDirection = character.CurrentDirection.ToInt();
+            character.CurrentDirection = (Direction)((currentDirection + 1) % 4);
+            c.Visualizer.TurnTo(character.CurrentDirection);
+        }
     }
 }

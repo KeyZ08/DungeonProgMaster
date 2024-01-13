@@ -1,10 +1,15 @@
-﻿public class OnComeCommand : ICommand
+﻿using DPM.Infrastructure;
+
+namespace DPM.App
 {
-    public void Action(GameController controller, MyCharacterController c, ICommand nextStep)
+    public class OnComeCommand : ICommand
     {
-        var character = c.Character;
-        var unit = controller.GetUnitController(character.CurrentPosition);
-        if (unit != null && unit is IOnCome onComeable)
-            onComeable.OnCome(ContactDirection.Directly, controller);
+        public void Action(GameController controller, MyCharacterController c, ICommand nextStep)
+        {
+            var character = c.Character;
+            var unit = controller.GetUnitController(character.CurrentPosition);
+            if (unit != null && unit is IOnCome onComeable)
+                onComeable.OnCome(ContactDirection.Directly, controller);
+        }
     }
 }

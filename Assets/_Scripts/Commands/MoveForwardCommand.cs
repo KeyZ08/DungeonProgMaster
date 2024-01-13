@@ -1,10 +1,13 @@
-﻿public class MoveForwardCommand : ICommand
+﻿namespace DPM.App
 {
-    public void Action(GameController controller, MyCharacterController c, ICommand nextStep)
+    public class MoveForwardCommand : ICommand
     {
-        var character = c.Character;
-        character.CurrentPosition += character.Forward;
-        var isNextMoveFree = nextStep is MoveForwardCommand && c.IsNextMoveFree(character.CurrentPosition, character.CurrentDirection);
-        c.Visualizer.MoveTo(controller.GetPosByMap(character.CurrentPosition), isNextMoveFree);
+        public void Action(GameController controller, MyCharacterController c, ICommand nextStep)
+        {
+            var character = c.Character;
+            character.CurrentPosition += character.Forward;
+            var isNextMoveFree = nextStep is MoveForwardCommand && c.IsNextMoveFree(character.CurrentPosition, character.CurrentDirection);
+            c.Visualizer.MoveTo(controller.GetPosByMap(character.CurrentPosition), isNextMoveFree);
+        }
     }
 }

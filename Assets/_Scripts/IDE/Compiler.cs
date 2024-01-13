@@ -5,30 +5,33 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-public static class Compiler
+namespace DPM.Infrastructure
 {
-    public static List<string> Compile(string program, string source, string methods)
+    public static class Compiler
     {
-        var script = source;
-        script = Regex.Replace(script, @"#region Task[\s\S]*?#endregion", program);
-        script = Regex.Replace(script, @"#region Methods[\s\S]*?#endregion", methods);
-
-        CSharpCodeProvider provider = new CSharpCodeProvider();
-        CompilerResults results = provider.CompileAssemblyFromSource(new CompilerParameters(), script);
-        if (results.Errors.HasErrors)
+        public static List<string> Compile(string program, string source, string methods)
         {
-            //Debug.Log(results.Errors[0].Line - 55);
-            throw new Exception(results.Errors[0].ErrorText);
-        }
-        var cls = results.CompiledAssembly.GetType("Commands.CommandsCompiler");
-        var method = cls.GetMethod("Script");
+            var script = source;
+            script = Regex.Replace(script, @"#region Task[\s\S]*?#endregion", program);
+            script = Regex.Replace(script, @"#region Methods[\s\S]*?#endregion", methods);
 
-        var timeout = 10;
-        var task = Task.Run(() => (List<string>)method.Invoke(null, null));
-        task.Wait(timeout);
-        if (task.IsCompleted)
-            return task.Result;
-        else
-            throw new Exception("���� ��������� �������� ����� �����");
+            CSharpCodeProvider provider = new CSharpCodeProvider();
+            CompilerResults results = provider.CompileAssemblyFromSource(new CompilerParameters(), script);
+            if (results.Errors.HasErrors)
+            {
+                //Debug.Log(results.Errors[0].Line - 55);
+                throw new Exception(results.Errors[0].ErrorText);
+            }
+            var cls = results.CompiledAssembly.GetType("Commands.CommandsCompiler");
+            var method = cls.GetMethod("Script");
+
+            var timeout = 10;
+            var task = Task.Run(() => (List<string>)method.Invoke(null, null));
+            task.Wait(timeout);
+            if (task.IsCompleted)
+                return task.Result;
+            else
+                throw new Exception("���� ��������� �������� ����� �����");
+        }
     }
 }

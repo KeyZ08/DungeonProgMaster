@@ -1,22 +1,27 @@
 using UnityEngine;
+using DPM.Domain;
+using DPM.Infrastructure;
 
-public class ChestController : UnitController<Chest>, ITakeable
+namespace DPM.App
 {
-    [SerializeField] private Animator animator;
-    [SerializeField] private AudioClip openSound;
-
-    public void OnTake(ContactDirection contact, GameController controller)
+    public class ChestController : UnitController<Chest>, ITakeable
     {
-        if(contact == ContactDirection.Side)
+        [SerializeField] private Animator animator;
+        [SerializeField] private AudioClip openSound;
+
+        public void OnTake(ContactDirection contact, GameController controller)
         {
-            AudioSource.PlayClipAtPoint(openSound, transform.position);
-            Open();
-            controller.coins += unit.Cost;
+            if (contact == ContactDirection.Side)
+            {
+                AudioSource.PlayClipAtPoint(openSound, transform.position);
+                Open();
+                controller.coins += unit.Cost;
+            }
         }
-    }
 
-    private void Open()
-    {
-        animator.SetTrigger("Open");
+        private void Open()
+        {
+            animator.SetTrigger("Open");
+        }
     }
 }

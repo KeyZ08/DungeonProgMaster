@@ -1,13 +1,16 @@
 ﻿using UnityEngine;
-using Zenject;
+using DPM.Infrastructure;
 
-public abstract class BaseUnitController : MonoBehaviour
+namespace DPM.App
 {
-    public abstract Tangibility Type { get; }
-    public abstract Vector2Int Position { get; }
-
-    private void OnDestroy()
+    public abstract class BaseUnitController : MonoBehaviour
     {
-        FindAnyObjectByType<GameController>()?.OnUnitDestroy(this);
+        public abstract Tangibility Type { get; }
+        public abstract Vector2Int Position { get; }
+
+        private void OnDestroy()
+        {
+            FindAnyObjectByType<GameController>()?.OnUnitDestroy(this);
+        }
     }
 }

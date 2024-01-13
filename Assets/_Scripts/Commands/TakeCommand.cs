@@ -1,11 +1,16 @@
-﻿public class TakeCommand : ICommand
+﻿using DPM.Infrastructure;
+
+namespace DPM.App
 {
-    public void Action(GameController controller, MyCharacterController c, ICommand nextStep)
+    public class TakeCommand : ICommand
     {
-        var character = c.Character;
-        var forwardInMap = character.CurrentPosition + character.Forward;
-        var unit = controller.GetUnitController(forwardInMap);
-        if (unit != null && unit is ITakeable takeable)
-            takeable.OnTake(ContactDirection.Side, controller);
+        public void Action(GameController controller, MyCharacterController c, ICommand nextStep)
+        {
+            var character = c.Character;
+            var forwardInMap = character.CurrentPosition + character.Forward;
+            var unit = controller.GetUnitController(forwardInMap);
+            if (unit != null && unit is ITakeable takeable)
+                takeable.OnTake(ContactDirection.Side, controller);
+        }
     }
 }

@@ -4,47 +4,51 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using Zenject;
+using DPM.Infrastructure;
 
-public class CompileController : MonoBehaviour
+namespace DPM.App
 {
-    [Header("Input Field")]
-    [SerializeField] private TMP_InputField inputField;
-    [Header("Script to compile")]
-    [SerializeField] private TextAsset _asset;
-
-    [Inject] CommandsInstaller commandsInstaller;
-
-    public List<ICommand> Compile()
+    public class CompileController : MonoBehaviour
     {
-        try
-        {
-            var commands = commandsInstaller.GetAllCommands();
-            var methods = MethodsGenerate(commands);
+        [Header("Input Field")]
+        [SerializeField] private TMP_InputField inputField;
+        [Header("Script to compile")]
+        [SerializeField] private TextAsset _asset;
 
-            var result = new List<ICommand>();
-            var list = Compiler.Compile(inputField.text, _asset.text, methods);
+        [Inject] CommandsInstaller commandsInstaller;
 
-            for (int i = 0; i < list.Count; i++)
-                if (commandsInstaller.TryGetCommand(list[i], out var command))
-                    result.Add(command);
-                else Debug.LogWarning($"Команда не найдена: {list[i]}");
-            return result;
-        }
-        catch (Exception e)
+        public List<ICommand> Compile()
         {
-            Debug.Log(e.Message);
-            return new List<ICommand>();
-        }
-    }
+            try
+            {
+                var commands = commandsInstaller.GetAllCommands();
+                var methods = MethodsGenerate(commands);
 
-    private string MethodsGenerate(List<string> commands)
-    {
-        var strBuilder = new StringBuilder();
-        for (int i = 0;i < commands.Count;i++)
-        {
-            strBuilder.Append($"public static void {commands[i]}() => AddMove(\"{commands[i]}\");");
-            strBuilder.Append("\n");
+                var result = new List<ICommand>();
+                var list = Compiler.Compile(inputField.text, _asset.text, methods);
+
+                for (int i = 0; i < list.Count; i++)
+                    if (commandsInstaller.TryGetCommand(list[i], out var command))
+                        result.Add(command);
+                    else Debug.LogWarning($"Команда не найдена: {list[i]}");
+                return result;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.Message);
+                return new List<ICommand>();
+            }
         }
-        return strBuilder.ToString();
+
+        private string MethodsGenerate(List<string> commands)
+        {
+            var strBuilder = new StringBuilder();
+            for (int i = 0; i < commands.Count; i++)
+            {
+                strBuilder.Append($"public static void {commands[i]}() => AddMove(\"{commands[i]}\");");
+                strBuilder.Append("\n");
+            }
+            return strBuilder.ToString();
+        }
     }
 }

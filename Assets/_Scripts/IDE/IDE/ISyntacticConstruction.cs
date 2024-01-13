@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace IDE
+namespace DPM.Domain.IDE
 {
     public interface ISyntacticConstruction
     {

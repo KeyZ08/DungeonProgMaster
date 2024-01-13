@@ -1,11 +1,16 @@
-﻿public interface IUnitControllerFactory
-{
-    BaseUnitController Create(Unit unit, TransformParameters trp);
-}
+﻿using DPM.Domain;
 
-public interface IUnitControllerFactory<TController, TUnit>
-    where TController : UnitController<TUnit> 
-    where TUnit : Unit
+namespace DPM.App
 {
-    TController Create(TUnit unit, TransformParameters trp);
+    public interface IUnitControllerFactory
+    {
+        BaseUnitController Create(Unit unit, TransformParameters trp);
+    }
+
+    public interface IUnitControllerFactory<TController, TUnit>
+        where TController : UnitController<TUnit>
+        where TUnit : Unit
+    {
+        TController Create(TUnit unit, TransformParameters trp);
+    }
 }

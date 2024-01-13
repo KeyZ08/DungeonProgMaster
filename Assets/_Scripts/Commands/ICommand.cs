@@ -1,4 +1,7 @@
-public interface ICommand
+namespace DPM.App
 {
-    void Action(GameController controller, MyCharacterController c, ICommand nextStep = null);
+    public interface ICommand
+    {
+        void Action(GameController controller, MyCharacterController c, ICommand nextStep = null);
+    }
 }

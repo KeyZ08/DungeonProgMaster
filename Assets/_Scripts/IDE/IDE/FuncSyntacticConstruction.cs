@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace IDE
+namespace DPM.Domain.IDE
 {
     public class FuncSyntacticConstruction : ISyntacticConstruction
     {

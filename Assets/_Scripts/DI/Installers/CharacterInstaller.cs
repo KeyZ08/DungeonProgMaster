@@ -1,10 +1,14 @@
 using Zenject;
+using DPM.Domain;
 
-public class CharacterInstaller : MonoInstaller
+namespace DPM.App
 {
-    public override void InstallBindings()
+    public class CharacterInstaller : MonoInstaller
     {
-        Container.BindFactory<Character, Map, TransformParameters, MyCharacterController, MyCharacterController.Factory>()
-            .FromFactory<CharacterFactory>();
+        public override void InstallBindings()
+        {
+            Container.BindFactory<Character, Map, TransformParameters, MyCharacterController, MyCharacterController.Factory>()
+                .FromFactory<CharacterFactory>();
+        }
     }
 }
