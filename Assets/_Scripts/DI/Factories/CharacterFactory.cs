@@ -18,7 +18,9 @@ namespace DPM.App
         {
             if (prefab == null)
                 prefab = Resources.Load<MyCharacterController>("Character");
-            var instance = container.InstantiatePrefabForComponent<MyCharacterController>(prefab, trp.Position, trp.Rotation, trp.Parent);
+            var instance = container.InstantiatePrefabForComponent<MyCharacterController>(prefab);
+            instance.transform.SetParent(trp.Parent);
+            instance.transform.position = trp.Position;
             instance.Construct(character, map);
             return instance;
         }
