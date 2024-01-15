@@ -10,6 +10,8 @@ namespace DPM.App
 {
     public class CompileController : MonoBehaviour
     {
+        [Header("ErrorMessage")]
+        [SerializeField] private TextMeshProUGUI messageText;
         [Header("Input Field")]
         [SerializeField] private TMP_InputField inputField;
         [Header("Script to compile")]
@@ -36,6 +38,7 @@ namespace DPM.App
             catch (Exception e)
             {
                 Debug.Log(e.Message);
+                messageText.text = e.Message;
                 return new List<ICommand>();
             }
         }

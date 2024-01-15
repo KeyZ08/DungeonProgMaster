@@ -17,7 +17,9 @@ namespace DPM.App
         public TController Create(TUnit unit, TransformParameters trp)
         {
             var prefab = prefabs.GetPrefab(typeof(TController));
-            var instance = container.InstantiatePrefabForComponent<TController>(prefab, trp.Position, trp.Rotation, trp.Parent);
+            var instance = container.InstantiatePrefabForComponent<TController>(prefab);
+            instance.transform.SetParent(trp.Parent);
+            instance.transform.position = trp.Position;
             instance.Construct(unit);
             return instance;
         }
