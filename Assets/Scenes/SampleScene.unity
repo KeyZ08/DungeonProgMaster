@@ -684,6 +684,7 @@ GameObject:
   - component: {fileID: 422791782}
   - component: {fileID: 422791781}
   - component: {fileID: 422791784}
+  - component: {fileID: 422791785}
   m_Layer: 5
   m_Name: InputField
   m_TagString: Untagged
@@ -858,6 +859,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a2566a5e86fc3004b845ae50a4c8c73f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &422791785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422791779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cb44e38913faea43bf9c68cd853f7ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &454206359
@@ -6153,7 +6166,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0.584781, y: 0.07244445}
-  m_AnchoredPosition: {x: -1.1575928, y: 0.9199829}
+  m_AnchoredPosition: {x: -1.1577148, y: 0.9199219}
   m_SizeDelta: {x: -2.3152, y: 1.84}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1931885251
