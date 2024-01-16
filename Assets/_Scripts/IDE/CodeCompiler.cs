@@ -313,7 +313,7 @@ namespace CSharpCompiler
 
             if (string.IsNullOrEmpty(parameters.OutputAssembly))
             {
-                parameters.OutputAssembly = settings.OutputFile = "DynamicAssembly_" + assemblyCounter + settings.TargetExt;
+                parameters.OutputAssembly = settings.OutputFile = "DynamicAssembly" + settings.TargetExt;
                 assemblyCounter++;
             }
             settings.OutputFile = parameters.OutputAssembly; // if it is not being outputted, we use this to set name of the dynamic assembly
