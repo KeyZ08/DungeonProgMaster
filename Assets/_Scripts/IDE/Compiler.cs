@@ -3,9 +3,9 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using CodeCompiler = CSharpCompiler.CodeCompiler;
 
-
-namespace CSharpCompiler
+namespace DPM.Infrastructure
 {
     public static class Compiler 
     {
@@ -31,7 +31,7 @@ namespace CSharpCompiler
             if (task.IsCompleted)
                 return task.Result;
             else
-                throw new Exception("���� ��������� �������� ����� �����");
+                throw new Exception("Слишком долгое выполнение кода.");
         }
     }
 }

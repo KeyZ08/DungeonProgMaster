@@ -19,14 +19,12 @@ namespace DPM.App
             BindCommand(new OnComeCommand(), "OnCome");
             BindCommand(new TakeCommand(), "Take");
 
-
             Container.Bind<CommandsInstaller>()
                 .FromInstance(this).AsSingle();
         }
 
         public void BindCommand<TCommand>(TCommand command, string name) where TCommand : ICommand
         {
-            Container.Bind<ICommand>().To<TCommand>().FromInstance(command).AsSingle();
             commands.Add(name, command);
             allCommands.Add(name);
         }

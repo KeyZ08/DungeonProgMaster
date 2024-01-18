@@ -90,40 +90,6 @@ namespace CSharpCompiler
         private CompilerResults CompileFromDomBatch(CompilerParameters options, CodeCompileUnit[] ea)
         {
             throw new NotImplementedException("sorry ICodeGenerator is not implemented, feel free to fix it and request merge");
-
-            if (options == null)
-            {
-                throw new ArgumentNullException("options");
-            }
-
-            if (ea == null)
-            {
-                throw new ArgumentNullException("ea");
-            }
-
-            string[] fileNames = new string[ea.Length];
-            var assemblies = options.ReferencedAssemblies;
-
-            for (int i = 0; i < ea.Length; i++)
-            {
-                CodeCompileUnit compileUnit = ea[i];
-                fileNames[i] = options.TempFiles.AddExtension(i + ".cs");
-                FileStream f = new FileStream(fileNames[i], FileMode.OpenOrCreate);
-                StreamWriter s = new StreamWriter(f, Encoding.UTF8);
-                if (compileUnit.ReferencedAssemblies != null)
-                {
-                    foreach (string str in compileUnit.ReferencedAssemblies)
-                    {
-                        if (!assemblies.Contains(str))
-                            assemblies.Add(str);
-                    }
-                }
-
-                ((ICodeGenerator)this).GenerateCodeFromCompileUnit(compileUnit, s, new CodeGeneratorOptions());
-                s.Close();
-                f.Close();
-            }
-            return CompileAssemblyFromFileBatch(options, fileNames);
         }
 
         // Summary:

@@ -15,13 +15,12 @@ namespace DPM.App
 
             /*
             WARNING
-                при регистрации контроллера для НОВОГО юнита
+                ОДНОМУ Unit соостветсвует ОДИН UnitController
+                
+                при регистрации контроллера юнита
                 не забудь добавить в UnitControllerFactory
                 inject поле фабрики и блок if
-
-                а при регистрации нового контроллера - закинуть префаб в UnitPrefabsHandler
-
-                P.S. одному Unit соостветсвует один UnitController
+                и закинуть префаб в UnitPrefabsHandler
             WARNING
             */
 
