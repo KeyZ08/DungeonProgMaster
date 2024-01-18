@@ -2088,10 +2088,10 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1730643006}
   - {fileID: 590986543}
   - {fileID: 864923645}
   - {fileID: 1205079459}
-  - {fileID: 1730643006}
   - {fileID: 1961001150}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2109,10 +2109,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _scriptableObjectInstallers: []
   _monoInstallers:
+  - {fileID: 1730643005}
   - {fileID: 1961001151}
   - {fileID: 590986542}
   - {fileID: 1205079460}
-  - {fileID: 1730643005}
   - {fileID: 864923646}
   _installerPrefabs: []
   _autoRun: 1
@@ -5754,7 +5754,7 @@ GameObject:
   - component: {fileID: 1730643006}
   - component: {fileID: 1730643005}
   m_Layer: 0
-  m_Name: LevelsInstaller
+  m_Name: ScriptableObjectsInstaller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

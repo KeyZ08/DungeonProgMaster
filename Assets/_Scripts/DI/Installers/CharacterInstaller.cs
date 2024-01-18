@@ -7,8 +7,7 @@ namespace DPM.App
     {
         public override void InstallBindings()
         {
-            Container.BindFactory<Character, Map, TransformParameters, MyCharacterController, MyCharacterController.Factory>()
-                .FromFactory<CharacterFactory>();
+            Container.Bind<CharacterFactory>().AsSingle();
         }
     }
 }

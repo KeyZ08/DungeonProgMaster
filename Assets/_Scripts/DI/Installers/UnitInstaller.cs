@@ -1,36 +1,37 @@
 using System;
 using Zenject;
 using DPM.Domain;
+using System.Collections.Generic;
 
 namespace DPM.App
 {
     public class UnitInstaller : MonoInstaller
     {
+        private static Dictionary<Type, IUnitControllerFactory> unitToFactory;
+
         public override void InstallBindings()
         {
-            //регистрируем фабрики
-            InstallFactory<Coin, CoinController>();
-            InstallFactory<Chest, ChestController>();
-            InstallFactory<Skeleton, SkeletonController>();
+            unitToFactory = new Dictionary<Type, IUnitControllerFactory>();
 
-            /*
-            WARNING
+            //регистрируем
+            Bind<Coin, CoinController>();
+            Bind<Chest, ChestController>();
+            Bind<Skeleton, SkeletonController>();
+
+            /* WARNING
                 ОДНОМУ Unit соостветсвует ОДИН UnitController
                 
                 при регистрации контроллера юнита
-                не забудь добавить в UnitControllerFactory
-                inject поле фабрики и блок if
-                и закинуть префаб в UnitPrefabsHandler
-            WARNING
+                не забудь закинуть префаб в UnitPrefabsHandler
             */
 
             //регистрация общей фабрики
             Container.Bind<IUnitControllerFactory>().To<UnitControllerFactory>().AsSingle();
         }
 
-        private void InstallFactory<TUnit, TController>() where TController : UnitController<TUnit> where TUnit : Unit
+        private void Bind<TUnit, TController>() where TController : UnitController<TUnit> where TUnit : Unit
         {
-            Container.Bind<IUnitControllerFactory<TController, TUnit>>().To<ConcreteUnitControllerFactory<TController, TUnit>>().AsSingle();
+            unitToFactory.Add(typeof(TUnit), new ConcreteUnitControllerFactory<TController, TUnit>(Container));
         }
 
         /// <summary>
@@ -39,20 +40,10 @@ namespace DPM.App
         /// </summary>
         public class UnitControllerFactory : IUnitControllerFactory
         {
-            [Inject] IUnitControllerFactory<CoinController, Coin> coinFactory;
-            [Inject] IUnitControllerFactory<SkeletonController, Skeleton> skeletonFactory;
-            [Inject] IUnitControllerFactory<ChestController, Chest> chestFactory;
-
             public BaseUnitController Create(Unit unit, TransformParameters trp)
             {
-                if (unit is Coin coin)
-                    return coinFactory.Create(coin, trp);
-                else if (unit is Skeleton skeleton)
-                    return skeletonFactory.Create(skeleton, trp);
-                else if (unit is Chest chest)
-                    return chestFactory.Create(chest, trp);
-                else
-                    throw new NotImplementedException();
+                var factory = unitToFactory[unit.GetType()];
+                return factory.Create(unit, trp);
             }
         }
     }

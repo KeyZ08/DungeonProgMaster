@@ -17,7 +17,7 @@ namespace DPM.App
         [Inject] private CompileController compiler;
 
         [Inject] private IUnitControllerFactory unitFactory;
-        [Inject] private MyCharacterController.Factory characterFactory;
+        [Inject] private CharacterFactory characterFactory;
         [Inject] private LevelsHandlerScriptableObject levels;
 
         private Map map;

@@ -19,7 +19,6 @@ namespace DPM.Infrastructure
             CompilerResults results = CodeCompiler.CompileAssemblyFromSource(new CompilerParameters(), script);
             if (results.Errors.HasErrors)
             {
-                //Debug.Log(results.Errors[0].Line - 55);
                 throw new Exception(results.Errors[0].ErrorText);
             }
             var cls = results.CompiledAssembly.GetType("Commands.CommandsCompiler");
