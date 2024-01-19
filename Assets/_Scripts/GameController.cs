@@ -27,7 +27,8 @@ namespace DPM.App
         private int actualLevel = 0;
 
         public bool hasError;
-        public int coins;
+        public int levelCoins;
+        public int collectedCoins;
         private bool _isPlayed;
 
         private bool IsPlayed
@@ -78,6 +79,8 @@ namespace DPM.App
             for (int i = 0; i < units.Count; i++)
             {
                 var unit = units[i];
+                if (unit.UnitId == "Coin") levelCoins += 1;
+                else if (unit.UnitId == "Chest") levelCoins += 20;
                 var trp = new TransformParameters(spawner, mapV.GetCellCenter(unit.Position));
                 var obj = unitFactory.Create(unit, trp);
                 this.units.Add(obj);
@@ -94,12 +97,12 @@ namespace DPM.App
         public void OnCharacterMoveEnd(bool pathComplited)
         {
             IsPlayed = false;
-            if ((!pathComplited || !IsFinish(character.Character.CurrentPosition)) && !hasError)
+            if ((!pathComplited || !IsFinish(character.Character.CurrentPosition) || collectedCoins != levelCoins) && !hasError)
             {
                 ui.LoseShow(true);
                 return;
             }
-            if (IsFinish(character.Character.CurrentPosition))
+            if (IsFinish(character.Character.CurrentPosition) && collectedCoins == levelCoins)
                 ui.WinShow(true);
             else
                 ui.ErrorShow(true);
@@ -135,7 +138,8 @@ namespace DPM.App
             ui.LoseShow(false);
             ui.ErrorShow(false);
             LevelDelete();
-            coins = 0;
+            collectedCoins = 0;
+            levelCoins = 0;
             hasError = false;
             LevelConstruct(levels.GetLevel(actualLevel));
         }
