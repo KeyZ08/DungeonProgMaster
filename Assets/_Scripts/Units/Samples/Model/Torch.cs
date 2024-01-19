@@ -8,10 +8,7 @@ namespace DPM.Domain
     public sealed class Torch : Unit
     {
         [JsonConstructor]
-        public Torch([JsonProperty("Position")] Vector2Int position) : base(position, Tangibility.None)
-        {
-
-        }
+        public Torch([JsonProperty("Position")] Vector2Int position) : base(position, Tangibility.None) { }
 
         public override string UnitId => "Torch";
 

@@ -10,7 +10,8 @@ namespace DPM.Domain
         public int Health;
 
         [JsonConstructor]
-        public Skeleton([JsonProperty("Position")] Vector2Int position, [JsonProperty("Health")] int health = 100) : base(position, Tangibility.Obstacle)
+        public Skeleton([JsonProperty("Position")] Vector2Int position, [JsonProperty("Health")] int health = 100) 
+            : base(position, Tangibility.Obstacle)
         {
             Health = health;
         }

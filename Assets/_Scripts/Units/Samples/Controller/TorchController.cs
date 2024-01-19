@@ -2,8 +2,5 @@
 
 namespace DPM.App
 {
-    public sealed class TorchController : UnitController<Torch>
-    {
-
-    }
+    public sealed class TorchController : UnitController<Torch> { }
 }

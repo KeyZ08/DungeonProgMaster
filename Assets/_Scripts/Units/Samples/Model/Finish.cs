@@ -8,10 +8,8 @@ namespace DPM.Domain
     public sealed class Finish : Unit
     {
         [JsonConstructor]
-        public Finish([JsonProperty("Position")] Vector2Int position) : base(position, Tangibility.None)
-        {
-
-        }
+        public Finish([JsonProperty("Position")] Vector2Int position) 
+            : base(position, Tangibility.None){ }
 
         public override string UnitId => "Finish";
 

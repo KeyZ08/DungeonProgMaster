@@ -12,7 +12,8 @@ namespace DPM.Domain
         public override string UnitId => "Coin";
 
         [JsonConstructor]
-        public Coin([JsonProperty("Position")] Vector2Int position, [JsonProperty("Cost")] int cost = 1) : base(position, Tangibility.None)
+        public Coin([JsonProperty("Position")] Vector2Int position, [JsonProperty("Cost")] int cost = 1) 
+            : base(position, Tangibility.None)
         {
             Cost = cost;
         }
