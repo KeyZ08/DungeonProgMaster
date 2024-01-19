@@ -6,5 +6,4 @@ namespace DPM.App
     {
         public abstract void OnCome(ContactDirection contact, GameController controller);//наступили
     }
-
 }

@@ -1,13 +1,13 @@
-using Microsoft.CSharp;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using CodeCompiler = CSharpCompiler.CodeCompiler;
 
 namespace DPM.Infrastructure
 {
-    public static class Compiler
+    public static class Compiler 
     {
         public static List<string> Compile(string program, string source, string methods)
         {
@@ -15,11 +15,10 @@ namespace DPM.Infrastructure
             script = Regex.Replace(script, @"#region Task[\s\S]*?#endregion", program);
             script = Regex.Replace(script, @"#region Methods[\s\S]*?#endregion", methods);
 
-            CSharpCodeProvider provider = new CSharpCodeProvider();
-            CompilerResults results = provider.CompileAssemblyFromSource(new CompilerParameters(), script);
+            var CodeCompiler = new CodeCompiler();
+            CompilerResults results = CodeCompiler.CompileAssemblyFromSource(new CompilerParameters(), script);
             if (results.Errors.HasErrors)
             {
-                //Debug.Log(results.Errors[0].Line - 55);
                 throw new Exception(results.Errors[0].ErrorText);
             }
             var cls = results.CompiledAssembly.GetType("Commands.CommandsCompiler");
@@ -31,7 +30,7 @@ namespace DPM.Infrastructure
             if (task.IsCompleted)
                 return task.Result;
             else
-                throw new Exception("���� ��������� �������� ����� �����");
+                throw new Exception("Слишком долгое выполнение кода.");
         }
     }
 }

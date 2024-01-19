@@ -22,5 +22,10 @@ namespace DPM.UI
             this.text.text = text;
             OnClick.AddListener(onClickAction.Invoke);
         }
+
+        public void SetInteractable(bool interactable)
+        {
+            levelBtn.interactable = interactable;
+        }
     }
 }

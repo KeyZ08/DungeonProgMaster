@@ -1,41 +1,41 @@
 using System;
 using Zenject;
 using DPM.Domain;
+using System.Collections.Generic;
 
 namespace DPM.App
 {
     public class UnitInstaller : MonoInstaller
     {
+        private static Dictionary<Type, IUnitControllerFactory> unitToFactory;
+
         public override void InstallBindings()
         {
-            //регистрируем фабрики
-            InstallFactory<Coin, CoinController>();
-            InstallFactory<Chest, ChestController>();
-            InstallFactory<Skeleton, SkeletonController>();
-            InstallFactory<Box, BoxController>();
-            InstallFactory<Barrel, BarrelController>();
-            InstallFactory<Torch, TorchController>();
-            InstallFactory<Finish, FinishController>();
+            unitToFactory = new Dictionary<Type, IUnitControllerFactory>();
 
-            /*
-            WARNING
-                при регистрации контроллера для НОВОГО юнита
-                не забудь добавить в UnitControllerFactory
-                inject поле фабрики и блок if
+            //регистрируем
+            Bind<Coin, CoinController>();
+            Bind<Chest, ChestController>();
+            Bind<Skeleton, SkeletonController>();
+            Bind<Box, BoxController>();
+            Bind<Barrel, BarrelController>();
+            Bind<Torch, TorchController>();
+            Bind<Finish, FinishController>();
 
-                а при регистрации нового контроллера - закинуть префаб в UnitPrefabsHandler
-
-                P.S. одному Unit соостветсвует один UnitController
-            WARNING
+            /* WARNING
+                ОДНОМУ Unit соостветсвует ОДИН UnitController
+                
+                при регистрации контроллера юнита
+                не забудь закинуть префаб в UnitPrefabsHandler
             */
 
             //регистрация общей фабрики
             Container.Bind<IUnitControllerFactory>().To<UnitControllerFactory>().AsSingle();
         }
 
-        private void InstallFactory<TUnit, TController>() where TController : UnitController<TUnit> where TUnit : Unit
+        private void Bind<TUnit, TController>() where TController : UnitController<TUnit> where TUnit : Unit
         {
-            Container.Bind<IUnitControllerFactory<TController, TUnit>>().To<ConcreteUnitControllerFactory<TController, TUnit>>().AsSingle();
+            unitToFactory.Add(typeof(TUnit), new ConcreteUnitControllerFactory<TController, TUnit>(Container));
         }
 
         /// <summary>
@@ -44,32 +44,10 @@ namespace DPM.App
         /// </summary>
         public class UnitControllerFactory : IUnitControllerFactory
         {
-            [Inject] IUnitControllerFactory<CoinController, Coin> coinFactory;
-            [Inject] IUnitControllerFactory<SkeletonController, Skeleton> skeletonFactory;
-            [Inject] IUnitControllerFactory<ChestController, Chest> chestFactory;
-            [Inject] IUnitControllerFactory<BoxController, Box> boxFactory;
-            [Inject] IUnitControllerFactory<BarrelController, Barrel> barrelFactory;
-            [Inject] IUnitControllerFactory<TorchController, Torch> torchFactory;
-            [Inject] IUnitControllerFactory<FinishController, Finish> finishFactory;
-
             public BaseUnitController Create(Unit unit, TransformParameters trp)
             {
-                if (unit is Coin coin)
-                    return coinFactory.Create(coin, trp);
-                else if (unit is Skeleton skeleton)
-                    return skeletonFactory.Create(skeleton, trp);
-                else if (unit is Chest chest)
-                    return chestFactory.Create(chest, trp);
-                else if (unit is Box box)
-                    return boxFactory.Create(box, trp);
-                else if (unit is Barrel barrel)
-                    return barrelFactory.Create(barrel, trp);
-                else if (unit is Torch torch)
-                    return torchFactory.Create(torch, trp);
-                else if (unit is Finish finish)
-                    return finishFactory.Create(finish, trp);
-                else
-                    throw new NotImplementedException();
+                var factory = unitToFactory[unit.GetType()];
+                return factory.Create(unit, trp);
             }
         }
     }

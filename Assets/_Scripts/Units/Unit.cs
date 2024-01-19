@@ -3,7 +3,6 @@ using System.Text;
 using UnityEngine;
 using DPM.Infrastructure;
 
-
 namespace DPM.Domain
 {
     [JsonConverter(typeof(UnitJsonDeserializer))]
@@ -12,8 +11,7 @@ namespace DPM.Domain
         protected Tangibility type;
         protected Vector2Int position;
 
-        [JsonConstructor]
-        public Unit([JsonProperty("Position")] Vector2Int position, [JsonProperty("Type")] Tangibility type = Tangibility.None)
+        public Unit(Vector2Int position, Tangibility type = Tangibility.None)
         {
             this.position = position;
             this.type = type;

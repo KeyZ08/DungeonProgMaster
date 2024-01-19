@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 using DPM.Domain;
-
 using DPM.UI;
 //не должно использовать UI :(
 
@@ -18,7 +17,7 @@ namespace DPM.App
         [Inject] private CompileController compiler;
 
         [Inject] private IUnitControllerFactory unitFactory;
-        [Inject] private MyCharacterController.Factory characterFactory;
+        [Inject] private CharacterFactory characterFactory;
         [Inject] private LevelsHandlerScriptableObject levels;
 
         private Map map;

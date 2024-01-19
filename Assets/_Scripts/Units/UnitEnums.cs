@@ -1,3 +1,4 @@
+
 namespace DPM.Infrastructure
 {
     public enum Tangibility //осязаемость

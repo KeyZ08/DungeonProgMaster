@@ -1,5 +1,6 @@
 ﻿using Zenject;
 using DPM.Domain;
+using System;
 
 namespace DPM.App
 {
@@ -7,19 +8,30 @@ namespace DPM.App
     where TController : UnitController<TUnit> where TUnit : Unit
     {
         private IInstantiator container;
-        [Inject] UnitPrefabsHandlerScriptableObject prefabs;
+        private Type controllerType;
+        UnitPrefabsHandlerScriptableObject prefabs;
 
-        public ConcreteUnitControllerFactory(IInstantiator container)
+        public ConcreteUnitControllerFactory(DiContainer container)
         {
             this.container = container;
+            controllerType = typeof(TController);
+            prefabs = container.Resolve<UnitPrefabsHandlerScriptableObject>();
+            if(prefabs == null) throw new NullReferenceException("UnitPrefabsHandlerScriptableObject");
         }
 
         public TController Create(TUnit unit, TransformParameters trp)
         {
-            var prefab = prefabs.GetPrefab(typeof(TController));
-            var instance = container.InstantiatePrefabForComponent<TController>(prefab, trp.Position, trp.Rotation, trp.Parent);
+            var prefab = prefabs.GetPrefab(controllerType);
+            var instance = container.InstantiatePrefabForComponent<TController>(prefab);
+            instance.transform.SetParent(trp.Parent);
+            instance.transform.position = trp.Position;
             instance.Construct(unit);
             return instance;
+        }
+
+        BaseUnitController IUnitControllerFactory.Create(Unit unit, TransformParameters trp)
+        {
+            return Create(unit as TUnit, trp);
         }
     }
 }

@@ -1,6 +1,5 @@
 using UnityEngine;
 using Zenject;
-
 using DPM.UI;
 //не должно использовать UI :(
 

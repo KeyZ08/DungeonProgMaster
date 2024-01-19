@@ -8,6 +8,7 @@ namespace DPM.App
     }
 
     public interface IUnitControllerFactory<TController, TUnit>
+        : IUnitControllerFactory
         where TController : UnitController<TUnit>
         where TUnit : Unit
     {

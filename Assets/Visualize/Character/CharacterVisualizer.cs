@@ -113,5 +113,4 @@ namespace DPM.UI
             OnHit = null;
         }
     }
-
 }

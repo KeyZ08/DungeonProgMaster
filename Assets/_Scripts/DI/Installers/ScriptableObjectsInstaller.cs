@@ -1,7 +1,6 @@
 using UnityEngine;
 using Zenject;
 
-
 namespace DPM.App
 {
     public class ScriptableObjectsInstaller : MonoInstaller

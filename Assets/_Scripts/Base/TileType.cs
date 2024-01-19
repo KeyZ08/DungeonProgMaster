@@ -1,4 +1,3 @@
-
 namespace DPM.Infrastructure
 {
     public enum TileType

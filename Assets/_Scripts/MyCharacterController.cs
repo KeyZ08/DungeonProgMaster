@@ -30,8 +30,6 @@ namespace DPM.App
             characterV.Constructor(character.StartDirection);
         }
 
-        public class Factory : PlaceholderFactory<Character, Map, TransformParameters, MyCharacterController> { }
-
         public void Play(List<ICommand> steps)
         {
             StartCoroutine(CharacterWorkCoroutine(steps));
