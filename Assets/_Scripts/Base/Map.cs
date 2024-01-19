@@ -39,8 +39,8 @@ namespace DPM.Domain
         {
             //Debug.Log($"{GetTile(cell)} {cell.x} {cell.y}");
             //(x,y) = (column, row)
-            if (cell.y >= MapRows - 2 || cell.y < -1 ||
-                cell.x >= MapColumns - 2 || cell.x < -1)
+            if (cell.y >= MapRows - 1 || cell.y < -1 ||
+                cell.x >= MapColumns - 1 || cell.x < -1)
                 return false;
             return true;
         }

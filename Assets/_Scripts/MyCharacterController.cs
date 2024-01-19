@@ -51,6 +51,9 @@ namespace DPM.App
             int lastStepIndex = 0;
             for (var index = 0; index < playerSteps.Count; index++)
             {
+                if (playerSteps[index] is MoveForwardCommand && !IsNextMoveFree(character.CurrentPosition, character.CurrentDirection))
+                    break;
+
                 playerSteps[index].Action(controller, this, index == playerSteps.Count - 1 ? null : playerSteps[index + 1]);
 
                 while (characterV.IsAnimated)
@@ -59,14 +62,9 @@ namespace DPM.App
                 new OnComeCommand().Action(controller, this, null);
 
                 //если следующее действие - forward, то проверяем, что мы можем его выполнить
-                //(никуда не выпали и не уперлись)
-                if (index + 1 < playerSteps.Count && playerSteps[index + 1] is MoveForwardCommand)
-                {
-                    if (!map.IsGround(character.CurrentPosition))
-                        break;
-                    if (!IsNextMoveFree(character.CurrentPosition, character.CurrentDirection))
-                        break;
-                }
+                //(никуда не выпали)
+                if (!map.IsGround(character.CurrentPosition))
+                    break;
                 lastStepIndex = index;
             }
 
