@@ -17,10 +17,9 @@ namespace DPM.App
         [Header("Script to compile")]
         [SerializeField] private TextAsset _asset;
 
-        [Inject] CommandsInstaller commandsInstaller;
-        [Inject] private GameController controller;
+        [Inject] private CommandsInstaller commandsInstaller;
 
-        public List<ICommand> Compile()
+        public bool Compile(out List<ICommand> pCommands)
         {
             try
             {
@@ -34,14 +33,15 @@ namespace DPM.App
                     if (commandsInstaller.TryGetCommand(list[i], out var command))
                         result.Add(command);
                     else Debug.LogWarning($"Команда не найдена: {list[i]}");
-                return result;
+                pCommands = result;
+                return true;
             }
             catch (Exception e)
             {
                 Debug.Log(e.Message);
-                messageText.text = e.Message;
-                controller.hasError = true;
-                return new List<ICommand>();
+                messageText.text = "В программе ошибка!";
+                pCommands = new List<ICommand>();
+                return false;
             }
         }
 

@@ -16,7 +16,7 @@ namespace DPM.App
             BindCommand(new RotateLeftCommand(), "TurnLeft");
             BindCommand(new RotateRightCommand(), "TurnRight");
             BindCommand(new AttackCommand(), "Attack");
-            BindCommand(new OnComeCommand(), "OnCome");
+            //BindCommand(new OnComeCommand(), "OnCome");
             BindCommand(new TakeCommand(), "Take");
 
             Container.Bind<CommandsInstaller>()

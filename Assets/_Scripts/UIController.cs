@@ -16,14 +16,20 @@ namespace DPM.App
 
         [Header("Buttons")]
         [SerializeField] private Button playBtn;
+        [SerializeField] private Button stopBtn;
+        [SerializeField] private Button nextLevelBtn;
+
         [SerializeField] private Button resetBtnWin;
         [SerializeField] private Button resetBtnLose;
+        [SerializeField] private Button resetBtnError;
 
         [Header("Prefabs")]
         [SerializeField] private Transform levelBtnSpawner;
         [SerializeField] private LevelBtn levelBtnPrefab;
 
         [NonSerialized] public Button.ButtonClickedEvent OnPlayBtnClick = new Button.ButtonClickedEvent();
+        [NonSerialized] public Button.ButtonClickedEvent OnStopBtnClick = new Button.ButtonClickedEvent();
+        [NonSerialized] public Button.ButtonClickedEvent OnNextLevelBtnClick = new Button.ButtonClickedEvent();
         [NonSerialized] public Button.ButtonClickedEvent OnResetBtnClick = new Button.ButtonClickedEvent();
 
         private List<LevelBtn> levels;
@@ -31,8 +37,11 @@ namespace DPM.App
         private void Start()
         {
             playBtn.onClick = OnPlayBtnClick;
+            stopBtn.onClick = OnStopBtnClick;
+            nextLevelBtn.onClick = OnNextLevelBtnClick;
             resetBtnWin.onClick = OnResetBtnClick;
             resetBtnLose.onClick = OnResetBtnClick;
+            resetBtnError.onClick.AddListener(() => { ErrorShow(false); });
         }
 
         public void SetInteractable(bool value)

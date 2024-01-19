@@ -24,11 +24,9 @@ namespace DPM.App
         private MyCharacterController character;
         private List<BaseUnitController> units;
         private int actualLevel = 0;
-
-        public bool hasError;
-        public int levelCoins;
-        public int collectedCoins;
         private bool _isPlayed;
+
+        public int collectedCoins;
 
         private bool IsPlayed
         {
@@ -47,6 +45,8 @@ namespace DPM.App
 
             ui.ConstructLevelBtns(levels.LevelsCount - 1, this); // последний уровень - тестовый - его не включаем
             ui.OnPlayBtnClick.AddListener(PlayBtnClick);
+            ui.OnStopBtnClick.AddListener(StopExecution);
+            ui.OnNextLevelBtnClick.AddListener(LoadNextLevel);
             ui.OnResetBtnClick.AddListener(LevelReset);
         }
 
@@ -69,7 +69,10 @@ namespace DPM.App
 
         public void LoadNextLevel()
         {
-            if (actualLevel != levels.LevelsCount - 2) LoadLevel(actualLevel + 1);
+            if (actualLevel != levels.LevelsCount - 2)
+                LoadLevel(actualLevel + 1);
+            else
+                LoadLevel(0);
         }
 
         private void LevelUnitsCreate(List<Unit> units)
@@ -78,8 +81,6 @@ namespace DPM.App
             for (int i = 0; i < units.Count; i++)
             {
                 var unit = units[i];
-                if (unit.UnitId == "Coin") levelCoins += 1;
-                else if (unit.UnitId == "Chest") levelCoins += 20;
                 var trp = new TransformParameters(spawner, mapV.GetCellCenter(unit.Position));
                 var obj = unitFactory.Create(unit, trp);
                 this.units.Add(obj);
@@ -88,32 +89,48 @@ namespace DPM.App
 
         private void PlayBtnClick()
         {
-            var playerSteps = compiler.Compile();
-            IsPlayed = true;
-            character.Play(playerSteps);
+            if (compiler.Compile(out var playerSteps))
+            {
+                IsPlayed = true;
+                character.Play(playerSteps);
+            }
+            else
+            {
+                ui.ErrorShow(true);
+            }
+        }
+
+        private void StopExecution()
+        {
+            if (!IsPlayed) return;
+            character.Stop();
+            LevelReset();
+            IsPlayed = false;
         }
 
         public void OnCharacterMoveEnd(bool pathComplited)
         {
             IsPlayed = false;
-            if ((!pathComplited || !IsFinish(character.Character.CurrentPosition) || collectedCoins != levelCoins) && !hasError)
-            {
-                ui.LoseShow(true);
-                return;
-            }
-            if (IsFinish(character.Character.CurrentPosition) && collectedCoins == levelCoins)
+            if (pathComplited && IsFinish(character.Character.CurrentPosition) && AllUnitsIsUsed())
                 ui.WinShow(true);
             else
-                ui.ErrorShow(true);
+                ui.LoseShow(true);
+        }
+
+        public bool AllUnitsIsUsed()
+        {
+            for(int i = 0; i < units.Count; i++)
+                if (units[i] is IShouldBeUsed iUsed && !iUsed.wasUsed)
+                    return false;
+            return true;
         }
 
         public bool IsFinish(Vector2Int position)
         {
             foreach (var unit in units)
-                if (unit.Position == character.Character.CurrentPosition && unit.tag == "Finish")
+                if (unit.Position == position && unit.CompareTag("Finish"))
                     return true;
             return false;
-                    
         }
 
         public void OnUnitDestroy(BaseUnitController unit)
@@ -138,8 +155,6 @@ namespace DPM.App
             ui.ErrorShow(false);
             LevelDelete();
             collectedCoins = 0;
-            levelCoins = 0;
-            hasError = false;
             LevelConstruct(levels.GetLevel(actualLevel));
         }
 

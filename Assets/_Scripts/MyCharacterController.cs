@@ -23,6 +23,8 @@ namespace DPM.App
         public Character Character => character;
         public CharacterVisualizer Visualizer => characterV;
 
+        private Coroutine currentCoroutine;
+
         public void Construct(Character character, Map map)
         {
             this.character = character;
@@ -32,7 +34,16 @@ namespace DPM.App
 
         public void Play(List<ICommand> steps)
         {
-            StartCoroutine(CharacterWorkCoroutine(steps));
+            currentCoroutine = StartCoroutine(CharacterWorkCoroutine(steps));
+        }
+
+        public void Stop()
+        {
+            if (currentCoroutine != null)
+            {
+                StopCoroutine(currentCoroutine);
+                currentCoroutine = null;
+            }
         }
 
         private IEnumerator CharacterWorkCoroutine(List<ICommand> playerSteps)
