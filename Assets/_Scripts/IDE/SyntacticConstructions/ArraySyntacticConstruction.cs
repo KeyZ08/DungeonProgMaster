@@ -1,16 +1,15 @@
-﻿using System;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace DPM.Domain
+namespace DPM.Domain.IDE
 {
     public class ArraySyntacticConstruction : ISyntacticConstruction
     {
         private readonly string title;
-        private readonly string[] words;
+        private readonly HashSet<string> words;
         private readonly Color32 color;
 
-        public ArraySyntacticConstruction(string title, string[] words, Color32 color)
+        public ArraySyntacticConstruction(string title, HashSet<string> words, Color32 color)
         {
             this.title = title;
             this.words = words;

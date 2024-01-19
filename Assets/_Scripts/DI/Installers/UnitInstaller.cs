@@ -12,6 +12,10 @@ namespace DPM.App
             InstallFactory<Coin, CoinController>();
             InstallFactory<Chest, ChestController>();
             InstallFactory<Skeleton, SkeletonController>();
+            InstallFactory<Box, BoxController>();
+            InstallFactory<Barrel, BarrelController>();
+            InstallFactory<Torch, TorchController>();
+            InstallFactory<Finish, FinishController>();
 
             /*
             WARNING
@@ -43,6 +47,10 @@ namespace DPM.App
             [Inject] IUnitControllerFactory<CoinController, Coin> coinFactory;
             [Inject] IUnitControllerFactory<SkeletonController, Skeleton> skeletonFactory;
             [Inject] IUnitControllerFactory<ChestController, Chest> chestFactory;
+            [Inject] IUnitControllerFactory<BoxController, Box> boxFactory;
+            [Inject] IUnitControllerFactory<BarrelController, Barrel> barrelFactory;
+            [Inject] IUnitControllerFactory<TorchController, Torch> torchFactory;
+            [Inject] IUnitControllerFactory<FinishController, Finish> finishFactory;
 
             public BaseUnitController Create(Unit unit, TransformParameters trp)
             {
@@ -52,6 +60,14 @@ namespace DPM.App
                     return skeletonFactory.Create(skeleton, trp);
                 else if (unit is Chest chest)
                     return chestFactory.Create(chest, trp);
+                else if (unit is Box box)
+                    return boxFactory.Create(box, trp);
+                else if (unit is Barrel barrel)
+                    return barrelFactory.Create(barrel, trp);
+                else if (unit is Torch torch)
+                    return torchFactory.Create(torch, trp);
+                else if (unit is Finish finish)
+                    return finishFactory.Create(finish, trp);
                 else
                     throw new NotImplementedException();
             }

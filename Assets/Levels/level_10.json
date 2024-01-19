@@ -1,58 +1,460 @@
 {
   "Map": {
     "Tiles": [
-      [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],
-      [ 4, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2 ],
-      [ 2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2 ],
-      [ 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2 ],
-      [ 2, 1, 2, 1, 0, 2, 2, 2, 2, 2, 1, 2 ],
-      [ 2, 1, 2, 1, 0, 2, 1, 1, 1, 1, 1, 2 ],
-      [ 2, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2 ],
-      [ 2, 1, 2, 2, 1, 2, 1, 1, 2, 1, 0, 2 ],
-      [ 2, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2 ],
-      [ 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2 ],
-      [ 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
-      [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ]
+      [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],
+      [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ],
+      [ 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 ],
+      [ 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 ],
+      [ 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 ],
+      [ 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 ],
+      [ 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 ],
+      [ 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 ],
+      [ 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 ],
+      [ 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 ],
+      [ 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 ],
+      [ 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 ],
+      [ 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 ],
+      [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ]
     ]
   },
   "Character": {
     "Position": {
-      "x": 11,
-      "y": 1
+      "x": 1,
+      "y": 11
     },
-    "Direction": "Left"
+    "Direction": "Bottom"
   },
   "Units": [
     {
-      "Cost": 1,
-      "UnitId": "Coin",
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 2,
+        "y": 11
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 2,
+        "y": 10
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 2,
+        "y": 9
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 2,
+        "y": 8
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 1,
+        "y": 6
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 2,
+        "y": 6
+      }
+    },
+    {
+      "UnitId": "Box",
       "Position": {
         "x": 3,
+        "y": 6
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 4,
+        "y": 6
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 4,
         "y": 7
       }
     },
     {
-      "Cost": 1,
-      "UnitId": "Coin",
+      "UnitId": "Box",
       "Position": {
-        "x": 1,
-        "y": 1
+        "x": 4,
+        "y": 8
       }
     },
     {
-      "Cost": 20,
-      "UnitId": "Chest",
+      "UnitId": "Box",
+      "Position": {
+        "x": 4,
+        "y": 9
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 4,
+        "y": 10
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 4,
+        "y": 5
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 4,
+        "y": 4
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 3,
+        "y": 4
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 2,
+        "y": 4
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 5,
+        "y": 4
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 1,
+        "y": 2
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 3,
+        "y": 2
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 4,
+        "y": 2
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 5,
+        "y": 2
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 6,
+        "y": 2
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 7,
+        "y": 2
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 7,
+        "y": 3
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 7,
+        "y": 4
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 7,
+        "y": 5
+      }
+    },
+    {
+      "UnitId": "Box",
       "Position": {
         "x": 7,
         "y": 6
       }
     },
     {
-      "Health": 150,
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 6,
+        "y": 6
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 6,
+        "y": 7
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 6,
+        "y": 8
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 6,
+        "y": 9
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 6,
+        "y": 10
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 8,
+        "y": 11
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 8,
+        "y": 10
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 8,
+        "y": 9
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 8,
+        "y": 8
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 9,
+        "y": 8
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 10,
+        "y": 8
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 11,
+        "y": 8
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 12,
+        "y": 8
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 8,
+        "y": 6
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 9,
+        "y": 6
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 10,
+        "y": 6
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 11,
+        "y": 6
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 11,
+        "y": 5
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 11,
+        "y": 4
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 11,
+        "y": 3
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 11,
+        "y": 2
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 10,
+        "y": 2
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 9,
+        "y": 2
+      }
+    },
+    {
+      "UnitId": "Barrel",
+      "Position": {
+        "x": 9,
+        "y": 4
+      }
+    },
+    {
+      "UnitId": "Box",
+      "Position": {
+        "x": 8,
+        "y": 4
+      }
+    },
+    {
+      "UnitId": "Finish",
+      "Position": {
+        "x": 8,
+        "y": 5
+      }
+    },
+    {
+      "UnitId": "Torch",
+      "Position": {
+        "x": 10,
+        "y": 12
+      }
+    },
+    {
+      "UnitId": "Torch",
+      "Position": {
+        "x": 3,
+        "y": 12
+      }
+    },
+    {
+      "Health": 300,
       "UnitId": "Skeleton",
       "Position": {
         "x": 10,
         "y": 10
+      }
+    },
+    {
+      "Cost": 20,
+      "UnitId": "Chest",
+      "Position": {
+        "x": 11,
+        "y": 10
+      }
+    },
+    {
+      "Cost": 1,
+      "UnitId": "Coin",
+      "Position": {
+        "x": 12,
+        "y": 1
+      }
+    },
+    {
+      "Cost": 1,
+      "UnitId": "Coin",
+      "Position": {
+        "x": 7,
+        "y": 9
+      }
+    },
+    {
+      "Cost": 1,
+      "UnitId": "Coin",
+      "Position": {
+        "x": 3,
+        "y": 5
       }
     }
   ]

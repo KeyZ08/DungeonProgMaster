@@ -10,12 +10,15 @@ namespace DPM.App
 {
     public class CompileController : MonoBehaviour
     {
+        [Header("ErrorMessage")]
+        [SerializeField] private TextMeshProUGUI messageText;
         [Header("Input Field")]
         [SerializeField] private TMP_InputField inputField;
         [Header("Script to compile")]
         [SerializeField] private TextAsset _asset;
 
         [Inject] CommandsInstaller commandsInstaller;
+        [Inject] private GameController controller;
 
         public List<ICommand> Compile()
         {
@@ -36,6 +39,8 @@ namespace DPM.App
             catch (Exception e)
             {
                 Debug.Log(e.Message);
+                messageText.text = e.Message;
+                controller.hasError = true;
                 return new List<ICommand>();
             }
         }

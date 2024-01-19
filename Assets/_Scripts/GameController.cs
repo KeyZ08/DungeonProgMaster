@@ -26,6 +26,7 @@ namespace DPM.App
         private List<BaseUnitController> units;
         private int actualLevel = 0;
 
+        public bool hasError;
         public int coins;
         private bool _isPlayed;
 
@@ -66,6 +67,11 @@ namespace DPM.App
             LevelReset();
         }
 
+        public void LoadNextLevel()
+        {
+            if (actualLevel != levels.LevelsCount - 2) LoadLevel(actualLevel + 1);
+        }
+
         private void LevelUnitsCreate(List<Unit> units)
         {
             this.units = new List<BaseUnitController>();
@@ -85,13 +91,27 @@ namespace DPM.App
             character.Play(playerSteps);
         }
 
-        public void OnCharacterMoveEnd()
+        public void OnCharacterMoveEnd(bool pathComplited)
         {
             IsPlayed = false;
-            if (map.IsFinish(character.Character.CurrentPosition))
+            if ((!pathComplited || !IsFinish(character.Character.CurrentPosition)) && !hasError)
+            {
+                ui.LoseShow(true);
+                return;
+            }
+            if (IsFinish(character.Character.CurrentPosition))
                 ui.WinShow(true);
             else
-                ui.LoseShow(true);
+                ui.ErrorShow(true);
+        }
+
+        public bool IsFinish(Vector2Int position)
+        {
+            foreach (var unit in units)
+                if (unit.Position == character.Character.CurrentPosition && unit.tag == "Finish")
+                    return true;
+            return false;
+                    
         }
 
         public void OnUnitDestroy(BaseUnitController unit)
@@ -113,8 +133,10 @@ namespace DPM.App
         {
             ui.WinShow(false);
             ui.LoseShow(false);
+            ui.ErrorShow(false);
             LevelDelete();
             coins = 0;
+            hasError = false;
             LevelConstruct(levels.GetLevel(actualLevel));
         }
 

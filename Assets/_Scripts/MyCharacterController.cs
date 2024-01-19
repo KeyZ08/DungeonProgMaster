@@ -39,6 +39,7 @@ namespace DPM.App
 
         private IEnumerator CharacterWorkCoroutine(List<ICommand> playerSteps)
         {
+            int lastStepIndex = 0;
             for (var index = 0; index < playerSteps.Count; index++)
             {
                 playerSteps[index].Action(controller, this, index == playerSteps.Count - 1 ? null : playerSteps[index + 1]);
@@ -52,14 +53,15 @@ namespace DPM.App
                 //(никуда не выпали и не уперлись)
                 if (index + 1 < playerSteps.Count && playerSteps[index + 1] is MoveForwardCommand)
                 {
-                    if (!map.IsGround(character.CurrentPosition))
+                    if (!map.IsGround(character.CurrentPosition) && !controller.IsFinish(character.CurrentPosition))
                         break;
                     if (!IsNextMoveFree(character.CurrentPosition, character.CurrentDirection))
                         break;
                 }
+                lastStepIndex = index;
             }
 
-            controller.OnCharacterMoveEnd();
+            controller.OnCharacterMoveEnd(lastStepIndex == playerSteps.Count - 1);
         }
 
         /// <summary>

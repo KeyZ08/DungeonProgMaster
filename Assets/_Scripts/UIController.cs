@@ -12,6 +12,7 @@ namespace DPM.App
         [Header("UI")]
         [SerializeField] private Transform WinCanvas;
         [SerializeField] private Transform LoseCanvas;
+        [SerializeField] private Transform ErrorCanvas;
 
         [Header("Buttons")]
         [SerializeField] private Button playBtn;
@@ -45,6 +46,11 @@ namespace DPM.App
         public void LoseShow(bool show)
         {
             LoseCanvas.gameObject.SetActive(show);
+        }
+
+        public void ErrorShow(bool show)
+        {
+            ErrorCanvas.gameObject.SetActive(show);
         }
 
         public void ConstructLevelBtns(int count, GameController controller)

@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using System.Text;
 using UnityEngine;
 using DPM.Infrastructure;
+using System.Linq;
 
 namespace DPM.Domain
 {
@@ -36,9 +37,10 @@ namespace DPM.Domain
         /// </summary>
         public bool InMapBounds(Vector2Int cell)
         {
+            //Debug.Log($"{GetTile(cell)} {cell.x} {cell.y}");
             //(x,y) = (column, row)
-            if (cell.y >= MapRows || cell.y < 0 ||
-                cell.x >= MapColumns || cell.x < 0)
+            if (cell.y >= MapRows - 2 || cell.y < -1 ||
+                cell.x >= MapColumns - 2 || cell.x < -1)
                 return false;
             return true;
         }
@@ -51,11 +53,6 @@ namespace DPM.Domain
         public bool IsWall(Vector2Int cell)
         {
             return GetTile(cell) == TileType.Wall;
-        }
-
-        public bool IsFinish(Vector2Int cell)
-        {
-            return GetTile(cell) == TileType.Finish;
         }
 
         public bool IsGround(Vector2Int cell)

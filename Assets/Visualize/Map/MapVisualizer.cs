@@ -13,7 +13,7 @@ namespace DPM.UI
         [Header("Tiles")]
         [SerializeField] private RuleTile ground;
         [SerializeField] private Tile hole;
-        [SerializeField] private Tile wall;
+        [SerializeField] private RuleTile wall;
         [SerializeField] private Tile finish;
 
         private Dictionary<TileType, TileBase> tileByType;
@@ -33,6 +33,7 @@ namespace DPM.UI
         {
             tilemap.ClearAllTiles();
             if (tileByType == null) Construct();
+
             for (int row = 0; row < map.MapRows; row++)
             {
                 for (int column = 0; column < map.MapColumns; column++)
