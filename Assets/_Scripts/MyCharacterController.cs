@@ -62,7 +62,7 @@ namespace DPM.App
                 //(никуда не выпали и не уперлись)
                 if (index + 1 < playerSteps.Count && playerSteps[index + 1] is MoveForwardCommand)
                 {
-                    if (!map.IsGround(character.CurrentPosition) && !controller.IsFinish(character.CurrentPosition))
+                    if (!map.IsGround(character.CurrentPosition))
                         break;
                     if (!IsNextMoveFree(character.CurrentPosition, character.CurrentDirection))
                         break;
