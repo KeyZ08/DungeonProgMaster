@@ -15,7 +15,7 @@ namespace DPM.App
             {
                 AudioSource.PlayClipAtPoint(openSound, transform.position);
                 Open();
-                controller.coins += unit.Cost;
+                controller.collectedCoins += unit.Cost;
             }
         }
 

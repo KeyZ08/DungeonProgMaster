@@ -13,7 +13,7 @@ namespace DPM.App
             if (contact == ContactDirection.Directly)
             {
                 AudioSource.PlayClipAtPoint(coinSound, transform.position);
-                controller.coins += unit.Cost;
+                controller.collectedCoins += unit.Cost;
                 Destroy(gameObject);
             }
         }
