@@ -100,9 +100,6 @@ namespace DPM.App.IDE
                         wordColors.Add(Tuple.Create(wordInfo, syntacticConstruction.Color));
                         break;
                     }
-
-                if (!wordHash.ContainsKey(word))
-                    wordHash[word] = new Color32(255, 255, 255, 255);
             }
         }
 
