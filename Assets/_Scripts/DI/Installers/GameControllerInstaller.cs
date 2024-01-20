@@ -1,6 +1,7 @@
 using UnityEngine;
 using Zenject;
 using DPM.UI;
+using DPM.App.IDE;
 //не должно использовать UI :(
 
 namespace DPM.App

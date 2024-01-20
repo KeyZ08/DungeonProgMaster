@@ -15,7 +15,7 @@ namespace DPM.Domain
         public override string UnitId => "Skeleton";
 
         [JsonConstructor]
-        public Skeleton([JsonProperty("Position")] Vector2Int position, int health = 100) 
+        public Skeleton([JsonProperty("Position")] Vector2Int position, int health) 
             : base(position, Tangibility.Obstacle)
         {
             Health = health;

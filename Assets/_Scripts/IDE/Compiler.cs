@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CodeCompiler = CSharpCompiler.CodeCompiler;
 
-namespace DPM.Infrastructure
+namespace DPM.Infrastructure.IDE
 {
     public static class Compiler 
     {

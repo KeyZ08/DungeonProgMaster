@@ -3,6 +3,7 @@ using UnityEngine;
 using Zenject;
 using DPM.Domain;
 using DPM.UI;
+using DPM.App.IDE;
 //не должно использовать UI :(
 
 namespace DPM.App
@@ -61,6 +62,18 @@ namespace DPM.App
             character = characterFactory.Create(level.Character, level.Map, trp);
         }
 
+        private void LevelUnitsCreate(List<Unit> units)
+        {
+            this.units = new List<BaseUnitController>();
+            for (int i = 0; i < units.Count; i++)
+            {
+                var unit = units[i];
+                var trp = new TransformParameters(spawner, mapV.GetCellCenter(unit.Position));
+                var obj = unitFactory.Create(unit, trp);
+                this.units.Add(obj);
+            }
+        }
+
         public void LoadLevel(int level)
         {
             actualLevel = level;
@@ -74,19 +87,6 @@ namespace DPM.App
             else
                 LoadLevel(0);
         }
-
-        private void LevelUnitsCreate(List<Unit> units)
-        {
-            this.units = new List<BaseUnitController>();
-            for (int i = 0; i < units.Count; i++)
-            {
-                var unit = units[i];
-                var trp = new TransformParameters(spawner, mapV.GetCellCenter(unit.Position));
-                var obj = unitFactory.Create(unit, trp);
-                this.units.Add(obj);
-            }
-        }
-
         private void PlayBtnClick()
         {
             if (compiler.Compile(out var playerSteps))

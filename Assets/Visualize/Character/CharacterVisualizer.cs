@@ -22,8 +22,6 @@ namespace DPM.UI
 
         public bool IsAnimated => isMovement || isRotated || isAttacked;
 
-        public Vector2 Position => transform.position;
-
         public void Constructor(Direction spawnDirection)
         {
             rb = GetComponent<Rigidbody2D>();

@@ -15,7 +15,6 @@ namespace DPM.UI
         [SerializeField] private RuleTile ground;
         [SerializeField] private Tile hole;
         [SerializeField] private RuleTile wall;
-        [SerializeField] private Tile finish;
         [SerializeField] private Tile background;
 
         private Dictionary<TileType, TileBase> tileByType;
@@ -27,7 +26,6 @@ namespace DPM.UI
                 { TileType.Ground, ground },
                 { TileType.Hole, hole },
                 { TileType.Wall, wall },
-                { TileType.Finish, finish },
             };
         }
 

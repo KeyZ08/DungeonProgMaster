@@ -4,9 +4,9 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using Zenject;
-using DPM.Infrastructure;
+using DPM.Infrastructure.IDE;
 
-namespace DPM.App
+namespace DPM.App.IDE
 {
     public class CompileController : MonoBehaviour
     {
