@@ -30,7 +30,7 @@ namespace DPM.App.IDE
             {
             new ArraySyntacticConstruction(
                 "Control Constructions",
-                new HashSet<string> { "for", "if", "else", "break", "return", "foreach", "while" },
+                new HashSet<string> { "for", "if", "else", "break", "return", "foreach", "while", "do" },
                 new Color32(208, 106, 221, 255)
                 ),
             new ArraySyntacticConstruction(

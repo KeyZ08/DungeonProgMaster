@@ -2832,7 +2832,6 @@ MonoBehaviour:
   ground: {fileID: 11400000, guid: 79be3878ae8aa494bac2086506415ff0, type: 2}
   hole: {fileID: 11400000, guid: c9aa29c9ee0a8834085eb0a9b9049feb, type: 2}
   wall: {fileID: 11400000, guid: 79be3878ae8aa494bac2086506415ff0, type: 2}
-  finish: {fileID: 11400000, guid: 5734042ff9b6f7e409669bd0c0f6144b, type: 2}
   background: {fileID: 11400000, guid: c9aa29c9ee0a8834085eb0a9b9049feb, type: 2}
 --- !u!114 &947637256
 MonoBehaviour:
